@@ -1,15 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
-import App from './pages';
+
 import reportWebVitals from './reportWebVitals';
+
+import Layout from './components/layout';
+import App from './pages';
+import ChapterPage from './pages/chapters';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <Routes>
+        <Route path="/" element={<App />}></Route>
+        <Route path="/chapters" element={<Layout><ChapterPage /></Layout>}></Route>
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import './index.css';
 
-function App() {
+// home page
+function HomePage() {
   return (
     <div className="App">
       <header className="App-header mt-32 p-16 text-center">
@@ -23,4 +24,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;
