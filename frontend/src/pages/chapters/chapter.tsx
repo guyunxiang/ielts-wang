@@ -19,6 +19,7 @@ const ChapterPage = () => {
   const [testPaperValue, setTestPaperValue] = useState<number>(1);
   const [inputValue, setInputValue] = useState<string>('');
   const [wordRecord, setWordRecord] = useState<string[]>([]);
+  const userId = 1;
   
   // chapter number
   const chapterNumber = getChapterNumber(chapterId);
@@ -68,9 +69,26 @@ const ChapterPage = () => {
     const data = {
       words: wordRecord,
       chapter: chapterNumber,
-      testPaper: testPaperValue
+      testPaper: testPaperValue,
+      userId,
     };
-    console.log(data);
+    fetch('/api/paper/test', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    }).then((res) => {
+      if (!res.ok) {
+          console.warn("Network response was not ok");
+        }
+        return res.json();
+    }).then((res) => {
+      const { message } = res;
+      alert(message);
+      setInputValue('');
+      setWordRecord([]);
+    });
   }
 
   const renderTestPaperList = () => {

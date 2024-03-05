@@ -4,6 +4,7 @@ const Test = require('../models/test');
 // save paper test
 exports.savePaperTest = async (req, res) => {
   try {
+
     const {
       chapter,
       testPaper,
@@ -12,8 +13,8 @@ exports.savePaperTest = async (req, res) => {
     } = req.body;
 
     const newTest = new Test({
-      chapter,
-      testPaper,
+      chapterNo: chapter,
+      paperNo: testPaper,
       words,
       userId,
       createAt: new Date(),
