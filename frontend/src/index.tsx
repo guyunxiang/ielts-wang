@@ -7,7 +7,8 @@ import reportWebVitals from './reportWebVitals';
 
 import Layout from './components/layout';
 import App from './pages';
-import ChapterPage from './pages/chapters';
+import ChaptersPage from './pages/chapters';
+import ChapterPage from './pages/chapters/chapter';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -17,7 +18,8 @@ root.render(
     <Router>
       <Routes>
         <Route path="/" element={<App />}></Route>
-        <Route path="/chapters" element={<Layout><ChapterPage /></Layout>}></Route>
+        <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
+        <Route path="/chapters/:chapterId" element={<Layout><ChapterPage /></Layout>}></Route>
       </Routes>
     </Router>
   </React.StrictMode>
