@@ -1,0 +1,14 @@
+{
+  "name": "ielts-wang",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "ielts-wang": "bin/start.js"
+  },
+  "scripts": {
+    "start": "node bin/start.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
