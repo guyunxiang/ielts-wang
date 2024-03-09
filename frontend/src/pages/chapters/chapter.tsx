@@ -1,5 +1,5 @@
 import { useRef, useState, ReactElement } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { TEST_PAPERS } from './const';
 
 import './chapter.css';
@@ -14,8 +14,10 @@ const getChapterNumber = (chapterId: string | undefined) => {
 const ChapterPage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
-
+  
   const { chapterId } = useParams();
+  const { state: { testPaper } } = useLocation();
+
   const [testPaperValue, setTestPaperValue] = useState<number>(1);
   const [inputValue, setInputValue] = useState<string>('');
   const [wordRecord, setWordRecord] = useState<string[]>([]);
@@ -106,9 +108,10 @@ const ChapterPage = () => {
         <div className='w-2/3 mt-4 flex gap-4 items-center justify-between mx-auto'>
           <h2 className='whitespace-nowrap w-full'>Chapter { chapterNumber }</h2>
           <select
-            className='form-select h-8 text-sm rounded-sm py-1 border border-primary text-primary'
+            className='form-select w-full h-8 text-sm rounded-sm py-1 bg-white outline-none border border-primary text-primary'
             name="test-paper"
             id="test-paper"
+            defaultValue={testPaper}
             onChange={handleSelectTestPaper}>
             { renderTestPaperList() }
           </select>

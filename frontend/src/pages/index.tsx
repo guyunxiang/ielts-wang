@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './index.css';
 
 // home page
@@ -18,7 +19,7 @@ function HomePage() {
         </div>
       </div>
       <div className='text-center mt-24'>
-        <a className='text-2xl underline' href="/chapters">开始</a>
+        <Link className='text-2xl underline' to="/chapters">开始</Link>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,10 +16,10 @@ function Layout({ children }: LayoutProps) {
           <nav>
             <ul className='flex gap-4'>
               <li>
-                <a href="/">Home</a>
+                <Link to="/">Home</Link>
               </li>
               <li>
-                <a href="/chapters">Chapters</a>
+                <Link to="/chapters">Chapters</Link>
               </li>
             </ul>
           </nav>

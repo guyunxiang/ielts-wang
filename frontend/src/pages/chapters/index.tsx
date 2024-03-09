@@ -1,64 +1,50 @@
+import { useState, ReactElement } from 'react';
+import { Link } from 'react-router-dom';
+import { TEST_PAPERS } from './const';
+
 import './index.css';
 
 function ChapterPage() {
+
+  const [chapter, setChapter] = useState(3);
+
+  const renderChapterList = () => {
+    const list: ReactElement[] = [];
+    for (let i = 2; i <= 12; i++) {
+      list.push(
+        <li
+          className={`chapter chapter-${i} flex h-12 cursor-pointer hover:bg-secondary-300 gap-4 items-center justify-center ${chapter === i ? 'bg-secondary-300 text-primary' : ''}`}
+          key={`chapter-${i}`}
+          onClick={() => setChapter(i)}>
+          Chapter {i}
+        </li>
+      )
+    }
+    return <ul>{list}</ul>;
+  }
+
+  const renderChapterDetail = () => {
+    const list: ReactElement[] = [];
+    const testPaperNums: number = TEST_PAPERS[`chapter${chapter}`];
+    for (let i = 1; i <= testPaperNums; i++) {
+      list.push(
+        <li className={`chapter paper-${i} flex items-center justify-center h-16 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
+          <Link to={`/chapters/chapter${chapter}`} state={{ testPaper: i }}>
+            Test Paper {i}
+          </Link>
+        </li>
+      )
+    }
+    return <ul className='grid grid-cols-4 gap-4'>{list}</ul>;
+  }
+
   return (
-    <div className='flex justify-center align-center mt-8'>
-      <div className='grid grid-cols-3 gap-4 justify-center items-center'>
-        <div className="chapter chapter2">
-          <a href="/chapters/chapter2">
-            Chapter 2
-          </a>
-        </div>
-        <div className="chapter chapter3">
-          <a href="/chapters/chapter3">
-            Chapter 3
-          </a>
-        </div>
-        <div className="chapter chapter4">
-          <a href="/chapters/chapter4">
-            Chapter 4
-          </a>
-        </div>
-        <div className="chapter chapter5">
-          <a href="/chapters/chapter5">
-            Chapter 5
-          </a>
-        </div>
-        <div className="chapter chapter6">
-          <a href="/chapters/chapter6">
-            Chapter 6
-          </a>
-        </div>
-        <div className="chapter chapter7">
-          <a href="/chapters/chapter7">
-            Chapter 7
-          </a>
-        </div>
-        <div className="chapter chapter8">
-          <a href="/chapters/chapter8">
-            Chapter 8
-          </a>
-        </div>
-        <div className="chapter chapter9">
-          <a href="/chapters/chapter9">
-            Chapter 9
-          </a>
-        </div>
-        <div className="chapter chapter10">
-          <a href="/chapters/chapter10">
-            Chapter 10
-          </a>
-        </div>
-        <div className="chapter chapter11">
-          <a href="/chapters/chapter11">
-            Chapter 11
-          </a>
-        </div>
-        <div className="chapter chapter12">
-          <a href="/chapters/chapter12">
-            Chapter 12
-          </a>
-        </div>
+    <div className='container mx-auto flex justify-center align-center gap-8 mt-8'>
+      <div className="aside w-48">
+        {renderChapterList()}
+      </div>
+      <div className="main flex-1">
+        {renderChapterDetail()}
       </div>
     </div>
   )
