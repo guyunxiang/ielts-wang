@@ -1,11 +1,25 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "../components/authProvider";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 function Layout({ children }: LayoutProps) {
+
+  const navigate = useNavigate();
+  const { isLoggedIn, logout } = useAuth();
+
+  const handleClickLogin = () => {
+    if (isLoggedIn) {
+      logout();
+    }
+    navigate('/login');
+  }
+
   return (
     <div className="layout flex flex-col h-full">
       <header className='h-16 min-h-16 flex justify-center items-center'>
@@ -15,11 +29,16 @@ function Layout({ children }: LayoutProps) {
           </div>
           <nav>
             <ul className='flex gap-4'>
-              <li>
+              <li className='hover:text-primary min-w-20 text-center'>
                 <Link to="/">Home</Link>
               </li>
-              <li>
+              <li className='hover:text-primary min-w-20 text-center'>
                 <Link to="/chapters">Chapters</Link>
+              </li>
+              <li className='hover:text-primary min-w-20 text-center' onClick={handleClickLogin}>
+                <span className='cursor-pointer'>
+                  {isLoggedIn ? 'Logout' : 'Login'}
+                </span>
               </li>
             </ul>
           </nav>

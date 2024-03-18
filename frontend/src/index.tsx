@@ -1,28 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 import './index.css';
 
 import reportWebVitals from './reportWebVitals';
 
 import Layout from './components/layout';
+
+import { AuthProvider } from './components/authProvider';
 import App from './pages';
 import ChaptersPage from './pages/chapters';
 import ChapterPage from './pages/chapters/chapter';
+import LoginPage from './pages/login/login';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/" element={<App />}></Route>
-        <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
-        <Route path="/chapters/:chapterId" element={<Layout><ChapterPage /></Layout>}></Route>
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<App />}></Route>
+          <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
+          <Route path="/chapters/:chapterId" element={<Layout><ChapterPage /></Layout>}></Route>
+          <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
+        </Routes>
+      </Router>
+      <ToastContainer />
+    </AuthProvider>
   </React.StrictMode>
 );
 
