@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const routes = require('./routes');
 const dotenv = require('dotenv');
+const session = require('express-session');
 
 const app = new express();
 
@@ -27,6 +28,15 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 // set static
 app.use(express.static(path.join(__dirname, "public")));
+
+// session
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 app.use(routes);
 
