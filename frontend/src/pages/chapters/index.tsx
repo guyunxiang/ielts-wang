@@ -2,8 +2,6 @@ import { useState, ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 import { TEST_PAPERS } from '../../utils/const';
 
-import './chapters.css';
-
 function ChapterPage() {
 
   // chapter number
@@ -33,7 +31,7 @@ function ChapterPage() {
         <li className={`chapter paper-${i} border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
           <Link
             className='flex items-center justify-center h-16 w-full'
-            to={`/Chapters/${chapterNo}/${i}`}
+            to={`/chapters/${chapterNo}/${i}`}
             state={{ ChapterNo: chapterNo, TestPaperNo: i }}>
             Test Paper {i}
           </Link>

@@ -33,7 +33,7 @@ function Layout({ children }: LayoutProps) {
                 <Link to="/">Home</Link>
               </li>
               <li className='hover:text-primary min-w-20 text-center'>
-                <Link to="/Chapters">Chapters</Link>
+                <Link to="/chapters">Chapters</Link>
               </li>
               <li className='hover:text-primary min-w-20 text-center' onClick={handleClickLogin}>
                 <span className='cursor-pointer'>

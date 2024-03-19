@@ -14,6 +14,7 @@ import App from './pages';
 import ChaptersPage from './pages/chapters';
 import TestPaperPage from './pages/paper';
 import LoginPage from './pages/login/login';
+import RegisterPage from './pages/register';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -25,9 +26,10 @@ root.render(
       <Router>
         <Routes>
           <Route path="/" element={<App />}></Route>
-          <Route path="/Chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
-          <Route path="/Chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
+          <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
+          <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
           <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
+          <Route path="/register" element={<Layout><RegisterPage /></Layout>}></Route>
         </Routes>
       </Router>
       <ToastContainer />

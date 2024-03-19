@@ -19,7 +19,7 @@ function HomePage() {
         </div>
       </div>
       <div className='text-center mt-24'>
-        <Link className='text-2xl underline' to="/Chapters">开始</Link>
+        <Link className='text-2xl underline' to="/chapters">开始</Link>
       </div>
     </div>
   );

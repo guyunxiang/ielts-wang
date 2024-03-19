@@ -1,13 +1,14 @@
 import { useRef, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-
-import './paper.css';
-import { post } from '../../utils/fetch';
 import { toast } from 'react-toastify';
+
+import { post } from '../../utils/fetch';
+import { useAuth } from "../../components/authProvider";
 
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const { isLoggedIn } = useAuth();
 
   const { state: { ChapterNo, TestPaperNo } } = useLocation();
 
@@ -23,7 +24,6 @@ const TestPaperpage = () => {
     const { words, chapter, paper } = JSON.parse(cacheData);
     if (chapter !== ChapterNo || paper !== TestPaperNo) return;
     if (!words) return;
-    setWordRecord(words);
     setCache(true);
   }, [ChapterNo, TestPaperNo, localStorageKey]);
 
@@ -65,14 +65,24 @@ const TestPaperpage = () => {
     }
   }
 
-  const handleCleanCache = () => {
-    setWordRecord([]);
-    setCache(false);
-    localStorage.removeItem(localStorageKey);
+  const handleLoadCache = () => {
+    const cacheData = localStorage.getItem(localStorageKey) || '{}';
+    const { words, chapter, paper } = JSON.parse(cacheData);
+    if (chapter !== ChapterNo || paper !== TestPaperNo) return;
+    if (!words) return;
+    setWordRecord(words);
   }
 
   // on submit
   const handleSubmit = async () => {
+    if (!isLoggedIn) {
+      toast.info("Your dictation test has been saved locally, please log in and submit it to the server.");
+      return;
+    }
+    if (!wordRecord.length) {
+      toast.info("Please start your dictation!");
+      return;
+    }
     const { success, message } = await post('/api/paper/test', {
       words: wordRecord,
       chapter: ChapterNo,
@@ -97,8 +107,8 @@ const TestPaperpage = () => {
             Test Paper <strong>{TestPaperNo}</strong>
             {
               !cache ? null : (
-                <button className='ml-2 px-4 underline text-primary' onClick={handleCleanCache}>
-                  Clean Cache
+                <button className='ml-2 px-4 underline text-primary' onClick={handleLoadCache}>
+                  Load Cache
                 </button>
               )
             }

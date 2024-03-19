@@ -10,16 +10,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-let getStatus = false;
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // for useEffect be called 2 times
-    if (getStatus) return;
-    getStatus = true;
     get('/api/auth/status').then(({ success, data }) => {
       if (success && data) {
         login();

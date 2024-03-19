@@ -13,6 +13,8 @@ router.post("/paper/test", testController.savePaperTest);
 
 // login
 router.post("/auth/login", userController.login);
+// register
+router.post("/auth/register", userController.register);
 
 router.get("/auth/logout", userController.logout);
 
