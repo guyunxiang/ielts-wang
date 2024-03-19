@@ -1,21 +1,22 @@
 import { useState, ReactElement } from 'react';
 import { Link } from 'react-router-dom';
-import { TEST_PAPERS } from './const';
+import { TEST_PAPERS } from '../../utils/const';
 
-import './index.css';
+import './chapters.css';
 
 function ChapterPage() {
 
-  const [chapter, setChapter] = useState(3);
+  // chapter number
+  const [chapterNo, setChapterNo] = useState(3);
 
   const renderChapterList = () => {
     const list: ReactElement[] = [];
     for (let i = 2; i <= 12; i++) {
       list.push(
         <li
-          className={`chapter chapter-${i} flex h-12 cursor-pointer hover:bg-secondary-300 gap-4 items-center justify-center ${chapter === i ? 'bg-secondary-300 text-primary' : ''}`}
+          className={`chapter chapter-${i} flex h-12 cursor-pointer hover:bg-secondary-300 gap-4 items-center justify-center ${chapterNo === i ? 'bg-secondary-300 text-primary' : ''}`}
           key={`chapter-${i}`}
-          onClick={() => setChapter(i)}>
+          onClick={() => setChapterNo(i)}>
           Chapter {i}
         </li>
       )
@@ -25,11 +26,15 @@ function ChapterPage() {
 
   const renderChapterDetail = () => {
     const list: ReactElement[] = [];
-    const testPaperNums: number = TEST_PAPERS[`chapter${chapter}`];
-    for (let i = 1; i <= testPaperNums; i++) {
+    // get test paper number of current chapter
+    const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
+    for (let i:number = 1; i <= testPaperNums; i++) {
       list.push(
-        <li className={`chapter paper-${i} flex items-center justify-center h-16 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
-          <Link to={`/chapters/chapter${chapter}`} state={{ testPaper: i }}>
+        <li className={`chapter paper-${i} border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
+          <Link
+            className='flex items-center justify-center h-16 w-full'
+            to={`/Chapters/${chapterNo}/${i}`}
+            state={{ ChapterNo: chapterNo, TestPaperNo: i }}>
             Test Paper {i}
           </Link>
         </li>

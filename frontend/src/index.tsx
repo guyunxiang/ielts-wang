@@ -12,7 +12,7 @@ import Layout from './components/layout';
 import { AuthProvider } from './components/authProvider';
 import App from './pages';
 import ChaptersPage from './pages/chapters';
-import ChapterPage from './pages/chapters/chapter';
+import TestPaperPage from './pages/paper';
 import LoginPage from './pages/login/login';
 
 const root = ReactDOM.createRoot(
@@ -25,8 +25,8 @@ root.render(
       <Router>
         <Routes>
           <Route path="/" element={<App />}></Route>
-          <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
-          <Route path="/chapters/:chapterId" element={<Layout><ChapterPage /></Layout>}></Route>
+          <Route path="/Chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
+          <Route path="/Chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
           <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
         </Routes>
       </Router>
