@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../components/authProvider";
+import { useAuth } from "./authProvider";
 
 interface LayoutProps {
   children: ReactNode;
