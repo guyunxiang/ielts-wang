@@ -23,7 +23,7 @@ const UserCenter = () => {
   const [mistakesData, setMistakesData] = useState<MistakeData[]>([]);
 
   // Specify the type for maxTestTimes
-  const [maxTestTimes, setMaxTestTimes] = useState<number>(1);
+  const [maxTestTimes, setMaxTestTimes] = useState<number>(5);
 
   useEffect(() => {
     fetchDictationMistakes();
