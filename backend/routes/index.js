@@ -5,6 +5,8 @@ const testController = require("../controllers/test");
 const userController = require("../controllers/user");
 const adminController = require("../controllers/admin");
 
+const { authenticate } = require("../middlewares/userAuthor");
+
 router.get("/", (req, res) => {
   res.render("index");
 });
@@ -16,9 +18,11 @@ router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 
 
 // get dictation mistake data
-router.get("/dictation/mistake", userController.getDictationMistakeById);
-
-router.put("/dictation/practiceCount/update", userController.updatePracticeCount);
+router.get("/dictation/mistake", authenticate, userController.getDictationMistakeById);
+// Get all dictation mistake data
+router.get("/dictation/mistakes", authenticate, userController.getAllDictationMistakes);
+// Update practice count
+router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
 
 // login
 router.post("/auth/login", userController.login);
