@@ -5,6 +5,7 @@ import { get } from "../utils/fetch";
 interface AuthContextType {
   isLoggedIn: boolean;
   userInfo: UserInfo;
+  updateUserInfo: (object: UserInfo) => void;
   login: () => void;
   logout: () => void;
 }
@@ -18,17 +19,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
-  const [userInfo, setUserInfo] = useState<UserInfo>({ username: '', role: ''});
+  const [userInfo, setUserInfo] = useState<UserInfo>({ username: '', role: '' });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    getAuthStatus();
+  }, []);
+
+  const getAuthStatus = async () => {
     get('/api/auth/status').then(({ success, data }) => {
       if (success && data) {
-        setUserInfo(data);
+        updateUserInfo(data);
         login();
       }
     });
-  }, []);
+  }
+
+  const updateUserInfo = (data: UserInfo) => {
+    setUserInfo(data);
+  }
 
   const login = () => {
     setIsLoggedIn(true);
@@ -40,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userInfo, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, updateUserInfo, userInfo, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

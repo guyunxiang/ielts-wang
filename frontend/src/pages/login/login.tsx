@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   
-  const { login } = useAuth();
+  const { login, updateUserInfo } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
     username: "",
@@ -47,11 +47,12 @@ export default function LoginPage() {
       toast.warn("Username and Password are required!");
       return;
     }
-    const { success, message } = await post('/api/auth/login', {
+    const { success, message, data } = await post('/api/auth/login', {
       username,
       password: sha256(password.toString()).toString()
     });
     if (success) {
+      updateUserInfo(data);
       toast.success(message, { autoClose: 3000 });
       login();
       navigate('/chapters');

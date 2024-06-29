@@ -22,7 +22,6 @@ function Layout({ children }: LayoutProps) {
 
   const RenderPersonalCentre = () => {
     if (!isLoggedIn) return null;
-    console.log(userInfo);
     if (userInfo.role === 'admin') {
       return (
         <li className='hover:text-primary min-w-20 text-center'>
