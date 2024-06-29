@@ -74,7 +74,7 @@ const createMisspelledWords = async (chapter, paper, testWords, userId) => {
       chapterNo: chapter,
       testPaperNo: paper,
       accuracyRate: accuracyRate,
-      accoracyCount: accuracyCount,
+      accuracyCount: accuracyCount,
       words: misspelledWords.map(word => ({
         word: word.word,
         practiceCount: 1
