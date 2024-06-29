@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import { get, post } from '../../utils/fetch';
 
+let timer:NodeJS.Timeout;
 interface VocabularyData {
   chapterNo: number;
   testPaperNo: number;
@@ -40,6 +41,33 @@ const VocabularyTraining = () => {
   useEffect(() => {
     updateColoredWord(word);
   }, [input]);
+  
+  // auto play the word audio
+  useEffect(() => {
+    clearTimeout(timer);
+    wordSpeaking()
+    return () => {
+      clearTimeout(timer);
+      console.log('Timer cleared');
+    }
+  }, [word]);
+
+  const wordSpeaking = () => {
+    const voices = speechSynthesis.getVoices();
+    const selectedVoice = voices.find(voice => voice.name == 'Google US English');
+
+    const utterance = new SpeechSynthesisUtterance(word);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    } else {
+      console.error('Selected voice is undefined or not found.');
+      // Handle the case where selectedVoice is undefined
+      return;
+    }
+
+    speechSynthesis.speak(utterance);
+    timer = setTimeout(wordSpeaking, 3000);
+  }
 
   // Get DictationMistake data via id;
   const getDictationMistakeData = async () => {
@@ -204,7 +232,7 @@ const VocabularyTraining = () => {
       <div className='flex gap-8 justify-center'>
         <input
           type="text"
-          className='w-2/3 px-3 py-2 outline-primary'
+          className='w-2/3 px-3 py-2 outline-primary text-center'
           autoFocus
           placeholder='Press Enter key to practice'
           value={input}
