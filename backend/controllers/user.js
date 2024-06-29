@@ -67,10 +67,99 @@ exports.logout = (req, res) => {
   });
 };
 
+// Get all dictation mistake data
+exports.getAllDictationMistakes = async (req, res) => {
+  try {
+    const {
+      session: { userId }
+    } = req;
+
+    // Query all DictationMistakes for the current user
+    const dictationMistakes = await DictationMistake.find({ userId });
+
+    // If no dictation mistake is found
+    if (!dictationMistakes) {
+      return res.status(404).json({
+        success: false,
+        message: "Dictation mistake not found!"
+      });
+    }
+
+    const responseData = dictationMistakes.map(({
+      accuracyCount,
+      accouacyRate,
+      chapterNo,
+      testPaperNo,
+      sectionNo,
+      createdAt,
+      words,
+      _id,
+    }) => ({
+      _id,
+      accuracyCount,
+      accouacyRate,
+      chapterNo,
+      testPaperNo,
+      sectionNo,
+      createdAt,
+      vocabularyCount: words.length + accuracyCount
+    }));
+
+    // Transforming the data
+    const transformedData = responseData.reduce((acc, curr) => {
+
+      // Calculate accuracy rate
+      const accuracyRate = (curr.accuracyCount / curr.vocabularyCount) * 100;
+
+      // Check if entry already exists in acc
+      const existingEntry = acc.find(item =>
+        item.chapterNo === curr.chapterNo &&
+        item.testPaperNo === curr.testPaperNo &&
+        item.vocabularyCount === curr.vocabularyCount
+      );
+
+      // If entry exists, push new test data; otherwise, create new entry
+      if (existingEntry) {
+        existingEntry.tests.push({
+          id: curr._id,
+          accuracyCount: curr.accuracyCount,
+          accuracyRate: +accuracyRate.toFixed(2), // Round to 2 decimal places for accuracyRate
+          createdAt: curr.createdAt
+        });
+      } else {
+        acc.push({
+          chapterNo: curr.chapterNo,
+          testPaperNo: curr.testPaperNo,
+          vocabularyCount: curr.vocabularyCount,
+          tests: [{
+            id: curr._id,
+            accuracyCount: curr.accuracyCount,
+            accuracyRate: +accuracyRate.toFixed(2), // Round to 2 decimal places for accuracyRate
+            createdAt: curr.createdAt
+          }]
+        });
+      }
+
+      return acc;
+    }, []);
+
+    res.status(200).json({
+      success: true,
+      data: transformedData
+    });
+  } catch (error) {
+    console.error('Error getting dictation mistake:', error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the dictation mistake",
+      error: error.message
+    });
+  }
+}
+
 // Get dictation mistake by id
 exports.getDictationMistakeById = async (req, res) => {
   try {
-
     const {
       session: { userId }
     } = req;
@@ -162,7 +251,7 @@ exports.getDictationMistakeById = async (req, res) => {
   }
 };
 
-// Update practice count
+// Update practice count of a word
 exports.updatePracticeCount = async (req, res) => {
   try {
     const { id, word, count } = req.body;
