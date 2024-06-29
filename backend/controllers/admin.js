@@ -18,6 +18,12 @@ exports.savePaperVocabulary = async (req, res) => {
     });
 
     await newVocabularList.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Create vocabulary successfully!"
+    });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
