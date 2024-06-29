@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from "react-router-dom";
+import copy from 'clipboard-copy';
 
 import { get, post } from '../../utils/fetch';
+import { toast } from 'react-toastify';
 
 let timer:NodeJS.Timeout;
 interface VocabularyData {
@@ -60,7 +62,7 @@ const VocabularyTraining = () => {
     if (selectedVoice) {
       utterance.voice = selectedVoice;
     } else {
-      console.error('Selected voice is undefined or not found.');
+      console.warn('Selected voice is undefined or not found.');
       // Handle the case where selectedVoice is undefined
       return;
     }
@@ -74,11 +76,14 @@ const VocabularyTraining = () => {
     await get('/api/dictation/mistake', { id }).then(({ success, data }) => {
       if (success && data) {
         // Find the latest practice word
-        const { word, practiceCount } = data.words.find((word: Word) => (!word.correct && word.practiceCount <= 1));
-        setWord(word);
+        const foundWord = data.words.find((word: Word) => (!word.correct && word.practiceCount <= 1));
         setVocabularyData(data);
-        setCorrectCount(practiceCount);
-        updateColoredWord(word);
+        if (foundWord) {
+          const { word, practiceCount } = foundWord;
+          setWord(word);
+          setCorrectCount(practiceCount);
+          updateColoredWord(word);
+        }
       }
     });
   }
@@ -180,6 +185,11 @@ const VocabularyTraining = () => {
     }
   }
 
+  const handleCopyWord = () => {
+    copy(word);
+    toast.success("Copied to clipboard.");
+  }
+
   const { words } = vocabularyData;
 
   const RenderVocabularyList = () => {
@@ -215,7 +225,7 @@ const VocabularyTraining = () => {
   return (
     <div className='mt-4 text-center flex flex-1 flex-col'>
       <div className="inline-block">
-        <h1 className="text-9xl font-black font-sans mb-6 relative">
+        <h1 className="text-9xl font-black font-sans mb-6 relative cursor-pointer" onClick={handleCopyWord}>
           {coloredWord}
           {
             correctCount > 0 && (
