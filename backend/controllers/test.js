@@ -35,7 +35,7 @@ exports.savePaperTest = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "success"
+      message: "Submit successfully!"
     });
 
     // to do create a misspelled words record
