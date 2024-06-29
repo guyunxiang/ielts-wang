@@ -83,6 +83,20 @@ const TestPaperpage = () => {
       toast.info("Please start your dictation!");
       return;
     }
+    console.log(wordRecord, ChapterNo, TestPaperNo);
+
+    // const postData = {
+    //   chapterNo: ChapterNo,
+    //   testPaperNo: TestPaperNo,
+    //   words: wordRecord.map((word) => ({
+    //     word,
+    //   }))
+    // };
+
+    // console.log(postData)
+
+    // await post("/api/admin/vocabulary/save", postData)
+
     const { success, message } = await post('/api/paper/test', {
       words: wordRecord,
       chapter: ChapterNo,
@@ -123,7 +137,7 @@ const TestPaperpage = () => {
           <ul className='grid grid-cols-4 max-h-64 gap-2 word-list'>
             {
               wordRecord.map((value, index) => (
-                <li key={index} className='pl-2 border border-primary border-dashed h-8 flex items-center'>{value}</li>
+                <li key={index} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal'>{value}</li>
               ))
             }
           </ul>

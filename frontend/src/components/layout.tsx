@@ -20,6 +20,15 @@ function Layout({ children }: LayoutProps) {
     navigate('/login');
   }
 
+  const RenderPersonalCentre = () => {
+    if (!isLoggedIn) return null;
+    return (
+      <li className='hover:text-primary min-w-20 text-center'>
+        <Link to="/user-center">User Center</Link>
+      </li>
+    )
+  }
+
   return (
     <div className="layout flex flex-col h-full">
       <header className='h-16 min-h-16 flex justify-center items-center'>
@@ -35,6 +44,7 @@ function Layout({ children }: LayoutProps) {
               <li className='hover:text-primary min-w-20 text-center'>
                 <Link to="/chapters">Chapters</Link>
               </li>
+              <RenderPersonalCentre />
               <li className='hover:text-primary min-w-20 text-center' onClick={handleClickLogin}>
                 <span className='cursor-pointer'>
                   {isLoggedIn ? 'Logout' : 'Login'}
@@ -44,7 +54,7 @@ function Layout({ children }: LayoutProps) {
           </nav>
         </div>
       </header>
-      <main className='flex-1'>{children}</main>
+      <main className='flex flex-col flex-1'>{children}</main>
       <footer className='h-16 min-h-16 flex justify-center items-center'>
         <p className='text-center'>
           Powered by Yunxiang Gu 2024

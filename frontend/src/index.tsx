@@ -15,6 +15,8 @@ import ChaptersPage from './pages/chapters';
 import TestPaperPage from './pages/paper';
 import LoginPage from './pages/login/login';
 import RegisterPage from './pages/register';
+import UserCenter from './pages/user-center';
+import VocabularyTraining from './pages/user-center/training';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -28,11 +30,13 @@ root.render(
           <Route path="/" element={<App />}></Route>
           <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
           <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
+          <Route path="/user-center" element={<Layout><UserCenter /></Layout>}></Route>
+          <Route path="/training/:word" element={<Layout><VocabularyTraining /></Layout>}></Route>
           <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
           <Route path="/register" element={<Layout><RegisterPage /></Layout>}></Route>
         </Routes>
       </Router>
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
     </AuthProvider>
   </React.StrictMode>
 );
