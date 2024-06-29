@@ -9,7 +9,7 @@ import { useAuth } from "../../components/authProvider";
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, userInfo } = useAuth();
   const navigate = useNavigate();
 
   const { state: { ChapterNo, TestPaperNo } } = useLocation();
@@ -85,32 +85,35 @@ const TestPaperpage = () => {
       toast.info("Please start your dictation!");
       return;
     }
-    console.log(wordRecord, ChapterNo, TestPaperNo);
-
-    // const postData = {
-    //   chapterNo: ChapterNo,
-    //   testPaperNo: TestPaperNo,
-    //   words: wordRecord.map((word) => ({
-    //     word,
-    //   }))
-    // };
-
-    // console.log(postData)
-
-    // await post("/api/admin/vocabulary/save", postData)
-
-    const { success, message } = await post('/api/paper/test', {
-      words: wordRecord,
-      chapter: ChapterNo,
-      paper: TestPaperNo,
-    });
-    if (!success) {
-      toast.error(message);
-      return;
+    if (userInfo.role === 'admin') {
+      const postData = {
+        chapterNo: ChapterNo,
+        testPaperNo: TestPaperNo,
+        words: wordRecord.map((word) => ({
+          word,
+        }))
+      };
+      const { success, message } = await post("/api/admin/vocabulary/save", postData);
+      if (!success) {
+        toast.error(message);
+        return;
+      }
+      toast.success(message);
+    } else {
+      const { success, message } = await post('/api/paper/test', {
+        words: wordRecord,
+        chapter: ChapterNo,
+        paper: TestPaperNo,
+      });
+      if (!success) {
+        toast.error(message);
+        return;
+      }
+      toast.success(message);
     }
-    toast.success(message);
     setInputValue('');
     setWordRecord([]);
+
   }
 
   const renderTestPaperList = () => {
@@ -139,7 +142,7 @@ const TestPaperpage = () => {
   return (
     <div className='chapter-page h-full'>
       <div className="container flex flex-col mx-auto h-full">
-        <div className='w-2/3 mt-4 flex gap-4 items-center justify-between mx-auto'>
+        <div className='mt-4 flex gap-4 items-center justify-between'>
           <h2 className='whitespace-nowrap w-full'>
             <Link to="/chapters" className='hover:text-primary'>
               Chapter <strong>{ChapterNo}</strong>
@@ -160,7 +163,7 @@ const TestPaperpage = () => {
             Submit
           </button>
         </div>
-        <div className='flex-1 w-2/3 mx-auto my-12 overflow-auto scroll-smooth' ref={contentRef}>
+        <div className='flex-1 my-12 overflow-auto scroll-smooth' ref={contentRef}>
           <ul className='grid grid-cols-4 max-h-64 gap-2 word-list'>
             {
               wordRecord.map((value, index) => (
@@ -172,7 +175,7 @@ const TestPaperpage = () => {
         <div className='flex gap-8 justify-center'>
           <input
             type="text"
-            className='w-2/3 px-3 py-2 outline-primary'
+            className='w-2/3 px-3 py-2 outline-primary text-center'
             autoFocus
             placeholder='Press Enter key to save'
             onChange={handleInputChange}
