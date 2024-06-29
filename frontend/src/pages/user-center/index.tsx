@@ -56,7 +56,7 @@ const UserCenter = () => {
       for (let i = 0; i < maxTestTimes; i++) {
         thDoms.push(
           <React.Fragment key={`fragment-${i}`}>
-            <th key={`check-${i}`} className="border border-primary text-primary px-3">✓</th>
+            <th key={`check-${i}`} className="border border-primary text-primary px-3 min-w-16">✓</th>
             <th key={`rate-${i}`} className="border border-primary text-primary px-3">Rate</th>
             <th key={`date-${i}`} className="border border-primary text-primary px-3">Date</th>
           </React.Fragment>
@@ -67,11 +67,11 @@ const UserCenter = () => {
   }
 
   return (
-    <div className='container mx-auto flex justify-center align-center gap-8 mt-8'>
+    <div className="container mx-auto mt-8 overflow-auto">
       <table className="border-collapse border border-primary text-center" id="accuracy-rate-table">
         <thead className="bg-[#fdba74]">
           <tr>
-            <th rowSpan={2} className="border border-primary text-primary px-3">Test Paper</th>
+            <th rowSpan={2} className="border border-primary text-primary px-3 whitespace-nowrap">Test Paper</th>
             <th rowSpan={2} className="border border-primary text-primary px-3">Vocabulary</th>
             {renderTheadTimes(true)}
           </tr>
