@@ -1,21 +1,23 @@
-import { useRef, useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useRef, useState, useEffect, ReactElement } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { post } from '../../utils/fetch';
+import { TEST_PAPERS } from '../../utils/const';
 import { useAuth } from "../../components/authProvider";
 
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const { state: { ChapterNo, TestPaperNo } } = useLocation();
 
   const [inputValue, setInputValue] = useState<string>('');
   const [cache, setCache] = useState<boolean>(false);
   const [wordRecord, setWordRecord] = useState<string[]>([]);
-  
+
   const localStorageKey = `Chapter${ChapterNo}_TestPaper${TestPaperNo}`;
 
   // initial dictation progress
@@ -29,7 +31,7 @@ const TestPaperpage = () => {
 
   // validate correct chapter and test paper
   if (!TestPaperNo || ChapterNo < 2 || ChapterNo > 12) {
-    window.location.href = '/Chapters';
+    navigate("/Chapters");
     return null;
   }
 
@@ -111,20 +113,45 @@ const TestPaperpage = () => {
     setWordRecord([]);
   }
 
+  const renderTestPaperList = () => {
+    const testPaperNumber = TEST_PAPERS[`chapter${ChapterNo}`];
+    console.log(testPaperNumber);
+    let options: ReactElement[] = [];
+    for (let i = 1; i <= testPaperNumber; i++) {
+      options.push(<option key={i} value={i}>Test Paper {i}</option>)
+    }
+    const handleChangePaper = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const { value } = event.target;
+      console.log(ChapterNo);
+      navigate(`/Chapters/${ChapterNo}/${value}`, { state: { ChapterNo, TestPaperNo: value } });
+    }
+    return (
+      <select
+        className="bg-transparent"
+        name="testPaper"
+        defaultValue={TestPaperNo}
+        onChange={handleChangePaper}>
+        {options}
+      </select>
+    );
+  }
+
   return (
     <div className='chapter-page h-full'>
       <div className="container flex flex-col mx-auto h-full">
         <div className='w-2/3 mt-4 flex gap-4 items-center justify-between mx-auto'>
           <h2 className='whitespace-nowrap w-full'>
-            Chapter <strong>{ChapterNo}</strong>
+            <Link to="/chapters" className='hover:text-primary'>
+              Chapter <strong>{ChapterNo}</strong>
+            </Link>
             <span> / </span>
-            Test Paper <strong>{TestPaperNo}</strong>
+            {renderTestPaperList()}
             {
-              !cache ? null : (
+              cache ? (
                 <button className='ml-2 px-4 underline text-primary' onClick={handleLoadCache}>
                   Load Cache
                 </button>
-              )
+              ) : null
             }
           </h2>
           <button
