@@ -1,9 +1,11 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const routes = require('./routes');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+const routes = require('./routes');
 
 const app = new express();
 
@@ -20,6 +22,21 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
+// session
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: DB_URL,
+      collectionName: "sessions",
+      ttl: 14 * 24 * 60 * 60,
+      autoRemove: 'native'
+    })
+  })
+);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -29,14 +46,7 @@ app.set("views", path.join(__dirname, "views"));
 // set static
 app.use(express.static(path.join(__dirname, "public")));
 
-// session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+
 
 app.use(routes);
 
