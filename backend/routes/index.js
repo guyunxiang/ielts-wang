@@ -31,11 +31,12 @@ router.post("/auth/register", userController.register);
 
 router.get("/auth/logout", userController.logout);
 
-router.get("/auth/status", (req, res) => {
-  res.status(200).json({
-    success: true,
-    data: !!req.session.userId
-  });
-})
+router.get("/auth/status", authenticate, userController.getAuthStatus);
+// router.get("/auth/status", (req, res) => {
+//   res.status(200).json({
+//     success: true,
+//     data: !!req.session.userId
+//   });
+// })
 
 module.exports = router;

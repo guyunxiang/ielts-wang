@@ -1,5 +1,6 @@
-const User = require("../models/user");
 const bcrypt = require("bcrypt");
+
+const User = require("../models/user");
 const DictationMistake = require('../models/dictationMistake');
 const VocabularyList = require('../models/vocabularyList');
 
@@ -58,6 +59,17 @@ exports.login = async (req, res) => {
     console.log(error);
   }
 };
+
+// get user info
+exports.getAuthStatus = async (req, res) => {
+  const {session: { userId }} = req;
+  const user = await User.findById(userId)
+    .select("username role -_id");
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+}
 
 exports.logout = (req, res) => {
   req.session.destroy(() => {

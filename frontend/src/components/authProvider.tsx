@@ -4,19 +4,27 @@ import { get } from "../utils/fetch";
 
 interface AuthContextType {
   isLoggedIn: boolean;
+  userInfo: UserInfo;
   login: () => void;
   logout: () => void;
+}
+
+interface UserInfo {
+  username: string;
+  role: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
+  const [userInfo, setUserInfo] = useState<UserInfo>({ username: '', role: ''});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     get('/api/auth/status').then(({ success, data }) => {
       if (success && data) {
+        setUserInfo(data);
         login();
       }
     });
@@ -32,7 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, userInfo, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

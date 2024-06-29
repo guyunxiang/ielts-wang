@@ -11,7 +11,7 @@ interface LayoutProps {
 function Layout({ children }: LayoutProps) {
 
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, userInfo, logout } = useAuth();
 
   const handleClickLogin = () => {
     if (isLoggedIn) {
@@ -22,6 +22,14 @@ function Layout({ children }: LayoutProps) {
 
   const RenderPersonalCentre = () => {
     if (!isLoggedIn) return null;
+    console.log(userInfo);
+    if (userInfo.role === 'admin') {
+      return (
+        <li className='hover:text-primary min-w-20 text-center'>
+          Administrator
+        </li>
+      )
+    }
     return (
       <li className='hover:text-primary min-w-20 text-center'>
         <Link to="/user-center">User Center</Link>
