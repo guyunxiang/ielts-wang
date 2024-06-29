@@ -5,5 +5,6 @@ interface TestPaper {
 export const TEST_PAPERS: TestPaper = {
   chapter3: 9,
   chapter4: 4,
-  chapter5: 12
+  chapter5: 12,
+  chapter11: 4,
 }

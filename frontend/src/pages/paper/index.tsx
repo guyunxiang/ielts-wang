@@ -118,15 +118,16 @@ const TestPaperpage = () => {
 
   const renderTestPaperList = () => {
     const testPaperNumber = TEST_PAPERS[`chapter${ChapterNo}`];
-    console.log(testPaperNumber);
     let options: ReactElement[] = [];
     for (let i = 1; i <= testPaperNumber; i++) {
-      options.push(<option key={i} value={i}>Test Paper {i}</option>)
+      options.push(<option key={i} value={i}>
+        { ChapterNo === 11 ? "Section " : "Test Paper "}
+        {i}
+      </option>)
     }
     const handleChangePaper = (event: React.ChangeEvent<HTMLSelectElement>) => {
       const { value } = event.target;
-      console.log(ChapterNo);
-      navigate(`/Chapters/${ChapterNo}/${value}`, { state: { ChapterNo, TestPaperNo: value } });
+      navigate(`/chapters/${ChapterNo}/${value}`, { state: { ChapterNo, TestPaperNo: +value } });
     }
     return (
       <select

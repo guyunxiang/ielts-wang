@@ -26,14 +26,15 @@ function ChapterPage() {
     const list: ReactElement[] = [];
     // get test paper number of current chapter
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
-    for (let i:number = 1; i <= testPaperNums; i++) {
+    for (let i = 1; i <= testPaperNums; i++) {
       list.push(
         <li className={`chapter paper-${i} border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
           <Link
             className='flex items-center justify-center h-16 w-full'
             to={`/chapters/${chapterNo}/${i}`}
             state={{ ChapterNo: chapterNo, TestPaperNo: i }}>
-            Test Paper {i}
+            {chapterNo === 11 ? "Section " : "Test Paper "}
+            {i}
           </Link>
         </li>
       )

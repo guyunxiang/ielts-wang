@@ -158,7 +158,8 @@ const UserCenter = () => {
         <tbody>
           {
             mistakesData.map(({ chapterNo, testPaperNo, sectionNo, vocabularyCount, tests }) => (
-              <tr key={testPaperNo || sectionNo || chapterNo} className={renderChapterClass(testPaperNo, sectionNo)}>
+              <tr className={renderChapterClass(testPaperNo, sectionNo)}
+                key={`chapter-${chapterNo}-${testPaperNo ? "testPaper-" + testPaperNo : "section-" + sectionNo}`}>
                 <td className="border border-primary">{renderTitle(chapterNo, testPaperNo, sectionNo)}</td>
                 <td className="border border-primary">{vocabularyCount}</td>
                 {
