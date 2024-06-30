@@ -16,6 +16,8 @@ router.post("/paper/test", testController.savePaperTest);
 
 router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 
+router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
+
 
 // get dictation mistake data
 router.get("/dictation/mistake", authenticate, userController.getDictationMistakeById);
@@ -32,11 +34,5 @@ router.post("/auth/register", userController.register);
 router.get("/auth/logout", userController.logout);
 
 router.get("/auth/status", authenticate, userController.getAuthStatus);
-// router.get("/auth/status", (req, res) => {
-//   res.status(200).json({
-//     success: true,
-//     data: !!req.session.userId
-//   });
-// })
 
 module.exports = router;

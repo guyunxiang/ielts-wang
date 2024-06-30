@@ -32,3 +32,30 @@ exports.savePaperVocabulary = async (req, res) => {
     });
   }
 }
+
+// Get all vocabulary list
+exports.queryAllVocabulary = async (req, res) => {
+  try {
+    const { chapterNo } = req.query;
+
+    const vocabularyList = await VocabularyList.find({ chapterNo })
+      .select("testPaperNo sectionNo words");
+
+    const responseData = vocabularyList.map(({ testPaperNo, sectionNo, words}) => ({
+      testPaperNo,
+      sectionNo,
+      wordCount: words.length
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: responseData
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
