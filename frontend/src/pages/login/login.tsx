@@ -64,7 +64,7 @@ export default function LoginPage() {
       <div className="mt-16">
         <form
           id="login-form"
-          className="container border w-2/5 min-w-96 mx-auto bg-white p-8 py-12"
+          className="container border w-2/5 min-w-96 mx-auto bg-white p-8 py-12 max-w-md"
           onSubmit={handleSubmit}>
           <h1 className="text-3xl font-bold text-center mb-8">Login</h1>
           <div className="grid gap-2 mb-4">
