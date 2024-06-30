@@ -1,11 +1,35 @@
-import { useState, ReactElement } from 'react';
+import { useState, ReactElement, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+
 import { TEST_PAPERS } from '../../utils/const';
+import { get } from '../../utils/fetch';
+import { useAuth } from '../../components/authProvider';
+
+interface VocabularyItem {
+  testPaperNo: number;
+  wordCount: number;
+}
 
 function ChapterPage() {
 
+  const { userInfo } = useAuth();
+  const { role } = userInfo;
+
   // chapter number
   const [chapterNo, setChapterNo] = useState(3);
+  const [testPaperList, setTestPaperList] = useState<VocabularyItem[]>([]);
+
+  useEffect(() => {
+    const fetchVocabularyList = async () => {
+      const { success, data } = await get("/api/dictation/vocabulary/query", { chapterNo });
+      if (success) {
+        setTestPaperList(data);
+      }
+    }
+    if (role === "admin") {
+      fetchVocabularyList();
+    }
+  }, [chapterNo, role]);
 
   const renderChapterList = () => {
     const list: ReactElement[] = [];
@@ -22,13 +46,24 @@ function ChapterPage() {
     return <ul>{list}</ul>;
   }
 
+  // Display complete test paper and word count
+  const findTestPaperAvailable = (index: number) => {
+    const wordCount = testPaperList.find(({ testPaperNo }) => testPaperNo === index)?.wordCount ?? 0;
+    if (!wordCount) return null
+    return (
+      <span className='absolute top-0 right-0 text-xs'>
+        {wordCount}
+      </span>
+    )
+  }
+
   const renderChapterDetail = () => {
     const list: ReactElement[] = [];
     // get test paper number of current chapter
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
     for (let i = 1; i <= testPaperNums; i++) {
       list.push(
-        <li className={`chapter paper-${i} border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
+        <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
           <Link
             className='flex items-center justify-center h-16 w-full'
             to={`/chapters/${chapterNo}/${i}`}
@@ -36,6 +71,7 @@ function ChapterPage() {
             {chapterNo === 11 ? "Section " : "Test Paper "}
             {i}
           </Link>
+          {findTestPaperAvailable(i)}
         </li>
       )
     }
