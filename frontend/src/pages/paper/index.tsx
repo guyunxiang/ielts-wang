@@ -60,8 +60,9 @@ const TestPaperpage = () => {
   // on type Enter
   const hanldeKeyUp = (event: any) => {
     if (event.key === 'Enter') {
-      setWordRecord([...wordRecord, inputValue]);
-      saveDictation([...wordRecord, inputValue]);
+      const value = inputValue.trim();
+      setWordRecord([...wordRecord, value]);
+      saveDictation([...wordRecord, value]);
       setInputValue('');
       setTimeout(scrollToBottom, 0);
     }
