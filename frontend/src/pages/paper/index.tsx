@@ -142,7 +142,7 @@ const TestPaperpage = () => {
 
   return (
     <div className='chapter-page h-full'>
-      <div className="container flex flex-col mx-auto h-full">
+      <div className="container flex flex-col mx-auto h-full px-4 max-w-screen-lg">
         <div className='mt-4 flex gap-4 items-center justify-between'>
           <h2 className='whitespace-nowrap w-full'>
             <Link to="/chapters" className='hover:text-primary'>
@@ -176,7 +176,7 @@ const TestPaperpage = () => {
         <div className='flex gap-8 justify-center'>
           <input
             type="text"
-            className='w-2/3 px-3 py-2 outline-primary text-center'
+            className='px-3 py-2 outline-primary text-center w-full'
             autoFocus
             placeholder='Press Enter key to save'
             onChange={handleInputChange}
