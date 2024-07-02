@@ -168,7 +168,7 @@ const TestPaperpage = () => {
     let options: ReactElement[] = [];
     for (let i = 1; i <= testPaperNumber; i++) {
       options.push(<option key={i} value={i}>
-        { ChapterNo === 11 ? "Section " : "Test Paper "}
+        {ChapterNo === 11 ? "Section " : "Test Paper "}
         {i}
       </option>)
     }
@@ -223,8 +223,8 @@ const TestPaperpage = () => {
         <div className='flex-1 my-12 overflow-auto scroll-smooth' ref={contentRef}>
           <ul className={`grid max-h-64 gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
             {
-              wordRecord.map((word) => (
-                <li key={word} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal cursor-pointer'>
+              wordRecord.map((word, index) => (
+                <li key={word + index} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal cursor-pointer'>
                   {word}
                 </li>
               ))
