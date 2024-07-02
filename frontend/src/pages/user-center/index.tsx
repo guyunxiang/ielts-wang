@@ -161,8 +161,8 @@ const UserCenter = () => {
             mistakesData.map(({ chapterNo, testPaperNo, sectionNo, vocabularyCount, tests }) => (
               <tr className={renderChapterClass(testPaperNo, sectionNo)}
                 key={`chapter-${chapterNo}-${testPaperNo ? "testPaper-" + testPaperNo : "section-" + sectionNo}`}>
-                <td className="border border-primary">{renderTitle(chapterNo, testPaperNo, sectionNo)}</td>
-                <td className="border border-primary">{vocabularyCount}</td>
+                <td className="border border-primary px-3">{renderTitle(chapterNo, testPaperNo, sectionNo)}</td>
+                <td className="border border-primary px-3">{vocabularyCount}</td>
                 {
                   tests.map((test: Test, idx: number) => (
                     <React.Fragment key={`${testPaperNo}-${idx}`}>
@@ -171,11 +171,12 @@ const UserCenter = () => {
                       </td>
                       <td className="border border-primary px-3">
                         {
-                          test.id ? (
-                            <Link className="text-primary hover:text-secondary-500" to={`/training/${test.id}`} state={{ id: test.id }}>
+                          test.id ?
+                            (<Link className="text-primary hover:text-secondary-500" to={`/training/${test.id}`} state={{ id: test.id }}>
                               {test.accuracyRate.toFixed(2)}%
-                            </Link>
-                          ) : `${test.accuracyRate.toFixed(2)}%`
+                            </Link>) // Test Paper row
+                            :
+                            <strong>{`${test.accuracyRate.toFixed(2)}%`}</strong> // Chapter row
                         }
                       </td>
                       <td className="border border-primary px-3">

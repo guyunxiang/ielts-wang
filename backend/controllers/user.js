@@ -241,6 +241,8 @@ exports.getDictationMistakeById = async (req, res) => {
       });
     }
 
+    const { session: { userId } } = req;
+
     // Validate current userId
     if (dictationMistake.userId.toString() !== userId.toString()) {
       return res.status(403).json({
