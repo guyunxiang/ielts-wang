@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 import { get } from "../utils/fetch";
+import { toast } from "react-toastify";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -23,17 +24,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    getAuthStatus();
-  }, []);
-
-  const getAuthStatus = async () => {
-    get('/api/auth/status').then(({ success, data }) => {
-      if (success && data) {
+    const getAuthStatus = async () => {
+      const { success, data, message } = await get("/gpi/auth/status");
+      if (success) {
         updateUserInfo(data);
         login();
+      } else {
+        toast.error(message);
       }
-    });
-  }
+    }
+    getAuthStatus();
+  }, []);
 
   const updateUserInfo = (data: UserInfo) => {
     setUserInfo(data);
