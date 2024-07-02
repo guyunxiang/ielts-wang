@@ -29,25 +29,26 @@ const UserCenter = () => {
   const [mistakesData, setMistakesData] = useState<MistakeData[]>([]);
 
   // Specify the type for maxTestTimes
-  const [maxTestTimes, setMaxTestTimes] = useState<number>(5);
+  const [maxTestTimes, setMaxTestTimes] = useState<number>(1);
 
   useEffect(() => {
+    // Function to fetch dictation mistakes data
+    const fetchDictationMistakes = async () => {
+      const { success, data } = await get("/api/dictation/mistakes");
+      if (success) {
+        setMistakesData(calculateChapterData(data));
+        let maxTestsLength = 1;
+        // Find the maximum number of tests for any mistake data
+        data.forEach((item: MistakeData) => {
+          if (item.tests.length > maxTestsLength) {
+            maxTestsLength = item.tests.length;
+          }
+        });
+        setMaxTestTimes(maxTestsLength);
+      }
+    }
     fetchDictationMistakes();
   }, []);
-
-  // Function to fetch dictation mistakes data
-  const fetchDictationMistakes = async () => {
-    const { success, data } = await get("/api/dictation/mistakes");
-    if (success) {
-      setMistakesData(calculateChapterData(data));
-      // Find the maximum number of tests for any mistake data
-      data.forEach((item: MistakeData) => {
-        if (item.tests.length > maxTestTimes) {
-          setMaxTestTimes(item.tests.length);
-        }
-      });
-    }
-  }
 
   // Calculate chapter data
   const calculateChapterData = (data: MistakeData[]) => {
@@ -143,7 +144,7 @@ const UserCenter = () => {
   }
 
   return (
-    <div className="container mx-auto mt-8 overflow-auto">
+    <div className="container mx-auto mt-8 px-4 flex justify-center overflow-auto">
       <table className="border-collapse border border-primary text-center text-[#92400e]" id="accuracy-rate-table">
         <thead className="bg-secondary-500">
           <tr>
