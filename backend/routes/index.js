@@ -17,7 +17,7 @@ router.post("/paper/test", testController.savePaperTest);
 router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 
 router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
-
+// query vocabulary by test paper
 router.get("/dictation/vocabulary/testPaper/query", adminController.queryVocabularByTestPaperNo);
 
 
@@ -27,6 +27,8 @@ router.get("/dictation/mistake", authenticate, userController.getDictationMistak
 router.get("/dictation/mistakes", authenticate, userController.getAllDictationMistakes);
 // Update practice count
 router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
+// Query dictation process by chapter number
+router.get("/dictation/progress", authenticate, userController.getDictationMistakesByChapterNo);
 
 // login
 router.post("/auth/login", userController.login);

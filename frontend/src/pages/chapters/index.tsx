@@ -10,6 +10,12 @@ interface VocabularyItem {
   wordCount: number;
 }
 
+interface TestProgress {
+  chapterNo: number;
+  testPaperNo: number;
+  highestAccuracyRecord: number;
+}
+
 function ChapterPage() {
 
   const { userInfo } = useAuth();
@@ -25,6 +31,7 @@ function ChapterPage() {
   // chapter number
   const [chapterNo, setChapterNo] = useState(ChapterNo);
   const [testPaperList, setTestPaperList] = useState<VocabularyItem[]>([]);
+  const [testProgress, setTestProgress] = useState<TestProgress[]>([]);
 
   useEffect(() => {
     const fetchVocabularyList = async () => {
@@ -33,8 +40,17 @@ function ChapterPage() {
         setTestPaperList(data);
       }
     }
+    // Function to fetch dictation mistakes data
+    const fetchDictationMistakes = async () => {
+      const { success, data } = await get("/api/dictation/progress", { chapterNo });
+      if (success) {
+        setTestProgress(data);
+      }
+    }
     if (role === "admin") {
       fetchVocabularyList();
+    } else {
+      fetchDictationMistakes();
     }
   }, [chapterNo, role]);
 
@@ -69,8 +85,11 @@ function ChapterPage() {
     // get test paper number of current chapter
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
     for (let i = 1; i <= testPaperNums; i++) {
+      const highestAccuracyRecord = testProgress.find(({ testPaperNo }) => testPaperNo === i)?.highestAccuracyRecord ?? 0;
       list.push(
-        <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:border-primary`} key={`paper-${i}`}>
+        <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary`} key={`paper-${i}`}>
+          <span className={`absolute h-full left-0`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
+          <span className="absolute h-full right-5 border border-r-primary border-dashed"></span>
           <Link
             className='flex items-center justify-center h-16 w-full'
             to={`/chapters/${chapterNo}/${i}`}

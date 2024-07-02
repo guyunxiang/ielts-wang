@@ -174,20 +174,50 @@ exports.getAllDictationMistakes = async (req, res) => {
   }
 }
 
+exports.getDictationMistakesByChapterNo = async (req, res) => {
+  try {
+    const { chapterNo } = req.query;
+    const highestAccuracyRecords = await DictationMistake.aggregate([
+      { $match: { chapterNo: +chapterNo } },
+      {
+        $group: {
+          _id: '$testPaperNo',
+          highestAccuracyRecord: { $max: '$accuracyRate' },
+          record: { $first: '$$ROOT' } // 保留完整文档以便后续筛选
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          highestAccuracyRecord: 1,
+          record: 1
+        }
+      }
+    ]);
+
+    const data = highestAccuracyRecords.map(({ highestAccuracyRecord, record }) => ({
+      chapterNo: record.chapterNo,
+      testPaperNo: record.testPaperNo,
+      highestAccuracyRecord,
+    }))
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error('Error getting dictation mistake:', error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the dictation mistake",
+      error: error.message
+    });
+  }
+}
+
 // Get dictation mistake by id
 exports.getDictationMistakeById = async (req, res) => {
   try {
-    const {
-      session: { userId }
-    } = req;
-
-    // Check if user is logged in
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Please log in first!"
-      });
-    }
 
     const { id } = req.query;
 
