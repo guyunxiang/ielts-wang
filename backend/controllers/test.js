@@ -31,7 +31,7 @@ exports.savePaperTest = async (req, res) => {
       createAt: new Date(),
     });
 
-    await newTest.save();
+    const { _id } = await newTest.save();
 
     res.status(201).json({
       success: true,
@@ -39,7 +39,7 @@ exports.savePaperTest = async (req, res) => {
     });
 
     // to do create a misspelled words record
-    await createMisspelledWords(chapter, paper, words, userId);
+    await createMisspelledWords(chapter, paper, words, userId, _id);
 
   } catch (error) {
     console.log(error);
@@ -51,7 +51,7 @@ exports.savePaperTest = async (req, res) => {
 }
 
 // create misspelled words table
-const createMisspelledWords = async (chapter, paper, testWords, userId) => {
+const createMisspelledWords = async (chapter, paper, testWords, userId, testId) => {
   try {
     // Fetch the vocabulary list for this chapter and paper
     const vocabularyList = await VocabularyList.findOne({ chapterNo: chapter, testPaperNo: paper });
@@ -79,7 +79,8 @@ const createMisspelledWords = async (chapter, paper, testWords, userId) => {
         word: word.word,
         practiceCount: 1
       })),
-      userId
+      userId,
+      testId,
     });
 
     await newMistake.save();

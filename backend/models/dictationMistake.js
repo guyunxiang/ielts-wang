@@ -39,6 +39,11 @@ const DictationMistakeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    testId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Test',
+        required: true
     }
 }, { timestamps: true });
 

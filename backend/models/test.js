@@ -14,8 +14,9 @@ const listeningTestSchema = new mongoose.Schema({
     required: true,
   },
   userId: {
-    type: String,
-    required: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   createAt: {
     type: Date,

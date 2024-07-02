@@ -5,7 +5,7 @@ import copy from 'clipboard-copy';
 import { get, post } from '../../utils/fetch';
 import { toast } from 'react-toastify';
 
-let timer:number;
+let timer: number;
 interface VocabularyData {
   chapterNo: number;
   testPaperNo: number;
@@ -15,6 +15,7 @@ interface VocabularyData {
 
 interface Word {
   word: string;
+  misspelling: string;
   phonetic: string;
   translation: string;
   practiceCount: number;
@@ -55,7 +56,7 @@ const VocabularyTraining = () => {
       });
     }
     // Get dictation mistake list
-    getDictationMistakeData();    
+    getDictationMistakeData();
   }, [id]);
 
   useEffect(() => {
@@ -72,7 +73,7 @@ const VocabularyTraining = () => {
     };
     updateColoredWord(word);
   }, [input, word]);
-  
+
   useEffect(() => {
     const wordSpeaking = () => {
       clearTimeout(timer);
@@ -90,7 +91,7 @@ const VocabularyTraining = () => {
       timer = setTimeout(wordSpeaking, 3000) as any as number;
     }
     wordSpeaking();
-    
+
     return () => {
       // Stop timer when leave this page
       clearTimeout(timer);
@@ -148,9 +149,9 @@ const VocabularyTraining = () => {
   const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
     const target = event.target as HTMLElement;
     if (target.tagName.toLowerCase() === 'li') {
-      const selectedWord = target.textContent;
-      if (selectedWord) {
-        handleChangeToNextWord(selectedWord);
+      const { word } = target.dataset;
+      if (word) {
+        handleChangeToNextWord(word);
       }
     }
   };
@@ -197,28 +198,31 @@ const VocabularyTraining = () => {
     toast.success("Copied to clipboard.");
   }
 
+  const transformSpellingWord = (misselling: string = "", word: string, practiceCount: number) => {
+    if (!misselling) { return word }
+    return misselling.split("").map((letter, index) => {
+      let color = '';
+      if (index < word.length) {
+        color = word[index] === letter ? 'green' : 'red';
+      }
+      return <span key={index} style={{ color }} className="cursor-pointer">{letter}</span>;
+    })
+  }
+
   const RenderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
     const incorrectClass = "text-[#f00] border-[#f00] font-medium";
-    const practicedClass = "text-primary border-primary font-normal";
     return (
       <ul
         className='grid grid-cols-4 max-h-64 gap-2 word-list'
         onClick={handleWordListClick}>
         {
-          words.map(({ word, correct, practiceCount }) => {
-            let finalClass = "";
-            if (correct) {
-              finalClass = correctClass;
-            } else if (practiceCount > 1) {
-              finalClass = practicedClass
-            } else {
-              finalClass = incorrectClass;
-            }
+          words.map(({ word, misspelling, correct, practiceCount }) => {
             return (
               <li key={word}
-                className={`pl-2 border border-dashed h-8 flex items-center cursor-pointer ${finalClass} `}>
-                {word}
+                data-word={word}
+                className={`pl-2 border border-dashed h-8 flex items-center cursor-pointer ${correct ? correctClass : incorrectClass} `}>
+                {transformSpellingWord(misspelling, word, practiceCount)}
               </li>
             )
           })
@@ -240,9 +244,13 @@ const VocabularyTraining = () => {
             )
           }
         </h1>
-        <button className='absolute top-0 right-0 mr-4 px-3 text-primary border rounded border-primary' onClick={handlePauseAudio}>
-          { paused ? "Play" : "Pause" }
-        </button>
+        {
+          word ? (
+            <button className='absolute top-0 right-0 mr-4 px-3 text-primary border rounded border-primary' onClick={handlePauseAudio}>
+              {paused ? "Play" : "Pause"}
+            </button>
+          ) : null
+        }
       </div>
       <div className="container mx-auto flex-1 justify-center gap-8 overflow-auto mb-10">
         <RenderVocabularyList />

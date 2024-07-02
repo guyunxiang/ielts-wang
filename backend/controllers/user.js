@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const DictationMistake = require('../models/dictationMistake');
 const VocabularyList = require('../models/vocabularyList');
+const Test = require("../models/test");
 
 exports.register = async (req, res) => {
   try {
@@ -66,7 +67,7 @@ exports.login = async (req, res) => {
 
 // get user info
 exports.getAuthStatus = async (req, res) => {
-  const {session: { userId }} = req;
+  const { session: { userId } } = req;
   const user = await User.findById(userId)
     .select("username role -_id");
   res.status(200).json({
@@ -231,16 +232,28 @@ exports.getDictationMistakeById = async (req, res) => {
       });
     }
 
+    const testRecord = await Test.findById(dictationMistake.testId);
+    if (!testRecord) {
+      return res.status(404).json({
+        success: false,
+        message: "Corresponding vocabulary list not found"
+      });
+    }
+
     // Merge the data
-    const mergedWords = vocabularyList.words.map(vocabWord => {
+    const mergedWords = vocabularyList.words.map((vocabWord, index) => {
       const mistakeWord = dictationMistake.words.find(w => w.word === vocabWord.word);
-      return {
+      const result = {
         word: vocabWord.word,
         phonetic: vocabWord.phonetic || '',
         translation: vocabWord.translation || '',
         practiceCount: mistakeWord ? mistakeWord.practiceCount : 0,
         correct: !mistakeWord
-      };
+      }
+      if (mistakeWord) {
+        result.misspelling = testRecord.words[index]
+      }
+      return result;
     });
 
     // Prepare the response data
