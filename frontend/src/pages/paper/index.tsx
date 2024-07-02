@@ -192,6 +192,8 @@ const TestPaperpage = () => {
   let gridColsNumber = "repeat(4, 1fr)";
   if (ChapterNo === 5 && TestPaperNo < 12) {
     gridColsNumber = "repeat(3, 1fr)";
+  } else if (ChapterNo === 11) {
+    gridColsNumber = "repeat(2, 1fr)";
   }
 
   return (
