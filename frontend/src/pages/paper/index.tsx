@@ -2,9 +2,14 @@ import { useRef, useState, useEffect, ReactElement } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { post } from '../../utils/fetch';
+import { get, post } from '../../utils/fetch';
 import { TEST_PAPERS } from '../../utils/const';
 import { useAuth } from "../../components/authProvider";
+
+interface WordItem {
+  word: string;
+  _id: string;
+}
 
 const TestPaperpage = () => {
 
@@ -17,8 +22,11 @@ const TestPaperpage = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [cache, setCache] = useState<boolean>(false);
   const [wordRecord, setWordRecord] = useState<string[]>([]);
+  const [wordIndex, setWordIndex] = useState(-1);
+  const [testPaperId, setTestPaperId] = useState<string>('');
 
   const localStorageKey = `Chapter${ChapterNo}_TestPaper${TestPaperNo}`;
+  const { role } = userInfo;
 
   // initial dictation progress
   useEffect(() => {
@@ -28,6 +36,23 @@ const TestPaperpage = () => {
     if (!words) return;
     setCache(true);
   }, [ChapterNo, TestPaperNo, localStorageKey]);
+
+  useEffect(() => {
+    const fetchVocabularyList = async () => {
+      const { success, data } = await get("/api/dictation/vocabulary/testPaper/query", {
+        chapterNo: ChapterNo,
+        testPaperNo: TestPaperNo,
+      });
+      if (success && data) {
+        const words = data.words.map((word: WordItem) => word.word);
+        setWordRecord(words);
+        setTestPaperId(data._id);
+      }
+    }
+    if (role === "admin") {
+      fetchVocabularyList();
+    }
+  }, [ChapterNo, TestPaperNo, role]);
 
   // validate correct chapter and test paper
   if (!TestPaperNo || ChapterNo < 2 || ChapterNo > 12) {
@@ -48,7 +73,7 @@ const TestPaperpage = () => {
   };
 
   // cache the dictation
-  const saveDictation = (words: String[]) => {
+  const saveDictation = (words: string[]) => {
     const data = {
       words,
       chapter: ChapterNo,
@@ -57,14 +82,35 @@ const TestPaperpage = () => {
     localStorage.setItem(localStorageKey, JSON.stringify(data));
   }
 
+  // Switch next word to training
+  const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.tagName.toLowerCase() === 'li') {
+      const word = target.textContent;
+      if (word) {
+        setInputValue(word);
+        setWordIndex(wordRecord.indexOf(word));
+      }
+    }
+  };
+
   // on type Enter
   const hanldeKeyUp = (event: any) => {
     if (event.key === 'Enter') {
       const value = inputValue.trim();
-      setWordRecord([...wordRecord, value]);
-      saveDictation([...wordRecord, value]);
+      const newWordRecord = [...wordRecord];
+      // edit current word
+      if (wordIndex > -1) {
+        newWordRecord[wordIndex] = value;
+      } else {
+        // add new word
+        newWordRecord.push(value);
+        setTimeout(scrollToBottom, 0);
+      }
+      setWordRecord(newWordRecord);
+      saveDictation(newWordRecord);
       setInputValue('');
-      setTimeout(scrollToBottom, 0);
+      setWordIndex(-1);
     }
   }
 
@@ -92,7 +138,8 @@ const TestPaperpage = () => {
         testPaperNo: TestPaperNo,
         words: wordRecord.map((word) => ({
           word,
-        }))
+        })),
+        id: testPaperId
       };
       const { success, message } = await post("/api/admin/vocabulary/save", postData);
       if (!success) {
@@ -111,10 +158,9 @@ const TestPaperpage = () => {
         return;
       }
       toast.success(message);
+      setInputValue('');
+      setWordRecord([]);
     }
-    setInputValue('');
-    setWordRecord([]);
-
   }
 
   const renderTestPaperList = () => {
@@ -141,12 +187,19 @@ const TestPaperpage = () => {
     );
   }
 
+  // set grid column number
+  // fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
+  let gridColsNumber = "repeat(4, 1fr)";
+  if (ChapterNo === 5 && TestPaperNo < 12) {
+    gridColsNumber = "repeat(3, 1fr)";
+  }
+
   return (
     <div className='chapter-page h-full'>
       <div className="container flex flex-col mx-auto h-full px-4 max-w-screen-lg">
         <div className='mt-4 flex gap-4 items-center justify-between'>
           <h2 className='whitespace-nowrap w-full'>
-            <Link to="/chapters" className='hover:text-primary'>
+            <Link to="/chapters" state={{ ChapterNo }} className='hover:text-primary'>
               Chapter <strong>{ChapterNo}</strong>
             </Link>
             <span> / </span>
@@ -166,10 +219,12 @@ const TestPaperpage = () => {
           </button>
         </div>
         <div className='flex-1 my-12 overflow-auto scroll-smooth' ref={contentRef}>
-          <ul className='grid grid-cols-4 max-h-64 gap-2 word-list'>
+          <ul className={`grid max-h-64 gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
             {
-              wordRecord.map((value, index) => (
-                <li key={index} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal'>{value}</li>
+              wordRecord.map((word) => (
+                <li key={word} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal cursor-pointer'>
+                  {word}
+                </li>
               ))
             }
           </ul>

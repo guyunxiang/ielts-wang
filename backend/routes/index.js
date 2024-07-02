@@ -18,6 +18,8 @@ router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 
 router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
 
+router.get("/dictation/vocabulary/testPaper/query", adminController.queryVocabularByTestPaperNo);
+
 
 // get dictation mistake data
 router.get("/dictation/mistake", authenticate, userController.getDictationMistakeById);

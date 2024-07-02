@@ -8,20 +8,38 @@ exports.savePaperVocabulary = async (req, res) => {
       testPaperNo,
       sectionNo,
       words,
+      id,
     } = req.body;
 
-    const newVocabularList = new VocabularyList({
-      chapterNo,
-      testPaperNo,
-      sectionNo,
-      words
-    });
+    let newVocabularyList;
+    let message;
+    if (!id) {
+      newVocabularyList = new VocabularyList({
+        chapterNo,
+        testPaperNo,
+        sectionNo,
+        words
+      });
+      message = "Congratulation! vocabulary added successfully!";
+    } else {
+      newVocabularyList = await VocabularyList.findById(id);
+      if (!newVocabularyList) {
+        res.status(401).json({
+          success: false,
+          message: `Chapter ${chapterNo} - Test Paper ${testPaperNo} not found!`,
+        });
+        return;
+      }
+      newVocabularyList.words = words;
+      message = `Vocabulary updated successfully!`;
+    }
 
-    await newVocabularList.save();
+    const result = await newVocabularyList.save();
 
     res.status(201).json({
       success: true,
-      message: "Create vocabulary successfully!"
+      data: result._id,
+      message: message,
     });
 
   } catch (error) {
@@ -41,7 +59,7 @@ exports.queryAllVocabulary = async (req, res) => {
     const vocabularyList = await VocabularyList.find({ chapterNo })
       .select("testPaperNo sectionNo words");
 
-    const responseData = vocabularyList.map(({ testPaperNo, sectionNo, words}) => ({
+    const responseData = vocabularyList.map(({ testPaperNo, sectionNo, words }) => ({
       testPaperNo,
       sectionNo,
       wordCount: words.length
@@ -50,6 +68,25 @@ exports.queryAllVocabulary = async (req, res) => {
     res.status(200).json({
       success: true,
       data: responseData
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
+
+// Get vocabulary list with test paper number
+exports.queryVocabularByTestPaperNo = async (req, res) => {
+  try {
+    const { chapterNo, testPaperNo } = req.query;
+    const vocabularyList = await VocabularyList.findOne({ chapterNo, testPaperNo })
+      .select("words");
+    res.status(200).json({
+      success: true,
+      data: vocabularyList
     });
   } catch (error) {
     console.log(error);

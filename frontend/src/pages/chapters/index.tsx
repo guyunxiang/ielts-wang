@@ -1,5 +1,5 @@
 import { useState, ReactElement, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { TEST_PAPERS } from '../../utils/const';
 import { get } from '../../utils/fetch';
@@ -15,8 +15,15 @@ function ChapterPage() {
   const { userInfo } = useAuth();
   const { role } = userInfo;
 
+  const { state } = useLocation();
+
+  let ChapterNo = 3;
+  if (state) {
+    ChapterNo = state.ChapterNo;
+  }
+
   // chapter number
-  const [chapterNo, setChapterNo] = useState(3);
+  const [chapterNo, setChapterNo] = useState(ChapterNo);
   const [testPaperList, setTestPaperList] = useState<VocabularyItem[]>([]);
 
   useEffect(() => {
