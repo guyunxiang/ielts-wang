@@ -34,22 +34,22 @@ function ChapterPage() {
   const [testProgress, setTestProgress] = useState<TestProgress[]>([]);
 
   useEffect(() => {
+    // fetch vocabulary's number of each test paper
     const fetchVocabularyList = async () => {
       const { success, data } = await get("/api/dictation/vocabulary/query", { chapterNo });
       if (success) {
         setTestPaperList(data);
       }
     }
-    // Function to fetch dictation mistakes data
+    // fetch dictation mistakes data to render complete progress
     const fetchDictationMistakes = async () => {
       const { success, data } = await get("/api/dictation/progress", { chapterNo });
       if (success) {
         setTestProgress(data);
       }
     }
-    if (role === "admin") {
-      fetchVocabularyList();
-    } else {
+    fetchVocabularyList();
+    if (role === "user") {
       fetchDictationMistakes();
     }
   }, [chapterNo, role]);
@@ -74,10 +74,18 @@ function ChapterPage() {
     const wordCount = testPaperList.find(({ testPaperNo }) => testPaperNo === index)?.wordCount ?? 0;
     if (!wordCount) return null
     return (
-      <span className='absolute top-0 right-0 text-xs'>
+      <span className='absolute top-1 left-1 text-xs'>
         {wordCount}
       </span>
     )
+  }
+
+  // Render dictation complete border
+  const RenderCompletedBorder = () => {
+    if (role === "user") {
+      return (<span className="absolute h-full border border-r-secondary-500 border-dashed" style={{ right: '5%', borderWidth: '0 1px 0 0' }}></span>)
+    }
+    return null;
   }
 
   const renderChapterDetail = () => {
@@ -89,7 +97,7 @@ function ChapterPage() {
       list.push(
         <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary`} key={`paper-${i}`}>
           <span className={`absolute h-full left-0 transition-all duration-1000`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
-          <span className="absolute h-full right-5 border border-r-primary border-dashed"></span>
+          <RenderCompletedBorder />
           <Link
             className='relative flex items-center justify-center h-16 w-full'
             to={`/chapters/${chapterNo}/${i}`}
