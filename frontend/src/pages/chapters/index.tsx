@@ -88,7 +88,7 @@ function ChapterPage() {
       const highestAccuracyRecord = testProgress.find(({ testPaperNo }) => testPaperNo === i)?.highestAccuracyRecord ?? 0;
       list.push(
         <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary`} key={`paper-${i}`}>
-          <span className={`absolute h-full left-0`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
+          <span className={`absolute h-full left-0 transition-all duration-1000`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
           <span className="absolute h-full right-5 border border-r-primary border-dashed"></span>
           <Link
             className='flex items-center justify-center h-16 w-full'
