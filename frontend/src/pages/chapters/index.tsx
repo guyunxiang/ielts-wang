@@ -59,14 +59,14 @@ function ChapterPage() {
     for (let i = 2; i <= 12; i++) {
       list.push(
         <li
-          className={`chapter chapter-${i} flex h-12 cursor-pointer hover:bg-secondary-300 gap-4 items-center justify-center ${chapterNo === i ? 'bg-secondary-300 text-primary' : ''}`}
+          className={`chapter chapter-${i} flex px-3 h-12 cursor-pointer hover:bg-secondary-300 gap-4 items-center justify-center ${chapterNo === i ? 'bg-secondary-300 text-primary' : ''}`}
           key={`chapter-${i}`}
           onClick={() => setChapterNo(i)}>
           Chapter {i}
         </li>
       )
     }
-    return <ul>{list}</ul>;
+    return <ul className='flex flex-wrap flex-row md:flex-col gap-4'>{list}</ul>;
   }
 
   // Display complete test paper and word count
@@ -105,8 +105,8 @@ function ChapterPage() {
   }
 
   return (
-    <div className='container mx-auto flex justify-center align-center gap-8 mt-8'>
-      <div className="aside w-48">
+    <div className='container mx-auto px-4 flex flex-col md:flex-row justify-center align-center gap-8 mt-8'>
+      <div className="aside md:w-48">
         {renderChapterList()}
       </div>
       <div className="main flex-1">
