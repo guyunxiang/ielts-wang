@@ -224,7 +224,7 @@ const TestPaperpage = () => {
           <ul className={`grid max-h-64 gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
             {
               wordRecord.map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
                   {word}
                 </li>
               ))

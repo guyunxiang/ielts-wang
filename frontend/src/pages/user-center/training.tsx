@@ -205,7 +205,18 @@ const VocabularyTraining = () => {
       if (index < word.length) {
         color = word[index] === letter ? 'green' : 'red';
       }
-      return <span key={index} style={{ color }} className="cursor-pointer">{letter}</span>;
+      if (letter === " ") {
+        return (
+          <span key={index} style={{ color }} className="cursor-pointer inline-block invisible">
+            -
+          </span>
+        )
+      }
+      return (
+        <span key={index} style={{ color }} className="cursor-pointer inline-block">
+          {letter}
+        </span>
+      )
     })
   }
 
@@ -221,7 +232,7 @@ const VocabularyTraining = () => {
             return (
               <li key={word}
                 data-word={word}
-                className={`pl-2 border border-dashed h-8 flex items-center cursor-pointer ${correct ? correctClass : incorrectClass} `}>
+                className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass} `}>
                 {transformSpellingWord(misspelling, word, practiceCount)}
               </li>
             )

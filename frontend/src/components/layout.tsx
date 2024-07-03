@@ -25,7 +25,7 @@ function Layout({ children }: LayoutProps) {
     if (userInfo.role === 'admin') {
       return (
         <li className='hover:text-primary min-w-20 text-center'>
-          Administrator
+          <Link to="/admin">Administrator</Link>
         </li>
       )
     }
