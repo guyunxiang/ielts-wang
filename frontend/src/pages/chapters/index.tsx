@@ -25,7 +25,7 @@ function ChapterPage() {
   const { state } = useLocation();
 
   // chapter number
-  const [chapterNo, setChapterNo] = useState(state.chapterNo ?? 3);
+  const [chapterNo, setChapterNo] = useState(state?.chapterNo ?? 3);
   const [testPaperList, setTestPaperList] = useState<VocabularyItem[]>([]);
   const [testProgress, setTestProgress] = useState<TestProgress[]>([]);
 
@@ -104,7 +104,7 @@ function ChapterPage() {
           <span className={`absolute h-full left-0 transition-all duration-1000`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
           <RenderCompletedBorder />
           <Link
-            className='relative flex items-center justify-center h-16 w-full'
+            className='relative flex items-center justify-center py-5 w-full'
             to={`/chapters/${chapterNo}/${i}`}
             state={{ chapterNo: chapterNo, testPaperNo: i, wordCount }}>
             {chapterNo === 11 ? "Section " : "Test Paper "}
