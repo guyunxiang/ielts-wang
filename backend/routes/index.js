@@ -34,9 +34,9 @@ router.get("/dictation/progress", authenticate, userController.getDictationMista
 router.post("/auth/login", userController.login);
 // register
 router.post("/auth/register", userController.register);
-
 router.get("/auth/logout", userController.logout);
 
 router.get("/auth/status", authenticate, userController.getAuthStatus);
+router.get("/auth/user/list", authenticate, userController.getUserList);
 
 module.exports = router;
