@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { get } from "../../utils/fetch";
+import { Link } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -20,8 +21,12 @@ const MisspelledPage = () => {
     fetchUserList();
   }, [])
   return (
-    <div className="container mx-auto mt-3">
-      <h1>Misspelled Table Management</h1>
+    <div className="container mt-3 mx-auto h-full flex flex-col">
+      <h1 className="text-3xl font-black flex items-center justify-between">
+        <Link to="/admin" className="text-base hover:text-primary cursor-pointer">Admin Page</Link>
+        &nbsp;Misspelled Table Management
+      </h1>
+      <hr className="my-3" />
       <div>
         User List:
         <select name="userList" id="userList" className="ml-3 min-h-10 px-4">
