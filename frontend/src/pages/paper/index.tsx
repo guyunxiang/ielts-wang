@@ -14,7 +14,7 @@ interface WordItem {
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const { isLoggedIn, userInfo } = useAuth();
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   const { state: { ChapterNo, TestPaperNo } } = useLocation();
@@ -23,10 +23,8 @@ const TestPaperpage = () => {
   const [cache, setCache] = useState<boolean>(false);
   const [wordRecord, setWordRecord] = useState<string[]>([]);
   const [wordIndex, setWordIndex] = useState(-1);
-  const [testPaperId, setTestPaperId] = useState<string>('');
 
   const localStorageKey = `Chapter${ChapterNo}_TestPaper${TestPaperNo}`;
-  const { role } = userInfo;
 
   // initial dictation progress
   useEffect(() => {
@@ -36,23 +34,6 @@ const TestPaperpage = () => {
     if (!words) return;
     setCache(true);
   }, [ChapterNo, TestPaperNo, localStorageKey]);
-
-  useEffect(() => {
-    const fetchVocabularyList = async () => {
-      const { success, data } = await get("/api/dictation/vocabulary/testPaper/query", {
-        chapterNo: ChapterNo,
-        testPaperNo: TestPaperNo,
-      });
-      if (success && data) {
-        const words = data.words.map((word: WordItem) => word.word);
-        setWordRecord(words);
-        setTestPaperId(data._id);
-      }
-    }
-    if (role === "admin") {
-      fetchVocabularyList();
-    }
-  }, [ChapterNo, TestPaperNo, role]);
 
   // validate correct chapter and test paper
   if (!TestPaperNo || ChapterNo < 2 || ChapterNo > 12) {
@@ -132,35 +113,18 @@ const TestPaperpage = () => {
       toast.info("Please start your dictation!");
       return;
     }
-    if (userInfo.role === 'admin') {
-      const postData = {
-        chapterNo: ChapterNo,
-        testPaperNo: TestPaperNo,
-        words: wordRecord.map((word) => ({
-          word,
-        })),
-        id: testPaperId
-      };
-      const { success, message } = await post("/api/admin/vocabulary/save", postData);
-      if (!success) {
-        toast.error(message);
-        return;
-      }
-      toast.success(message);
-    } else {
-      const { success, message } = await post('/api/paper/test', {
-        words: wordRecord,
-        chapter: ChapterNo,
-        paper: TestPaperNo,
-      });
-      if (!success) {
-        toast.error(message);
-        return;
-      }
-      toast.success(message);
-      setInputValue('');
-      setWordRecord([]);
+    const { success, message } = await post('/api/paper/test', {
+      words: wordRecord,
+      chapter: ChapterNo,
+      paper: TestPaperNo,
+    });
+    if (!success) {
+      toast.error(message);
+      return;
     }
+    toast.success(message);
+    setInputValue('');
+    setWordRecord([]);
   }
 
   const renderTestPaperList = () => {
