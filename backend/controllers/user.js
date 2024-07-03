@@ -84,6 +84,24 @@ exports.logout = (req, res) => {
   });
 };
 
+// Get user list
+exports.getUserList = async (req, res) => {
+  try {
+    const userList = await User.find({ role: 'user' }).select("username role");
+    res.status(200).json({
+      success: true,
+      data: userList
+    });
+  } catch (error) {
+    console.error('Error getting dictation mistake:', error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the dictation mistake",
+      error: error.message
+    });
+  }
+}
+
 // Get all dictation mistake data
 exports.getAllDictationMistakes = async (req, res) => {
   try {
