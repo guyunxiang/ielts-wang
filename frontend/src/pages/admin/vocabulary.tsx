@@ -92,7 +92,7 @@ const VocabularyPage = () => {
   };
 
   // on type Enter
-  const hanldeKeyUp = (event: any) => {
+  const handleKeyUp = (event: any) => {
     if (event.key === 'Enter') {
       const value = inputValue.trim();
       const newVocabularyList = [...vocabularyList];
@@ -205,7 +205,7 @@ const VocabularyPage = () => {
           ref={inputRef}
           placeholder='Press enter key to save'
           onChange={handleInputChange}
-          onKeyUp={hanldeKeyUp}
+          onKeyUp={handleKeyUp}
           value={inputValue}
         />
         <input
