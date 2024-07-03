@@ -190,7 +190,7 @@ const VocabularyTraining = () => {
     return misselling.split("").map((letter, index) => {
       let color = '';
       if (index < word.length) {
-        color = word[index] === letter ? 'green' : 'red';
+        color = word[index].toLocaleLowerCase() === letter.toLocaleLowerCase() ? 'green' : 'red';
       }
       if (letter === " ") {
         return (
@@ -226,7 +226,7 @@ const VocabularyTraining = () => {
               <li key={word}
                 data-word={word}
                 className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
-                onClick={() => handleChangeToNextWord(word) }>
+                onClick={() => handleChangeToNextWord(word)}>
                 {transformSpellingWord(misspelling, word, practiceCount)}
               </li>
             )
@@ -235,6 +235,17 @@ const VocabularyTraining = () => {
       </ul>
     )
   }
+
+  const RenderBasicInfo = () => {
+    const accuracyCount = vocabularyData.words.filter(({ correct }) => correct).length;
+    return (
+      <div className='container mx-auto text-right'>
+        Accuracy Count: {accuracyCount} / {vocabularyData.words.length}
+      </div>
+    )
+  }
+
+  console.log(vocabularyData);
 
   return (
     <div className='mt-4 text-center flex flex-1 flex-col'>
@@ -257,13 +268,17 @@ const VocabularyTraining = () => {
           ) : null
         }
       </div>
-      <div className="container mx-auto flex-1 justify-center gap-8 overflow-auto mb-10">
+      <div className="container mx-auto flex-1 justify-center gap-8 overflow-auto">
         <RenderVocabularyList />
       </div>
-      <div className='flex gap-8 justify-center'>
+      <hr className='my-3' />
+      <div className='mb-3'>
+        <RenderBasicInfo />
+      </div>
+      <div className='container mx-auto flex gap-8 justify-center'>
         <input
           type="text"
-          className='w-2/3 px-3 py-2 outline-primary text-center'
+          className='w-full px-3 py-2 outline-primary text-center'
           autoFocus
           placeholder='Press Enter key to practice'
           value={input}
