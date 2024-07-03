@@ -11,32 +11,49 @@ interface WordItem {
   _id: string;
 }
 
+interface VocabularyItem {
+  chapterNo: number;
+  testPaperNo: number;
+  wordCount: number;
+}
+
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
-  const { state: { ChapterNo, TestPaperNo } } = useLocation();
+  const { state: { chapterNo, testPaperNo, wordCount } } = useLocation();
 
   const [inputValue, setInputValue] = useState<string>('');
   const [cache, setCache] = useState<boolean>(false);
   const [wordRecord, setWordRecord] = useState<string[]>([]);
   const [wordIndex, setWordIndex] = useState(-1);
+  const [vocabularyCount, setVocabularyCount] = useState(0);
 
-  const localStorageKey = `Chapter${ChapterNo}_TestPaper${TestPaperNo}`;
+  const localStorageKey = `Chapter${chapterNo}_TestPaper${testPaperNo}`;
 
   // initial dictation progress
   useEffect(() => {
     const cacheData = localStorage.getItem(localStorageKey) || '{}';
     const { words, chapter, paper } = JSON.parse(cacheData);
-    if (chapter !== ChapterNo || paper !== TestPaperNo) return;
+    if (chapter !== chapterNo || paper !== testPaperNo) return;
     if (!words) return;
     setCache(true);
-  }, [ChapterNo, TestPaperNo, localStorageKey]);
+  }, [chapterNo, testPaperNo, localStorageKey]);
+
+  useEffect(() => {
+    const loadVocabularyListWordCount = () => {
+      const localDataStr: string = sessionStorage.getItem("vocabularyCounts") ?? "[]";
+      const localData = JSON.parse(localDataStr);
+      const count = localData.filter((item: VocabularyItem) => (item.chapterNo === chapterNo && item.testPaperNo === testPaperNo))[0]?.wordCount;
+      setVocabularyCount(count);
+    }
+    loadVocabularyListWordCount();
+  }, [chapterNo, testPaperNo])
 
   // validate correct chapter and test paper
-  if (!TestPaperNo || ChapterNo < 2 || ChapterNo > 12) {
+  if (!testPaperNo || chapterNo < 2 || chapterNo > 12) {
     navigate("/Chapters");
     return null;
   }
@@ -57,8 +74,8 @@ const TestPaperpage = () => {
   const saveDictation = (words: string[]) => {
     const data = {
       words,
-      chapter: ChapterNo,
-      paper: TestPaperNo
+      chapter: chapterNo,
+      paper: testPaperNo
     };
     localStorage.setItem(localStorageKey, JSON.stringify(data));
   }
@@ -98,7 +115,7 @@ const TestPaperpage = () => {
   const handleLoadCache = () => {
     const cacheData = localStorage.getItem(localStorageKey) || '{}';
     const { words, chapter, paper } = JSON.parse(cacheData);
-    if (chapter !== ChapterNo || paper !== TestPaperNo) return;
+    if (chapter !== chapterNo || paper !== testPaperNo) return;
     if (!words) return;
     setWordRecord(words);
   }
@@ -115,8 +132,8 @@ const TestPaperpage = () => {
     }
     const { success, message } = await post('/api/paper/test', {
       words: wordRecord,
-      chapter: ChapterNo,
-      paper: TestPaperNo,
+      chapter: chapterNo,
+      paper: testPaperNo,
     });
     if (!success) {
       toast.error(message);
@@ -128,23 +145,23 @@ const TestPaperpage = () => {
   }
 
   const renderTestPaperList = () => {
-    const testPaperNumber = TEST_PAPERS[`chapter${ChapterNo}`];
+    const testPaperNumber = TEST_PAPERS[`chapter${chapterNo}`];
     let options: ReactElement[] = [];
     for (let i = 1; i <= testPaperNumber; i++) {
       options.push(<option key={i} value={i}>
-        {ChapterNo === 11 ? "Section " : "Test Paper "}
+        {chapterNo === 11 ? "Section " : "Test Paper "}
         {i}
       </option>)
     }
     const handleChangePaper = (event: React.ChangeEvent<HTMLSelectElement>) => {
       const { value } = event.target;
-      navigate(`/chapters/${ChapterNo}/${value}`, { state: { ChapterNo, TestPaperNo: +value } });
+      navigate(`/chapters/${chapterNo}/${value}`, { state: { chapterNo, testPaperNo: +value } });
     }
     return (
       <select
         className="bg-transparent"
         name="testPaper"
-        defaultValue={TestPaperNo}
+        defaultValue={testPaperNo}
         onChange={handleChangePaper}>
         {options}
       </select>
@@ -154,9 +171,9 @@ const TestPaperpage = () => {
   // set grid column number
   // fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
   let gridColsNumber = "repeat(4, 1fr)";
-  if (ChapterNo === 5 && TestPaperNo < 12) {
+  if (chapterNo === 5 && testPaperNo < 12) {
     gridColsNumber = "repeat(3, 1fr)";
-  } else if (ChapterNo === 11) {
+  } else if (chapterNo === 11) {
     gridColsNumber = "repeat(2, 1fr)";
   }
 
@@ -165,8 +182,8 @@ const TestPaperpage = () => {
       <div className="container flex flex-col mx-auto h-full px-4 max-w-screen-lg">
         <div className='mt-4 flex gap-4 items-center justify-between'>
           <h2 className='whitespace-nowrap w-full'>
-            <Link to="/chapters" state={{ ChapterNo }} className='hover:text-primary'>
-              Chapter <strong>{ChapterNo}</strong>
+            <Link to="/chapters" state={{ chapterNo }} className='hover:text-primary'>
+              Chapter <strong>{chapterNo}</strong>
             </Link>
             <span> / </span>
             {renderTestPaperList()}
@@ -178,11 +195,14 @@ const TestPaperpage = () => {
               ) : null
             }
           </h2>
-          <button
-            className='submit h-8 px-6 py-1 border border-primary text-primary rounded-sm'
-            onClick={handleSubmit}>
-            Submit
-          </button>
+          <div className='flex items-center gap-3'>
+            <span className='whitespace-nowrap'>{wordRecord.length} / {vocabularyCount}</span>
+            <button
+              className='submit h-8 px-6 py-1 bg-primary text-white hover:bg-secondary-700 rounded-sm'
+              onClick={handleSubmit}>
+              Submit
+            </button>
+          </div>
         </div>
         <div className='flex-1 my-12 overflow-auto scroll-smooth' ref={contentRef}>
           <ul className={`grid max-h-64 gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>

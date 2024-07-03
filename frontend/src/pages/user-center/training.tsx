@@ -37,8 +37,6 @@ const VocabularyTraining = () => {
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [paused, setPaused] = useState(false);
 
-  const { words } = vocabularyData;
-
   useEffect(() => {
     // Get DictationMistake data via id;
     const getDictationMistakeData = async () => {
@@ -145,17 +143,6 @@ const VocabularyTraining = () => {
     setCorrectCount(practiceCount);
   }
 
-  // Switch next word to training
-  const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName.toLowerCase() === 'li') {
-      const { word } = target.dataset;
-      if (word) {
-        handleChangeToNextWord(word);
-      }
-    }
-  };
-
   // On paused audio
   const handlePauseAudio = () => {
     setPaused(!paused);
@@ -223,16 +210,23 @@ const VocabularyTraining = () => {
   const RenderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
     const incorrectClass = "text-[#f00] border-[#f00] font-medium";
+    const { chapterNo, testPaperNo, words } = vocabularyData;
+    let gridColsNumber = "repeat(4, 1fr)";
+    if (chapterNo === 5 && testPaperNo < 12) {
+      gridColsNumber = "repeat(3, 1fr)";
+    } else if (chapterNo === 11) {
+      gridColsNumber = "repeat(2, 1fr)";
+    }
     return (
-      <ul
-        className='grid grid-cols-4 max-h-64 gap-2 word-list'
-        onClick={handleWordListClick}>
+      <ul style={{ gridTemplateColumns: gridColsNumber }}
+        className='grid grid-cols-4 max-h-64 gap-2 word-list'>
         {
           words.map(({ word, misspelling, correct, practiceCount }) => {
             return (
               <li key={word}
                 data-word={word}
-                className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass} `}>
+                className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+                onClick={() => handleChangeToNextWord(word) }>
                 {transformSpellingWord(misspelling, word, practiceCount)}
               </li>
             )

@@ -6,6 +6,7 @@ import { get } from '../../utils/fetch';
 import { useAuth } from '../../components/authProvider';
 
 interface VocabularyItem {
+  chapterNo: number;
   testPaperNo: number;
   wordCount: number;
 }
@@ -23,24 +24,24 @@ function ChapterPage() {
 
   const { state } = useLocation();
 
-  let ChapterNo = 3;
-  if (state) {
-    ChapterNo = state.ChapterNo;
-  }
-
   // chapter number
-  const [chapterNo, setChapterNo] = useState(ChapterNo);
+  const [chapterNo, setChapterNo] = useState(state.chapterNo ?? 3);
   const [testPaperList, setTestPaperList] = useState<VocabularyItem[]>([]);
   const [testProgress, setTestProgress] = useState<TestProgress[]>([]);
 
   useEffect(() => {
     // fetch vocabulary's number of each test paper
     const fetchVocabularyList = async () => {
-      const { success, data } = await get("/api/dictation/vocabulary/query", { chapterNo });
+      const { success, data } = await get("/api/dictation/vocabulary/query");
       if (success) {
-        setTestPaperList(data);
+        saveVocabularListWordCount(data);
+        loadVocabularyListWordCount(chapterNo);
       }
     }
+    fetchVocabularyList();
+  }, []);
+
+  useEffect(() => {
     // fetch dictation mistakes data to render complete progress
     const fetchDictationMistakes = async () => {
       const { success, data } = await get("/api/dictation/progress", { chapterNo });
@@ -48,11 +49,25 @@ function ChapterPage() {
         setTestProgress(data);
       }
     }
-    fetchVocabularyList();
     if (role === "user") {
       fetchDictationMistakes();
     }
   }, [chapterNo, role]);
+
+  useEffect(() => {
+    loadVocabularyListWordCount(chapterNo)
+  }, [chapterNo])
+
+  const saveVocabularListWordCount = (vocabularyList: VocabularyItem[]) => {
+    sessionStorage.setItem("vocabularyCounts", JSON.stringify(vocabularyList));
+  }
+
+  const loadVocabularyListWordCount = (chapterNo: number) => {
+    const localDataStr: string = sessionStorage.getItem("vocabularyCounts") ?? "[]";
+    const localData = JSON.parse(localDataStr);
+    const testPaperListData = localData.filter((item: VocabularyItem) => item.chapterNo === chapterNo);
+    setTestPaperList(testPaperListData);
+  }
 
   const renderChapterList = () => {
     const list: ReactElement[] = [];
@@ -69,17 +84,6 @@ function ChapterPage() {
     return <ul className='flex flex-wrap flex-row md:flex-col gap-4'>{list}</ul>;
   }
 
-  // Display complete test paper and word count
-  const findTestPaperAvailable = (index: number) => {
-    const wordCount = testPaperList.find(({ testPaperNo }) => testPaperNo === index)?.wordCount ?? 0;
-    if (!wordCount) return null
-    return (
-      <span className='absolute top-1 left-1 text-xs'>
-        {wordCount}
-      </span>
-    )
-  }
-
   // Render dictation complete border
   const RenderCompletedBorder = () => {
     if (role === "user") {
@@ -94,6 +98,7 @@ function ChapterPage() {
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
     for (let i = 1; i <= testPaperNums; i++) {
       const highestAccuracyRecord = testProgress.find(({ testPaperNo }) => testPaperNo === i)?.highestAccuracyRecord ?? 0;
+      const wordCount = testPaperList.find(({ testPaperNo }) => testPaperNo === i)?.wordCount ?? 0;
       list.push(
         <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary`} key={`paper-${i}`}>
           <span className={`absolute h-full left-0 transition-all duration-1000`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
@@ -101,11 +106,17 @@ function ChapterPage() {
           <Link
             className='relative flex items-center justify-center h-16 w-full'
             to={`/chapters/${chapterNo}/${i}`}
-            state={{ ChapterNo: chapterNo, TestPaperNo: i }}>
+            state={{ chapterNo: chapterNo, testPaperNo: i, wordCount }}>
             {chapterNo === 11 ? "Section " : "Test Paper "}
             {i}
           </Link>
-          {findTestPaperAvailable(i)}
+          {
+            wordCount ? (
+              <span className='absolute top-1 left-1 text-xs'>
+                {wordCount}
+              </span>
+            ) : null
+          }
         </li>
       )
     }
