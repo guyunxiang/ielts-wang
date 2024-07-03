@@ -20,6 +20,7 @@ interface VocabularyItem {
 const TestPaperpage = () => {
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
@@ -57,6 +58,12 @@ const TestPaperpage = () => {
     navigate("/Chapters");
     return null;
   }
+
+  const handleMouseOver = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
 
   // onChange
   const handleInputChange = (event: any) => {
@@ -217,6 +224,7 @@ const TestPaperpage = () => {
         </div>
         <div className='flex gap-8 justify-center'>
           <input
+            ref={inputRef}
             type="text"
             className='px-3 py-2 outline-primary text-center w-full'
             autoFocus
@@ -224,6 +232,7 @@ const TestPaperpage = () => {
             onChange={handleInputChange}
             onKeyUp={hanldeKeyUp}
             value={inputValue}
+            onMouseOver={handleMouseOver}
           />
         </div>
       </div>
