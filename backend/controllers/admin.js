@@ -56,10 +56,16 @@ exports.queryAllVocabulary = async (req, res) => {
   try {
     const { chapterNo } = req.query;
 
-    const vocabularyList = await VocabularyList.find({ chapterNo })
-      .select("testPaperNo sectionNo words");
+    const queryParams = {};
+    if (chapterNo) {
+      queryParams.chapterNo = chapterNo;
+    }
 
-    const responseData = vocabularyList.map(({ testPaperNo, sectionNo, words }) => ({
+    const vocabularyList = await VocabularyList.find(queryParams)
+      .select("chapterNo testPaperNo sectionNo words");
+
+    const responseData = vocabularyList.map(({ chapterNo, testPaperNo, sectionNo, words }) => ({
+      chapterNo,
       testPaperNo,
       sectionNo,
       wordCount: words.length
