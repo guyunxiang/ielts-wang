@@ -51,41 +51,36 @@ exports.savePaperTest = async (req, res) => {
 }
 
 const calculateMisspelledData = (testWords, vocabularyList) => {
-  // Compare test words with vocabulary list
   const whitelist = [
-    { original: 'centre', alternative: 'center' },
-    { original: 'booklist', alternative: 'book list' }
+    { original: 'centre', alternative: ['center'] },
+    { original: 'booklist', alternative: ['book list'] }
   ];
 
-  // Compare test words with vocabulary list
-  const misspelledWords = vocabularyList.words.filter(vocabWord =>
-    !testWords.some(testWord => {
-      const normalizedVocabWord = vocabWord.word.toLowerCase();
+  const misspelledWords = vocabularyList.words.filter(vocabWord => {
+    const normalizedVocabWord = vocabWord.word.toLowerCase();
+
+    return !testWords.some(testWord => {
       const normalizedTestWord = testWord.toLowerCase();
 
-      // Check if words are equal without considering the whitelist
+      // Check for exact match
       if (normalizedVocabWord === normalizedTestWord) {
-        return false; // Exact match, not misspelled
+        return true;
       }
 
       // Check against whitelist
-      for (const pair of whitelist) {
-        if ((normalizedVocabWord === pair.original && normalizedTestWord === pair.alternative) ||
-          (normalizedVocabWord === pair.alternative && normalizedTestWord === pair.original)) {
-          return false; // Match found in whitelist, not misspelled
-        }
-      }
-
-      return true; // Not found in whitelist, consider as misspelled
-    })
-  );
+      return whitelist.some(pair =>
+        (normalizedTestWord === pair.original && pair.alternative.includes(normalizedVocabWord)) ||
+        (normalizedVocabWord === pair.original && pair.alternative.includes(normalizedTestWord))
+      );
+    });
+  });
 
   // Calculate accuracy rate
-  const accuracyCount = (vocabularyList.words.length - misspelledWords.length);
-  const accuracyRate = (accuracyCount / vocabularyList.words.length) * 100;
+  const accuracyCount = testWords.length - misspelledWords.length;
+  const accuracyRate = (accuracyCount / testWords.length) * 100;
 
   return {
-    accuracyRate: accuracyRate,
+    accuracyRate: accuracyRate.toFixed(2),
     accuracyCount: accuracyCount,
     words: misspelledWords.map(word => ({
       word: word.word,
