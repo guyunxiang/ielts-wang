@@ -4,6 +4,8 @@ import { get, post } from "../../utils/fetch";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
+import { CHAPTER11_PARTS } from '../../utils/const';
+
 interface WordItem {
   word: string;
   _id: string;
@@ -46,6 +48,7 @@ const VocabularyPage = () => {
     fetchVocabularyList();
   }, [chapterNo, testPaperNo]);
 
+  // on click chapter no
   const handleChapterClick = async (event: React.MouseEvent<HTMLUListElement>) => {
     const target = event.target as HTMLElement;
     if (target.tagName.toLowerCase() === 'li') {
@@ -67,6 +70,7 @@ const VocabularyPage = () => {
     }
   };
 
+  // on click word
   const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
     const target = event.target as HTMLElement;
     if (target.tagName.toLowerCase() === 'li') {
@@ -111,7 +115,6 @@ const VocabularyPage = () => {
   }
 
   const handleSubmit = async () => {
-    console.log("first")
     const postData = {
       chapterNo: chapterNo,
       testPaperNo: testPaperNo,
@@ -157,34 +160,59 @@ const VocabularyPage = () => {
     return <ul className='grid grid-cols-4 gap-3 mt-3' onClick={handleTestPaperClick}>{list}</ul>;
   }
 
-  const RenderVocabularyList = () => {
+  const renderVocabularyList = () => {
     // set grid column number
     // fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
     let gridColsNumber = "repeat(4, 1fr)";
     if (chapterNo === 5 && testPaperNo < 12) {
       gridColsNumber = "repeat(3, 1fr)";
-    } else if (chapterNo === 11) {
-      gridColsNumber = "repeat(2, 1fr)";
+    }
+    // render chapter 11
+    if (chapterNo === 11) {
+      const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
+      return (
+        <div className="max-h-64">
+          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+            {
+              vocabularyList.slice(0, part1Count).map((word, index) => (
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                  {word}
+                </li>
+              ))
+            }
+          </ul>
+          {vocabularyList.length > part1Count ? <hr className="my-2" /> : null}
+          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+            {
+              vocabularyList.slice(part1Count).map((word, index) => (
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                  {word}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      )
     }
     return (
-      <div className='flex-1 overflow-auto scroll-smooth' ref={contentRef}>
-        <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
-          {
-            vocabularyList.map((word, index) => (
-              <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
-                {word}
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+      <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+        {
+          vocabularyList.map((word, index) => (
+            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+              {word}
+            </li>
+          ))
+        }
+      </ul>
     )
   }
 
   return (
     <div className="container mt-3 mx-auto h-full flex flex-col">
       <h1 className="text-3xl font-black flex items-center justify-between">
-        <Link to="/admin" className="text-base hover:text-primary cursor-pointer">Admin Page</Link>
+        <Link to="/admin" className="text-base hover:text-primary cursor-pointer">
+          Admin Page
+        </Link>
         &nbsp;Vocabulary Management
       </h1>
       <hr className="my-3" />
@@ -194,9 +222,13 @@ const VocabularyPage = () => {
         <RenderTestPaperList />
       </div>
       <hr className="my-3" />
-      <RenderVocabularyList />
+      <div className="flex-1 flex-col overflow-auto scroll-smooth" ref={contentRef}>
+        {renderVocabularyList()}
+      </div>
       <hr className="my-3" />
-      <div className="text-right mb-3">Word Count: {vocabularyList.length}</div>
+      <div className="text-right mb-3">
+        Word Count: {vocabularyList.length}
+      </div>
       <div className='flex gap-3 justify-center'>
         <input
           type="text"
@@ -211,7 +243,7 @@ const VocabularyPage = () => {
         <input
           type="button"
           value="Submit"
-          className={`bg-primary px-5 text-white rounded ${vocabularyList.length ? "cursor-pointer" : "cursor-not-allowed bg-secondary-500" }`}
+          className={`bg-primary px-5 text-white rounded ${vocabularyList.length ? "cursor-pointer" : "cursor-not-allowed bg-secondary-500"}`}
           disabled={vocabularyList.length < 1}
           onClick={handleSubmit}
         />
