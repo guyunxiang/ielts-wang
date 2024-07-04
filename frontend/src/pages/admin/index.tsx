@@ -1,9 +1,4 @@
-import { useEffect, useState } from "react";
-
-import { get } from '../../utils/fetch';
 import { Link } from "react-router-dom";
-
-
 
 const AdminPage = () => {
 
@@ -12,18 +7,18 @@ const AdminPage = () => {
       <h1 className="text-3xl font-black">Admin page</h1>
       <hr className="my-3" />
       <ul className="flex gap-3">
-        <li className="px-3 py-2 border border-dashed border-primary text-primary">
-          <Link to="/admin/vocabulary" className="block">
+        <li className="border border-dashed border-primary text-primary hover:bg-secondary-200">
+          <Link to="/admin/vocabulary" className="block px-3 py-2">
             Vocabulary Management
           </Link>
         </li>
-        <li className="px-3 py-2 border border-dashed border-primary text-primary">
-          <Link to="/admin/whitelist" className="block">
+        <li className="border border-dashed border-primary text-primary hover:bg-secondary-200">
+          <Link to="/admin/whitelist" className="block px-3 py-2">
             White List Management
           </Link>
         </li>
-        <li className="px-3 py-2 border border-dashed border-primary text-primary">
-          <Link to="/admin/misspelled" className="block">
+        <li className="border border-dashed border-primary text-primary hover:bg-secondary-200">
+          <Link to="/admin/misspelled" className="block px-3 py-2">
             Misspelled Table Management
           </Link>
         </li>
