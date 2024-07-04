@@ -24,10 +24,6 @@ const VocabularyListSchema = new mongoose.Schema({
         type: Number,
         required: false
     },
-    sectionNo: {
-        type: Number,
-        required: false
-    },
     words: [WordSchema]
 }, { timestamps: true });
 

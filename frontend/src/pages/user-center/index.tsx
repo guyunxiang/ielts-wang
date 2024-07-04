@@ -15,7 +15,6 @@ interface Test {
 interface MistakeData {
   chapterNo: number;
   testPaperNo: number;
-  sectionNo: number;
   vocabularyCount: number;
   tests: Test[]; // Specify that tests is an array of Test objects
 }
@@ -130,14 +129,14 @@ const UserCenter = () => {
   }
 
   // render record title
-  const renderTitle = (chapterNo: number, testPaperNo: number, sectionNo: number) => {
-    if (testPaperNo) return "Test Paper" + testPaperNo;
-    if (sectionNo) return "Section " + sectionNo;
+  const renderTitle = (chapterNo: number, testPaperNo: number) => {
+    if (testPaperNo) return "Test Paper " + testPaperNo;
+    if (chapterNo === 11 && testPaperNo) return "Section " + testPaperNo;
     return "Chapter " + chapterNo;
   }
 
-  const renderChapterClass = (testPaperNo: number, sectionNo: number) => {
-    if (testPaperNo || sectionNo) {
+  const renderChapterClass = (testPaperNo: number) => {
+    if (testPaperNo) {
       return "";
     }
     return "bg-secondary-200";
@@ -158,10 +157,12 @@ const UserCenter = () => {
         </thead>
         <tbody>
           {
-            mistakesData.map(({ chapterNo, testPaperNo, sectionNo, vocabularyCount, tests }) => (
-              <tr className={renderChapterClass(testPaperNo, sectionNo)}
-                key={`chapter-${chapterNo}-${testPaperNo ? "testPaper-" + testPaperNo : "section-" + sectionNo}`}>
-                <td className="border border-primary px-3">{renderTitle(chapterNo, testPaperNo, sectionNo)}</td>
+            mistakesData.map(({ chapterNo, testPaperNo, vocabularyCount, tests }) => (
+              <tr className={renderChapterClass(testPaperNo)}
+                key={`chapter-${chapterNo}-${"testPaper-" + testPaperNo}`}>
+                <td className="border border-primary px-3">
+                  {renderTitle(chapterNo, testPaperNo)}
+                </td>
                 <td className="border border-primary px-3">{vocabularyCount}</td>
                 {
                   tests.map((test: Test, idx: number) => (

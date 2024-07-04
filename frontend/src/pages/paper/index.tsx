@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { get, post } from '../../utils/fetch';
-import { TEST_PAPERS } from '../../utils/const';
+import { CHAPTER11_PARTS, TEST_PAPERS } from '../../utils/const';
 import { useAuth } from "../../components/authProvider";
 
 interface WordItem {
@@ -188,8 +188,33 @@ const TestPaperpage = () => {
     let gridColsNumber = "repeat(4, 1fr)";
     if (chapterNo === 5 && testPaperNo < 12) {
       gridColsNumber = "repeat(3, 1fr)";
-    } else if (chapterNo === 11) {
-      gridColsNumber = "repeat(2, 1fr)";
+    }
+    // render chapter 11
+    if (chapterNo === 11) {
+      const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
+      return (
+        <div className="max-h-64">
+          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+            {
+              wordRecord.slice(0, part1Count).map((word, index) => (
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                  {word}
+                </li>
+              ))
+            }
+          </ul>
+          {wordRecord.length > part1Count ? <hr className="my-2" /> : null}
+          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+            {
+              wordRecord.slice(part1Count).map((word, index) => (
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                  {word}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      )
     }
     return (
       <ul
