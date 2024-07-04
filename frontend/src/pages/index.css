@@ -4,3 +4,8 @@ header {
 .note {
   transform: rotate(-15deg);
 }
+
+hr {
+  border-color: rgba(255, 102, 0, 1);
+  border-style: dashed;
+}
