@@ -14,7 +14,7 @@ function HomePage() {
         <h2 className='text-3xl text-right text-primary'>（机考笔试第二版）</h2>
         <h3 className='mt-8 text-3xl text-center'>王陆 编著</h3>
         <div className='note mt-24 text-center text-primary'>
-          <p className='text-3xl'>含《剑16》内容</p>
+          <p className='text-3xl'>含《剑18》内容</p>
           <p className='mt-4 text-3xl'>愿每一位考生梦想成真</p>
         </div>
       </div>
