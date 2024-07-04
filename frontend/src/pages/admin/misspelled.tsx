@@ -29,10 +29,10 @@ const MisspelledPage = () => {
       <hr className="my-3" />
       <div>
         User List:
-        <select name="userList" id="userList" className="ml-3 min-h-10 px-4">
+        <select name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-white">
           {
             userList.map((item: User) => (
-              <option id={item._id} value={item.username}>{item.username}</option>
+              <option key={item._id} id={item._id} value={item.username}>{item.username}</option>
             ))
           }
         </select>
