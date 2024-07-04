@@ -51,7 +51,7 @@ const TestPaperpage = () => {
       setVocabularyCount(count);
     }
     loadVocabularyListWordCount();
-  }, [chapterNo, testPaperNo])
+  }, [chapterNo, testPaperNo]);
 
   // validate correct chapter and test paper
   if (!testPaperNo || chapterNo < 2 || chapterNo > 12) {
@@ -119,14 +119,6 @@ const TestPaperpage = () => {
     }
   }
 
-  const handleLoadCache = () => {
-    const cacheData = localStorage.getItem(localStorageKey) || '{}';
-    const { words, chapter, paper } = JSON.parse(cacheData);
-    if (chapter !== chapterNo || paper !== testPaperNo) return;
-    if (!words) return;
-    setWordRecord(words);
-  }
-
   // on submit
   const handleSubmit = async () => {
     if (!isLoggedIn) {
@@ -151,7 +143,7 @@ const TestPaperpage = () => {
     setWordRecord([]);
   }
 
-  const renderTestPaperList = () => {
+  const RenderTestPaperList = () => {
     const testPaperNumber = TEST_PAPERS[`chapter${chapterNo}`];
     let options: ReactElement[] = [];
     for (let i = 1; i <= testPaperNumber; i++) {
@@ -175,13 +167,44 @@ const TestPaperpage = () => {
     );
   }
 
-  // set grid column number
-  // fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
-  let gridColsNumber = "repeat(4, 1fr)";
-  if (chapterNo === 5 && testPaperNo < 12) {
-    gridColsNumber = "repeat(3, 1fr)";
-  } else if (chapterNo === 11) {
-    gridColsNumber = "repeat(2, 1fr)";
+  const RenderLoadCacheButton = () => {
+    if (!cache) return null;
+    const handleLoadCache = () => {
+      const cacheData = localStorage.getItem(localStorageKey) || '{}';
+      const { words, chapter, paper } = JSON.parse(cacheData);
+      if (chapter !== chapterNo || paper !== testPaperNo) return;
+      if (!words) return;
+      setWordRecord(words);
+    }
+    return (
+      <button className='ml-2 px-4 underline text-primary' onClick={handleLoadCache}>
+        Load Cache
+      </button>
+    );
+  }
+
+  const RenderDictationRecord = () => {
+    // Set grid column number fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
+    let gridColsNumber = "repeat(4, 1fr)";
+    if (chapterNo === 5 && testPaperNo < 12) {
+      gridColsNumber = "repeat(3, 1fr)";
+    } else if (chapterNo === 11) {
+      gridColsNumber = "repeat(2, 1fr)";
+    }
+    return (
+      <ul
+        className={`grid max-h-64 gap-2 word-list`}
+        style={{ gridTemplateColumns: gridColsNumber }}
+        onClick={handleWordListClick}>
+        {
+          wordRecord.map((word, index) => (
+            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+              {word}
+            </li>
+          ))
+        }
+      </ul>
+    )
   }
 
   return (
@@ -193,14 +216,8 @@ const TestPaperpage = () => {
               Chapter <strong>{chapterNo}</strong>
             </Link>
             <span> / </span>
-            {renderTestPaperList()}
-            {
-              cache ? (
-                <button className='ml-2 px-4 underline text-primary' onClick={handleLoadCache}>
-                  Load Cache
-                </button>
-              ) : null
-            }
+            <RenderTestPaperList />
+            <RenderLoadCacheButton />
           </h2>
           <div className='flex items-center gap-3'>
             <span className='whitespace-nowrap'>{wordRecord.length} / {vocabularyCount}</span>
@@ -212,15 +229,7 @@ const TestPaperpage = () => {
           </div>
         </div>
         <div className='flex-1 my-12 overflow-auto scroll-smooth' ref={contentRef}>
-          <ul className={`grid max-h-64 gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
-            {
-              wordRecord.map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
-                  {word}
-                </li>
-              ))
-            }
-          </ul>
+          <RenderDictationRecord />
         </div>
         <div className='flex gap-8 justify-center'>
           <input
