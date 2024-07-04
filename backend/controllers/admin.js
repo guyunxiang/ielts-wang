@@ -6,7 +6,6 @@ exports.savePaperVocabulary = async (req, res) => {
     const {
       chapterNo,
       testPaperNo,
-      sectionNo,
       words,
       id,
     } = req.body;
@@ -17,7 +16,6 @@ exports.savePaperVocabulary = async (req, res) => {
       newVocabularyList = new VocabularyList({
         chapterNo,
         testPaperNo,
-        sectionNo,
         words
       });
       message = "Congratulation! vocabulary added successfully!";
@@ -62,12 +60,11 @@ exports.queryAllVocabulary = async (req, res) => {
     }
 
     const vocabularyList = await VocabularyList.find(queryParams)
-      .select("chapterNo testPaperNo sectionNo words");
+      .select("chapterNo testPaperNo words");
 
-    const responseData = vocabularyList.map(({ chapterNo, testPaperNo, sectionNo, words }) => ({
+    const responseData = vocabularyList.map(({ chapterNo, testPaperNo, words }) => ({
       chapterNo,
       testPaperNo,
-      sectionNo,
       wordCount: words.length
     }));
 
