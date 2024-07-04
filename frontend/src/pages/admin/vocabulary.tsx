@@ -3,8 +3,9 @@ import { TEST_PAPERS } from "../../utils/const";
 import { get, post } from "../../utils/fetch";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import classNames from "classnames";
 
-import { CHAPTER11_PARTS } from '../../utils/const';
+import { CHAPTERS, CHAPTER11_PARTS } from '../../utils/const';
 
 interface WordItem {
   word: string;
@@ -55,6 +56,8 @@ const VocabularyPage = () => {
       const { chapter } = target.dataset;
       if (chapter) {
         setChapterNo(+chapter);
+        setWordIndex(-1);
+        setInputValue("");
       }
     }
   };
@@ -66,6 +69,8 @@ const VocabularyPage = () => {
       const { paper } = target.dataset;
       if (paper) {
         setTestPaperNo(+paper);
+        setWordIndex(-1);
+        setInputValue("");
       }
     }
   };
@@ -130,17 +135,20 @@ const VocabularyPage = () => {
   }
 
   const RenderChapter = () => {
-    const chapters: ReactElement[] = [];
-    for (let index = 1; index <= 12; index++) {
-      chapters.push(
-        <li key={index} data-chapter={index} className={`cursor-pointer px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center ${chapterNo === index ? 'bg-secondary-300 text-primary' : ''}`}>
-          Chapter {index}
-        </li>
-      )
-    }
     return (
       <ul className="flex flex-wrap gap-3 mb-3" onClick={handleChapterClick}>
-        {chapters}
+        {
+          CHAPTERS.map((index) => (
+            <li key={index}
+              data-chapter={index}
+              className={classNames(
+                "cursor-pointer px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center",
+                `${chapterNo === index ? 'bg-secondary-300 text-primary' : ''}`
+              )}>
+              Chapter {index}
+            </li>
+          ))
+        }
       </ul>
     )
   }
@@ -151,7 +159,12 @@ const VocabularyPage = () => {
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
     for (let i = 1; i <= testPaperNums; i++) {
       list.push(
-        <li data-paper={i} className={`chapter paper-${i} relative px-3 py-1 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary ${testPaperNo === i ? 'bg-secondary-300 text-primary' : ''}`} key={`paper-${i}`}>
+        <li data-paper={i}
+          key={`paper-${i}`}
+          className={classNames(
+            "chapter relative px-3 py-1 border border-dashed border-secondary-700 cursor-pointer hover:text-primary hover:font-medium hover:border-primary",
+            `${testPaperNo === i ? 'bg-secondary-200 text-primary' : ''}`
+          )}>
           {chapterNo === 11 ? "Section " : "Test Paper "}
           {i}
         </li>
@@ -172,20 +185,28 @@ const VocabularyPage = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+          <ul className={`word-list-part1 parent relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
             {
               vocabularyList.slice(0, part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index}
+                  className={classNames(
+                    'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                    { 'child bg-secondary-200': wordIndex === index }
+                  )}>
                   {word}
                 </li>
               ))
             }
           </ul>
           {vocabularyList.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+          <ul className={`grid gap-2 word-list-part2`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
             {
               vocabularyList.slice(part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index}
+                  className={classNames(
+                    'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                    { 'bg-secondary-200': wordIndex === (part1Count + index) }
+                  )}>
                   {word}
                 </li>
               ))
@@ -198,7 +219,10 @@ const VocabularyPage = () => {
       <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
         {
           vocabularyList.map((word, index) => (
-            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+            <li key={word + index}
+              className={classNames(
+                'pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
+              )}>
               {word}
             </li>
           ))
@@ -226,8 +250,19 @@ const VocabularyPage = () => {
         {renderVocabularyList()}
       </div>
       <hr className="my-3" />
-      <div className="text-right mb-3">
-        Word Count: {vocabularyList.length}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex gap-5">
+          Actions: 
+          <button className="text-sm text-primary hover:underline">
+            add word after
+          </button>
+          <button className="text-sm text-primary hover:underline">
+            delete
+          </button>
+        </div>
+        <span>
+          Word Count: {vocabularyList.length}
+        </span>
       </div>
       <div className='flex gap-3 justify-center'>
         <input
