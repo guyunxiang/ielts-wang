@@ -1,13 +1,14 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './index.css';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../components/authProvider';
+
+import './index.css';
 
 // home page
 function HomePage() {
 
   const navigate = useNavigate();
-  const { isLoggedIn, userInfo, logout } = useAuth();
+  const { userInfo } = useAuth();
   const { role } = userInfo;
 
   const getStart = () => {
@@ -15,7 +16,7 @@ function HomePage() {
       navigate("/admin/vocabulary");
       return;
     }
-    navigate("/chapter");
+    navigate("/chapters");
   }
 
   return (
