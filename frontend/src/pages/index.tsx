@@ -1,9 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './index.css';
+import { useAuth } from '../components/authProvider';
 
 // home page
 function HomePage() {
+
+  const navigate = useNavigate();
+  const { isLoggedIn, userInfo, logout } = useAuth();
+  const { role } = userInfo;
+
+  const getStart = () => {
+    if (role === "admin") {
+      navigate("/admin/vocabulary");
+      return;
+    }
+    navigate("/chapter");
+  }
+
   return (
     <div className="App">
       <header className="App-header mt-32 p-16 text-center">
@@ -19,7 +33,9 @@ function HomePage() {
         </div>
       </div>
       <div className='text-center mt-24'>
-        <Link className='text-2xl underline' to="/chapters">开始</Link>
+        <span className='text-2xl underline cursor-pointer text-primary' onClick={getStart}>
+          开始
+        </span>
       </div>
     </div>
   );
