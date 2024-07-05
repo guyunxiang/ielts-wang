@@ -12,6 +12,9 @@ interface WordItem {
   _id: string;
 }
 
+// set button disabled
+let buttonDisabled = false;
+
 const VocabularyPage = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -141,6 +144,8 @@ const VocabularyPage = () => {
   }
 
   const handleSubmit = async () => {
+    if (buttonDisabled) return;
+    buttonDisabled = true;
     const postData = {
       chapterNo: chapterNo,
       testPaperNo: testPaperNo,
@@ -148,11 +153,12 @@ const VocabularyPage = () => {
       id: testPaperId
     };
     const { success, message, data } = await post("/api/admin/vocabulary/save", postData);
+    buttonDisabled = false;
     if (!success) {
       toast.error(message);
       return;
     }
-    setTestPaperId(data);    
+    setTestPaperId(data);
     toast.success(message);
   }
 
