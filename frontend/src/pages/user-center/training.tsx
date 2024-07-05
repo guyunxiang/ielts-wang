@@ -271,8 +271,6 @@ const VocabularyTraining = () => {
     )
   }
 
-  console.log(vocabularyData);
-
   return (
     <div className='mt-4 text-center flex flex-1 flex-col'>
       <div className="inline-block relative">

@@ -177,7 +177,7 @@ const TestPaperpage = () => {
       setWordRecord(words);
     }
     return (
-      <button className='ml-2 px-4 underline text-primary' onClick={handleLoadCache}>
+      <button className='ml-2 px-4 hover:underline text-primary' onClick={handleLoadCache}>
         Load Cache
       </button>
     );

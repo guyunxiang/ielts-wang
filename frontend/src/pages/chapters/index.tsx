@@ -39,7 +39,8 @@ function ChapterPage() {
       }
     }
     fetchVocabularyList();
-  }, []);
+    loadVocabularyListWordCount(chapterNo);
+  }, [chapterNo]);
 
   useEffect(() => {
     // fetch dictation mistakes data to render complete progress
@@ -53,10 +54,6 @@ function ChapterPage() {
       fetchDictationMistakes();
     }
   }, [chapterNo, role]);
-
-  useEffect(() => {
-    loadVocabularyListWordCount(chapterNo)
-  }, [chapterNo])
 
   const saveVocabularListWordCount = (vocabularyList: VocabularyItem[]) => {
     sessionStorage.setItem("vocabularyCounts", JSON.stringify(vocabularyList));
