@@ -76,16 +76,10 @@ const VocabularyPage = () => {
   };
 
   // on click word
-  const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName.toLowerCase() === 'li') {
-      const word = target.textContent;
-      if (word) {
-        setInputValue(word);
-        setWordIndex(vocabularyList.indexOf(word));
-        inputRef.current?.focus();
-      }
-    }
+  const handleWordListClick = (word: string, index: number) => {
+    setInputValue(word);
+    setWordIndex(index);
+    inputRef.current?.focus();
   };
 
   // onChange
@@ -119,6 +113,33 @@ const VocabularyPage = () => {
     }
   }
 
+  // insert a word after current word
+  const handleAddWord = () => {
+    if (wordIndex < 0) {
+      toast.warning("Please select a word which you want to insert a new word after.");
+      return;
+    }
+    const newVocabularyList = [...vocabularyList];
+    newVocabularyList.splice(wordIndex + 1, 0, "");
+    setVocabularyList(newVocabularyList);
+    setWordIndex(wordIndex + 1);
+    setInputValue("");
+    inputRef.current?.focus();
+  }
+
+  // delete a word
+  const handleDeleteWord = () => {
+    if (wordIndex < 0) {
+      toast.warning("Please select a word which you want to delete.");
+      return;
+    }
+    const newVocabularyList = [...vocabularyList];
+    newVocabularyList.splice(wordIndex, 1);
+    setVocabularyList(newVocabularyList);
+    setWordIndex(-1);
+    setInputValue("");
+  }
+
   const handleSubmit = async () => {
     const postData = {
       chapterNo: chapterNo,
@@ -126,11 +147,12 @@ const VocabularyPage = () => {
       words: vocabularyList.map((word) => ({ word })),
       id: testPaperId
     };
-    const { success, message } = await post("/api/admin/vocabulary/save", postData);
+    const { success, message, data } = await post("/api/admin/vocabulary/save", postData);
     if (!success) {
       toast.error(message);
       return;
     }
+    setTestPaperId(data);    
     toast.success(message);
   }
 
@@ -185,28 +207,30 @@ const VocabularyPage = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className={`word-list-part1 parent relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+          <ul className={`word-list-part1 relative grid gap-2`} style={{ gridTemplateColumns: gridColsNumber }}>
             {
               vocabularyList.slice(0, part1Count).map((word, index) => (
                 <li key={word + index}
                   className={classNames(
                     'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
-                    { 'child bg-secondary-200': wordIndex === index }
-                  )}>
+                    { 'bg-secondary-200': wordIndex === index }
+                  )}
+                  onClick={() => { handleWordListClick(word, index) }}>
                   {word}
                 </li>
               ))
             }
           </ul>
           {vocabularyList.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className={`grid gap-2 word-list-part2`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+          <ul className={`grid gap-2 word-list-part2`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
             {
               vocabularyList.slice(part1Count).map((word, index) => (
                 <li key={word + index}
                   className={classNames(
                     'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
                     { 'bg-secondary-200': wordIndex === (part1Count + index) }
-                  )}>
+                  )}
+                  onClick={() => { handleWordListClick(word, part1Count + index) }}>
                   {word}
                 </li>
               ))
@@ -216,13 +240,15 @@ const VocabularyPage = () => {
       )
     }
     return (
-      <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+      <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }}>
         {
           vocabularyList.map((word, index) => (
             <li key={word + index}
               className={classNames(
-                'pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
-              )}>
+                'pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                { 'bg-secondary-200': wordIndex === index }
+              )}
+              onClick={() => { handleWordListClick(word, index) }}>
               {word}
             </li>
           ))
@@ -252,12 +278,14 @@ const VocabularyPage = () => {
       <hr className="my-3" />
       <div className="flex items-center justify-between mb-3">
         <div className="flex gap-5">
-          Actions: 
-          <button className="text-sm text-primary hover:underline">
-            add word after
+          Actions:
+          <button className="text-sm text-primary hover:underline"
+            onClick={handleAddWord}>
+            Insert
           </button>
-          <button className="text-sm text-primary hover:underline">
-            delete
+          <button className="text-sm text-primary hover:underline"
+            onClick={handleDeleteWord}>
+            Delete
           </button>
         </div>
         <span>
