@@ -125,7 +125,6 @@ exports.getAllDictationMistakes = async (req, res) => {
       accouacyRate,
       chapterNo,
       testPaperNo,
-      sectionNo,
       createdAt,
       words,
       _id,
@@ -135,7 +134,6 @@ exports.getAllDictationMistakes = async (req, res) => {
       accouacyRate,
       chapterNo,
       testPaperNo,
-      sectionNo,
       createdAt,
       vocabularyCount: words.length + accuracyCount
     }));
@@ -310,7 +308,6 @@ exports.getDictationMistakeById = async (req, res) => {
     const responseData = {
       chapterNo: dictationMistake.chapterNo,
       testPaperNo: dictationMistake.testPaperNo,
-      sectionNo: dictationMistake.sectionNo,
       words: mergedWords
     };
 

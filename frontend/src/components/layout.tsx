@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "./authProvider";
+import React from 'react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +14,8 @@ function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const { isLoggedIn, userInfo, logout } = useAuth();
 
+  const { role } = userInfo;
+
   const handleClickLogin = () => {
     if (isLoggedIn) {
       logout();
@@ -20,20 +23,52 @@ function Layout({ children }: LayoutProps) {
     navigate('/login');
   }
 
-  const RenderPersonalCentre = () => {
-    if (!isLoggedIn) return null;
-    if (userInfo.role === 'admin') {
+  const renderCommonNavigation = () => {
+    if (role !== "admin") {
       return (
-        <li className='hover:text-primary min-w-20 text-center'>
-          <Link to="/admin">Administrator</Link>
-        </li>
+        <React.Fragment>
+          <li className='hover:text-primary min-w-20 text-center'>
+            <Link to="/chapters">Chapters</Link>
+          </li>
+        </React.Fragment>
       )
     }
-    return (
-      <li className='hover:text-primary min-w-20 text-center'>
-        <Link to="/user-center">User Center</Link>
-      </li>
-    )
+  }
+
+  const renderUserNavigation = () => {
+    if (role === "user") {
+      return (
+        <React.Fragment>
+          <li className='hover:text-primary min-w-20 text-center'>
+            <Link to="/user-center">User Center</Link>
+          </li>
+        </React.Fragment>
+      )
+    }
+  }
+
+  const renderAdminNavigation = () => {
+    if (role === "admin") {
+      return (
+        <React.Fragment>
+          <li className='hover:text-primary text-center'>
+            <Link to="/admin/vocabulary" className='block px-3'>
+              Vocabulary
+            </Link>
+          </li>
+          <li className='hover:text-primary text-center'>
+            <Link to="/admin/whitelist" className='block px-3'>
+              Whitelist
+            </Link>
+          </li>
+          <li className='hover:text-primary text-center'>
+            <Link to="/admin/misspelled" className='block px-3'>
+              Misspelled Table
+            </Link>
+          </li>
+        </React.Fragment>
+      )
+    }
   }
 
   return (
@@ -48,10 +83,9 @@ function Layout({ children }: LayoutProps) {
               <li className='hover:text-primary min-w-20 text-center'>
                 <Link to="/">Home</Link>
               </li>
-              <li className='hover:text-primary min-w-20 text-center'>
-                <Link to="/chapters">Chapters</Link>
-              </li>
-              <RenderPersonalCentre />
+              {renderCommonNavigation()}
+              {renderUserNavigation()}
+              {renderAdminNavigation()}
               <li className='hover:text-primary min-w-20 text-center' onClick={handleClickLogin}>
                 <span className='cursor-pointer'>
                   {isLoggedIn ? 'Logout' : 'Login'}

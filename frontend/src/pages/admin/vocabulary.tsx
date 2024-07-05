@@ -3,13 +3,17 @@ import { TEST_PAPERS } from "../../utils/const";
 import { get, post } from "../../utils/fetch";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import classNames from "classnames";
 
-import { CHAPTER11_PARTS } from '../../utils/const';
+import { CHAPTERS, CHAPTER11_PARTS } from '../../utils/const';
 
 interface WordItem {
   word: string;
   _id: string;
 }
+
+// set button disabled
+let buttonDisabled = false;
 
 const VocabularyPage = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -55,6 +59,8 @@ const VocabularyPage = () => {
       const { chapter } = target.dataset;
       if (chapter) {
         setChapterNo(+chapter);
+        setWordIndex(-1);
+        setInputValue("");
       }
     }
   };
@@ -66,21 +72,17 @@ const VocabularyPage = () => {
       const { paper } = target.dataset;
       if (paper) {
         setTestPaperNo(+paper);
+        setWordIndex(-1);
+        setInputValue("");
       }
     }
   };
 
   // on click word
-  const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName.toLowerCase() === 'li') {
-      const word = target.textContent;
-      if (word) {
-        setInputValue(word);
-        setWordIndex(vocabularyList.indexOf(word));
-        inputRef.current?.focus();
-      }
-    }
+  const handleWordListClick = (word: string, index: number) => {
+    setInputValue(word);
+    setWordIndex(index);
+    inputRef.current?.focus();
   };
 
   // onChange
@@ -114,33 +116,67 @@ const VocabularyPage = () => {
     }
   }
 
+  // insert a word after current word
+  const handleAddWord = () => {
+    if (wordIndex < 0) {
+      toast.warning("Please select a word which you want to insert a new word after.");
+      return;
+    }
+    const newVocabularyList = [...vocabularyList];
+    newVocabularyList.splice(wordIndex + 1, 0, "");
+    setVocabularyList(newVocabularyList);
+    setWordIndex(wordIndex + 1);
+    setInputValue("");
+    inputRef.current?.focus();
+  }
+
+  // delete a word
+  const handleDeleteWord = () => {
+    if (wordIndex < 0) {
+      toast.warning("Please select a word which you want to delete.");
+      return;
+    }
+    const newVocabularyList = [...vocabularyList];
+    newVocabularyList.splice(wordIndex, 1);
+    setVocabularyList(newVocabularyList);
+    setWordIndex(-1);
+    setInputValue("");
+  }
+
   const handleSubmit = async () => {
+    if (buttonDisabled) return;
+    buttonDisabled = true;
     const postData = {
       chapterNo: chapterNo,
       testPaperNo: testPaperNo,
       words: vocabularyList.map((word) => ({ word })),
       id: testPaperId
     };
-    const { success, message } = await post("/api/admin/vocabulary/save", postData);
+    const { success, message, data } = await post("/api/admin/vocabulary/save", postData);
+    buttonDisabled = false;
     if (!success) {
       toast.error(message);
       return;
     }
+    setTestPaperId(data);
     toast.success(message);
   }
 
   const RenderChapter = () => {
-    const chapters: ReactElement[] = [];
-    for (let index = 1; index <= 12; index++) {
-      chapters.push(
-        <li key={index} data-chapter={index} className={`cursor-pointer px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center ${chapterNo === index ? 'bg-secondary-300 text-primary' : ''}`}>
-          Chapter {index}
-        </li>
-      )
-    }
     return (
       <ul className="flex flex-wrap gap-3 mb-3" onClick={handleChapterClick}>
-        {chapters}
+        {
+          CHAPTERS.map((index) => (
+            <li key={index}
+              data-chapter={index}
+              className={classNames(
+                "cursor-pointer px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center",
+                `${chapterNo === index ? 'bg-secondary-300 text-primary' : ''}`
+              )}>
+              Chapter {index}
+            </li>
+          ))
+        }
       </ul>
     )
   }
@@ -151,7 +187,12 @@ const VocabularyPage = () => {
     const testPaperNums: number = TEST_PAPERS[`chapter${chapterNo}`];
     for (let i = 1; i <= testPaperNums; i++) {
       list.push(
-        <li data-paper={i} className={`chapter paper-${i} relative px-3 py-1 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary ${testPaperNo === i ? 'bg-secondary-300 text-primary' : ''}`} key={`paper-${i}`}>
+        <li data-paper={i}
+          key={`paper-${i}`}
+          className={classNames(
+            "chapter relative px-3 py-1 border border-dashed border-secondary-700 cursor-pointer hover:text-primary hover:font-medium hover:border-primary",
+            `${testPaperNo === i ? 'bg-secondary-200 text-primary' : ''}`
+          )}>
           {chapterNo === 11 ? "Section " : "Test Paper "}
           {i}
         </li>
@@ -172,20 +213,30 @@ const VocabularyPage = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+          <ul className={`word-list-part1 relative grid gap-2`} style={{ gridTemplateColumns: gridColsNumber }}>
             {
               vocabularyList.slice(0, part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index}
+                  className={classNames(
+                    'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                    { 'bg-secondary-200': wordIndex === index }
+                  )}
+                  onClick={() => { handleWordListClick(word, index) }}>
                   {word}
                 </li>
               ))
             }
           </ul>
           {vocabularyList.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+          <ul className={`grid gap-2 word-list-part2`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
             {
               vocabularyList.slice(part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index}
+                  className={classNames(
+                    'pl-2 border border-secondary-700 border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                    { 'bg-secondary-200': wordIndex === (part1Count + index) }
+                  )}
+                  onClick={() => { handleWordListClick(word, part1Count + index) }}>
                   {word}
                 </li>
               ))
@@ -195,10 +246,15 @@ const VocabularyPage = () => {
       )
     }
     return (
-      <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+      <ul className={`max-h-64 grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }}>
         {
           vocabularyList.map((word, index) => (
-            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+            <li key={word + index}
+              className={classNames(
+                'pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer',
+                { 'bg-secondary-200': wordIndex === index }
+              )}
+              onClick={() => { handleWordListClick(word, index) }}>
               {word}
             </li>
           ))
@@ -226,8 +282,21 @@ const VocabularyPage = () => {
         {renderVocabularyList()}
       </div>
       <hr className="my-3" />
-      <div className="text-right mb-3">
-        Word Count: {vocabularyList.length}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex gap-5">
+          Actions:
+          <button className="text-sm text-primary hover:underline"
+            onClick={handleAddWord}>
+            Insert
+          </button>
+          <button className="text-sm text-primary hover:underline"
+            onClick={handleDeleteWord}>
+            Delete
+          </button>
+        </div>
+        <span>
+          Word Count: {vocabularyList.length}
+        </span>
       </div>
       <div className='flex gap-3 justify-center'>
         <input

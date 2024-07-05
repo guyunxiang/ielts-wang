@@ -6,6 +6,8 @@ interface Chapter11Parts {
   [key: string]: number[]
 }
 
+export const CHAPTERS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
 export const TEST_PAPERS: TestPaper = {
   chapter2: 5,
   chapter3: 9,

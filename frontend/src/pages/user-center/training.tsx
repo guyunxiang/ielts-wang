@@ -4,12 +4,12 @@ import copy from 'clipboard-copy';
 
 import { get, post } from '../../utils/fetch';
 import { toast } from 'react-toastify';
+import { CHAPTER11_PARTS } from '../../utils/const';
 
 let timer: number;
 interface VocabularyData {
   chapterNo: number;
   testPaperNo: number;
-  sectionNo: number;
   words: Word[];
 }
 
@@ -28,7 +28,6 @@ const VocabularyTraining = () => {
   const [vocabularyData, setVocabularyData] = useState<VocabularyData>({
     chapterNo: 0,
     testPaperNo: 0,
-    sectionNo: 0,
     words: []
   });
   const [word, setWord] = useState('');
@@ -214,23 +213,48 @@ const VocabularyTraining = () => {
     let gridColsNumber = "repeat(4, 1fr)";
     if (chapterNo === 5 && testPaperNo < 12) {
       gridColsNumber = "repeat(3, 1fr)";
-    } else if (chapterNo === 11) {
-      gridColsNumber = "repeat(2, 1fr)";
+    }
+    // render chapter 11
+    if (chapterNo === 11) {
+      const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
+      return (
+        <div className="max-h-64">
+          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }}>
+            {
+              words.slice(0, part1Count).map(({ word, misspelling, correct, practiceCount }, index) => (
+                <li key={word + index} className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+                  onClick={() => handleChangeToNextWord(word)}>
+                  {transformSpellingWord(misspelling, word, practiceCount)}
+                </li>
+              ))
+            }
+          </ul>
+          {words.length > part1Count ? <hr className="my-2" /> : null}
+          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+            {
+              words.slice(part1Count).map(({ word, misspelling, correct, practiceCount }, index) => (
+                <li key={word + index} className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+                  onClick={() => handleChangeToNextWord(word)}>
+                  {transformSpellingWord(misspelling, word, practiceCount)}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      )
     }
     return (
       <ul style={{ gridTemplateColumns: gridColsNumber }}
         className='grid grid-cols-4 max-h-64 gap-2 word-list'>
         {
-          words.map(({ word, misspelling, correct, practiceCount }) => {
-            return (
-              <li key={word}
-                data-word={word}
-                className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
-                onClick={() => handleChangeToNextWord(word)}>
-                {transformSpellingWord(misspelling, word, practiceCount)}
-              </li>
-            )
-          })
+          words.map(({ word, misspelling, correct, practiceCount }) => (
+            <li key={word}
+              data-word={word}
+              className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+              onClick={() => handleChangeToNextWord(word)}>
+              {transformSpellingWord(misspelling, word, practiceCount)}
+            </li>
+          ))
         }
       </ul>
     )
@@ -238,14 +262,14 @@ const VocabularyTraining = () => {
 
   const RenderBasicInfo = () => {
     const accuracyCount = vocabularyData.words.filter(({ correct }) => correct).length;
+    const accuracyRate = (accuracyCount / (vocabularyData.words.length) * 100).toFixed(2);
     return (
       <div className='container mx-auto text-right'>
-        Accuracy Count: {accuracyCount} / {vocabularyData.words.length}
+        <span className='mr-3'>Accuracy Rate: {accuracyRate}%</span>
+        <span>Accuracy Count: {accuracyCount} / {vocabularyData.words.length}</span>
       </div>
     )
   }
-
-  console.log(vocabularyData);
 
   return (
     <div className='mt-4 text-center flex flex-1 flex-col'>
