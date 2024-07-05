@@ -130,8 +130,8 @@ const UserCenter = () => {
 
   // render record title
   const renderTitle = (chapterNo: number, testPaperNo: number) => {
-    if (testPaperNo) return "Test Paper " + testPaperNo;
     if (chapterNo === 11 && testPaperNo) return "Section " + testPaperNo;
+    if (testPaperNo) return "Test Paper " + testPaperNo;
     return "Chapter " + chapterNo;
   }
 
