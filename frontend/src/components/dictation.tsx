@@ -118,11 +118,6 @@ const Dictation = ({
     setInputValue("");
   }
 
-  // on submit
-  const handleSubmit = async () => {
-    console.log("submit");
-  }
-
   const RenderDictationRecord = () => {
     // Set grid column number fixed tailwind grid-cols-[nums] not working at 2024-07-01 15:53:00
     let gridColsNumber = "repeat(4, 1fr)";

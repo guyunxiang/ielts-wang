@@ -3,6 +3,8 @@ const VocabularyList = require("../models/vocabularyList");
 const DictationMistake = require("../models/dictationMistake");
 const Whitelist = require('../models/whitelist');
 
+const testController = require("./test");
+
 // save paper test
 exports.savePaperTest = async (req, res) => {
   try {
@@ -34,19 +36,18 @@ exports.savePaperTest = async (req, res) => {
 
     const { _id } = await newTest.save();
 
+    // to do create a misspelled words record
+    await testController.createMisspelledWords(_id);
+
     res.status(201).json({
       success: true,
       message: "Submit successfully!"
     });
-
-    // to do create a misspelled words record
-    await createMisspelledWords(_id);
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: error,
+      message: "",
     });
   }
 }

@@ -1,9 +1,9 @@
-import { Link, useLocation } from "react-router-dom"
-import Dictation from "../../../components/dictation";
 import { useEffect, useState } from "react";
-
-import { get, post } from "../../../utils/fetch";
+import { Link, useLocation } from "react-router-dom"
 import { toast } from "react-toastify";
+
+import Dictation from "../../../components/dictation";
+import { get, post } from "../../../utils/fetch";
 
 const AdminDictationPage = () => {
 
@@ -17,7 +17,6 @@ const AdminDictationPage = () => {
     const getDictationMistakeData = async () => {
       const { success, data } = await get('/api/admin/dictation/query', { testId });
       if (success && data) {
-        console.log(data);
         setWords(data.words);
       }
     }
@@ -46,8 +45,10 @@ const AdminDictationPage = () => {
   return (
     <div className="container mt-3 mx-auto px-3 h-full flex flex-col">
       <h1 className="text-3xl font-black flex items-center justify-between">
-        <Link to="/admin/misspelled" className="text-base hover:text-primary cursor-pointer">Back</Link>
-        &nbsp;Dictation Record Detail
+        <Link to="/admin/misspelled" className="text-base hover:text-primary cursor-pointer">
+          Back
+        </Link>
+        Dictation Record Detail
       </h1>
       <hr className="my-3" />
       <Dictation {...props} />

@@ -89,7 +89,7 @@ const MisspelledPage = () => {
         <td className="border border-primary">{accuracyRate.toFixed(2)}%</td>
         <td className="border border-primary">{totalCount}</td>
         <td className="border border-primary">
-          <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId }}
+          <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId, chapterNo, testPaperNo }}
             className="hover:text-primary cursor-pointer mr-3">
             View
           </Link>
