@@ -1,6 +1,7 @@
 const Test = require('../models/test');
 const VocabularyList = require("../models/vocabularyList");
 const DictationMistake = require("../models/dictationMistake");
+const Whitelist = require('../models/whitelist');
 
 // save paper test
 exports.savePaperTest = async (req, res) => {
@@ -45,16 +46,15 @@ exports.savePaperTest = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
 
-const calculateMisspelledData = (testWords, vocabularyList) => {
-  const whitelist = [
-    { original: 'centre', alternative: ['center'] },
-    { original: 'booklist', alternative: ['book list'] }
-  ];
+const calculateMisspelledData = async (testWords, vocabularyList) => {
+  
+  // TODO, version 18
+  const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
 
   // ignore plural
   const ignorePlural = (word) => {
@@ -126,7 +126,7 @@ exports.createMisspelledWords = async (testId, misspelledRecordId) => {
     }
 
     let newMistake;
-    const misspelledRecord = calculateMisspelledData(words, vocabularyList);
+    const misspelledRecord = await calculateMisspelledData(words, vocabularyList);
     if (!misspelledRecordId) {
       // Create new DictationMistake record
       newMistake = new DictationMistake({
@@ -136,6 +136,7 @@ exports.createMisspelledWords = async (testId, misspelledRecordId) => {
         userId,
         testId,
       });
+      await newMistake.save();
     } else {
       newMistake = await DictationMistake.findByIdAndUpdate(
         misspelledRecordId,
@@ -143,7 +144,6 @@ exports.createMisspelledWords = async (testId, misspelledRecordId) => {
         { new: true }
       );
     }
-    await newMistake.save();
     console.log('Misspelled words record created successfully');
   } catch (error) {
     console.error('Error creating misspelled words record:', error);

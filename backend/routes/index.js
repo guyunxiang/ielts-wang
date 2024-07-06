@@ -19,7 +19,10 @@ router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 router.get("/admin/mistakes/query", adminController.queryMisspelledListByUserId);
 router.put("/admin/mistake/renew", adminController.renewMisspelledRecord);
 router.get("/admin/dictation/query", adminController.queryDictationById);
-router.put("/admin/dictation/update", adminController.updateDictationRecordById)
+router.put("/admin/dictation/update", adminController.updateDictationRecordById);
+
+router.get("/admin/whitelist/query", adminController.queryWhitelist);
+router.put("/admin/whitelist/update", adminController.updateWhitelistById);
 
 router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
 // query vocabulary by test paper

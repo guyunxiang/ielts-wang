@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const DictationMistake = require("../models/dictationMistake");
 const VocabularyList = require("../models/vocabularyList");
 const Test = require("../models/test");
+const Whitelist = require("../models/whitelist");
 
 const testController = require("./test");
 
@@ -50,7 +51,7 @@ exports.savePaperVocabulary = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -82,7 +83,7 @@ exports.queryAllVocabulary = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -101,7 +102,7 @@ exports.queryVocabularByTestPaperNo = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -133,6 +134,8 @@ exports.queryMisspelledListByUserId = async (req, res) => {
       }
     ]);
 
+    // set cache 300s
+    res.set('Cache-Control', 'public, max-age=300');
     res.status(200).json({
       success: true,
       data: misspelledList
@@ -142,7 +145,7 @@ exports.queryMisspelledListByUserId = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -166,7 +169,7 @@ exports.renewMisspelledRecord = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -190,7 +193,7 @@ exports.queryDictationById = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
@@ -225,7 +228,56 @@ exports.updateDictationRecordById = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
+    });
+  }
+}
+
+exports.queryWhitelist = async (req, res) => {
+  try {
+    const { version } = req.query;
+    const whitelist = await Whitelist.findOne({ version });
+    res.status(200).json({
+      success: true,
+      data: whitelist ?? {}
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Network Error!",
+    });
+  }
+}
+
+exports.updateWhitelistById = async (req, res) => {
+  try {
+    const { id, version, whitelist } = req.body;
+
+    let message;
+    if (id) {
+      await Whitelist.findByIdAndUpdate(id, {
+        whitelist,
+        version,
+      }, { new: true });
+      message = "Upload whitelist successfully!";
+    } else {
+      const currentWhitelist = new Whitelist({
+        whitelist,
+        version
+      });
+      await currentWhitelist.save();
+      message = "Create whitelist successfully!";
+    }
+    res.status(200).json({
+      success: true,
+      message
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 }
