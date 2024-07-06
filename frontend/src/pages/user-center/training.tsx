@@ -184,9 +184,9 @@ const VocabularyTraining = () => {
     toast.success("Copied to clipboard.");
   }
 
-  const transformSpellingWord = (misselling: string = "", word: string, practiceCount: number) => {
-    if (!misselling) { return word }
-    return misselling.split("").map((letter, index) => {
+  const transformSpellingWord = (misspelling: string = "", word: string, practiceCount: number) => {
+    if (!misspelling) { return word }
+    return misspelling.split("").map((letter, index) => {
       let color = '';
       if (index < word.length) {
         color = word[index].toLocaleLowerCase() === letter.toLocaleLowerCase() ? 'green' : 'red';
