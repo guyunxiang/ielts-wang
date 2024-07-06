@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "./authProvider";
 import React from 'react';
+import classNames from 'classnames';
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +14,7 @@ function Layout({ children }: LayoutProps) {
 
   const navigate = useNavigate();
   const { isLoggedIn, userInfo, logout } = useAuth();
+  const location = useLocation();
 
   const { role } = userInfo;
 
@@ -28,7 +30,9 @@ function Layout({ children }: LayoutProps) {
       return (
         <React.Fragment>
           <li className='hover:text-primary min-w-20 text-center'>
-            <Link to="/chapters">Chapters</Link>
+            <Link to="/chapters" className={classNames(
+              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/chapters") }
+            )}>Chapters</Link>
           </li>
         </React.Fragment>
       )
@@ -40,7 +44,9 @@ function Layout({ children }: LayoutProps) {
       return (
         <React.Fragment>
           <li className='hover:text-primary min-w-20 text-center'>
-            <Link to="/user-center">User Center</Link>
+            <Link to="/user-center" className={classNames(
+              { "text-primary hover:text-secondary-500": location.pathname === "/user-center" }
+            )}>User Center</Link>
           </li>
         </React.Fragment>
       )
@@ -52,17 +58,26 @@ function Layout({ children }: LayoutProps) {
       return (
         <React.Fragment>
           <li className='hover:text-primary text-center'>
-            <Link to="/admin/vocabulary" className='block px-3'>
+            <Link to="/admin/vocabulary" className={classNames(
+              "block px-3",
+              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/vocabulary") }
+            )}>
               Vocabulary
             </Link>
           </li>
           <li className='hover:text-primary text-center'>
-            <Link to="/admin/whitelist" className='block px-3'>
+            <Link to="/admin/whitelist" className={classNames(
+              "block px-3",
+              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/whitelist") }
+            )}>
               Whitelist
             </Link>
           </li>
           <li className='hover:text-primary text-center'>
-            <Link to="/admin/misspelled" className='block px-3'>
+            <Link to="/admin/misspelled" className={classNames(
+              "block px-3",
+              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/misspelled") }
+            )}>
               Misspelled Table
             </Link>
           </li>
