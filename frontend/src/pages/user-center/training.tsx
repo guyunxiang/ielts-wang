@@ -34,7 +34,7 @@ const VocabularyTraining = () => {
   const [input, setInput] = useState<string>('');
   const [coloredWord, setColoredWord] = useState<JSX.Element[]>([]);
   const [correctCount, setCorrectCount] = useState<number>(0);
-  const [paused, setPaused] = useState(false);
+  const [paused, setPaused] = useState(true);
 
   useEffect(() => {
     // Get DictationMistake data via id;
@@ -272,7 +272,7 @@ const VocabularyTraining = () => {
   }
 
   return (
-    <div className='mt-4 text-center flex flex-1 flex-col'>
+    <div className='container mx-auto px-3 mt-4 text-center flex flex-1 flex-col'>
       <div className="inline-block relative">
         <h1 className="text-9xl font-black font-sans mb-6 relative" onClick={handleCopyWord}>
           {coloredWord}
