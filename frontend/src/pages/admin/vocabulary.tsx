@@ -264,12 +264,9 @@ const VocabularyPage = () => {
   }
 
   return (
-    <div className="container mt-3 mx-auto h-full flex flex-col">
+    <div className="container mt-3 mx-auto px-3 h-full flex flex-col">
       <h1 className="text-3xl font-black flex items-center justify-between">
-        <Link to="/admin" className="text-base hover:text-primary cursor-pointer">
-          Admin Page
-        </Link>
-        &nbsp;Vocabulary Management
+        Vocabulary Management
       </h1>
       <hr className="my-3" />
       <div>
