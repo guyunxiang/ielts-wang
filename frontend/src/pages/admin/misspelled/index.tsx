@@ -120,7 +120,7 @@ const MisspelledPage = () => {
       <div className="overflow-auto h-full">
         <div className="max-h-96">
           <table className="w-full border text-center border-primary">
-            <thead>
+            <thead className="bg-secondary-700 ">
               <tr>
                 <th className="border border-primary">Test Date</th>
                 <th className="border border-primary">Chapter</th>
