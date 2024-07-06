@@ -96,8 +96,8 @@ function Layout({ children }: LayoutProps) {
         </div>
       </header>
       <main className='flex flex-col flex-1'>{children}</main>
-      <footer className='h-16 min-h-16 flex justify-center items-center'>
-        <p className='text-center'>
+      <footer className='mt-3 py-3 flex justify-center items-center bg-[#ede0c7]'>
+        <p className='text-center text-sm'>
           Powered by Yunxiang Gu 2024
         </p>
       </footer>

@@ -8,8 +8,8 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 
 import Layout from './components/layout';
-
 import { AuthProvider } from './components/authProvider';
+
 import App from './pages';
 import ChaptersPage from './pages/chapters';
 import TestPaperPage from './pages/paper';
@@ -20,6 +20,8 @@ import VocabularyTraining from './pages/user-center/training';
 
 import AdminPage from './pages/admin';
 import MisspelledPage from './pages/admin/misspelled';
+import AdminDictationPage from './pages/admin/misspelled/dictation';
+
 import WhiteListPage from './pages/admin/whitelist';
 import VocabularyPage from './pages/admin/vocabulary';
 
@@ -39,6 +41,7 @@ root.render(
           <Route path="/training/:word" element={<Layout><VocabularyTraining /></Layout>}></Route>
           <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
           <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
+          <Route path="/admin/misspelled/dictation/:TestId" element={<Layout><AdminDictationPage /></Layout>}></Route>
           <Route path="/admin/whitelist" element={<Layout><WhiteListPage /></Layout>}></Route>
           <Route path="/admin/vocabulary" element={<Layout><VocabularyPage /></Layout>}></Route>
           <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>

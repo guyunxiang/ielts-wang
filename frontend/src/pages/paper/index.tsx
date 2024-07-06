@@ -88,15 +88,10 @@ const TestPaperpage = () => {
   }
 
   // Switch next word to training
-  const handleWordListClick = async (event: React.MouseEvent<HTMLUListElement>) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName.toLowerCase() === 'li') {
-      const word = target.textContent;
-      if (word) {
-        setInputValue(word);
-        setWordIndex(wordRecord.indexOf(word));
-      }
-    }
+  const handleWordListClick = (word: string, index: number) => {
+    setInputValue(word);
+    setWordIndex(index);
+    inputRef.current?.focus();
   };
 
   // on type Enter
@@ -194,20 +189,22 @@ const TestPaperpage = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }} onClick={handleWordListClick}>
+          <ul className={`relative grid gap-2 word-list`} style={{ gridTemplateColumns: gridColsNumber }}>
             {
               wordRecord.slice(0, part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
+                  onClick={() => { handleWordListClick(word, index) }}>
                   {word}
                 </li>
               ))
             }
           </ul>
           {wordRecord.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }} onClick={handleWordListClick}>
+          <ul className={`grid gap-2 word-list`} style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
             {
               wordRecord.slice(part1Count).map((word, index) => (
-                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+                <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
+                  onClick={() => { handleWordListClick(word, part1Count + index) }}>
                   {word}
                 </li>
               ))
@@ -219,11 +216,11 @@ const TestPaperpage = () => {
     return (
       <ul
         className={`grid max-h-64 gap-2 word-list`}
-        style={{ gridTemplateColumns: gridColsNumber }}
-        onClick={handleWordListClick}>
+        style={{ gridTemplateColumns: gridColsNumber }}>
         {
           wordRecord.map((word, index) => (
-            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'>
+            <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
+              onClick={() => { handleWordListClick(word, index) }}>
               {word}
             </li>
           ))

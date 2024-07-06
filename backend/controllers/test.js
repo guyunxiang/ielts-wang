@@ -1,6 +1,7 @@
 const Test = require('../models/test');
 const VocabularyList = require("../models/vocabularyList");
 const DictationMistake = require("../models/dictationMistake");
+const Whitelist = require('../models/whitelist');
 
 // save paper test
 exports.savePaperTest = async (req, res) => {
@@ -45,16 +46,33 @@ exports.savePaperTest = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while registering user",
+      message: error,
     });
   }
 }
 
-const calculateMisspelledData = (testWords, vocabularyList) => {
-  const whitelist = [
-    { original: 'centre', alternative: ['center'] },
-    { original: 'booklist', alternative: ['book list'] }
-  ];
+const calculateMisspelledData = async (testWords, vocabularyList) => {
+  
+  // TODO, version 18
+  const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
+
+  // ignore plural
+  const ignorePlural = (word) => {
+    const lowercaseWord = word.toLowerCase();
+    if (lowercaseWord.endsWith('ies')) {
+      return lowercaseWord.slice(0, -3) + 'y';
+    } else if (lowercaseWord.endsWith('es')) {
+      // handle 'classes' -> 'class'
+      return lowercaseWord.slice(0, -2);
+    } else if (lowercaseWord.endsWith('s') && lowercaseWord.length > 3) {
+      return lowercaseWord.slice(0, -1);
+    }
+    return lowercaseWord;
+  };
+
+  const wordsMatch = (word1, word2) => {
+    return ignorePlural(word1) === ignorePlural(word2);
+  };
 
   const misspelledWords = vocabularyList.words.filter(vocabWord => {
     const normalizedVocabWord = vocabWord.word.toLowerCase();
@@ -63,14 +81,16 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
       const normalizedTestWord = testWord.toLowerCase();
 
       // Check for exact match
-      if (normalizedVocabWord === normalizedTestWord) {
+      if (wordsMatch(normalizedVocabWord, normalizedTestWord)) {
         return true;
       }
 
       // Check against whitelist
       return whitelist.some(pair =>
-        (normalizedTestWord === pair.original && pair.alternative.includes(normalizedVocabWord)) ||
-        (normalizedVocabWord === pair.original && pair.alternative.includes(normalizedTestWord))
+        (wordsMatch(normalizedTestWord, pair.original) &&
+          pair.alternative.some(alt => wordsMatch(alt, normalizedVocabWord))) ||
+        (wordsMatch(normalizedVocabWord, pair.original) &&
+          pair.alternative.some(alt => wordsMatch(alt, normalizedTestWord)))
       );
     });
   });
@@ -90,8 +110,9 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
 }
 
 // create misspelled words table
-const createMisspelledWords = async (testId, misspelledRecordId) => {
+exports.createMisspelledWords = async (testId, misspelledRecordId) => {
   try {
+    console.log(104, testId, misspelledRecordId);
     const testRecord = await Test.findById(testId);
     if (!testRecord) {
       throw new Error('Vocabulary list not found');
@@ -105,7 +126,7 @@ const createMisspelledWords = async (testId, misspelledRecordId) => {
     }
 
     let newMistake;
-    const misspelledRecord = calculateMisspelledData(words, vocabularyList);
+    const misspelledRecord = await calculateMisspelledData(words, vocabularyList);
     if (!misspelledRecordId) {
       // Create new DictationMistake record
       newMistake = new DictationMistake({
@@ -115,6 +136,7 @@ const createMisspelledWords = async (testId, misspelledRecordId) => {
         userId,
         testId,
       });
+      await newMistake.save();
     } else {
       newMistake = await DictationMistake.findByIdAndUpdate(
         misspelledRecordId,
@@ -122,7 +144,6 @@ const createMisspelledWords = async (testId, misspelledRecordId) => {
         { new: true }
       );
     }
-    await newMistake.save();
     console.log('Misspelled words record created successfully');
   } catch (error) {
     console.error('Error creating misspelled words record:', error);

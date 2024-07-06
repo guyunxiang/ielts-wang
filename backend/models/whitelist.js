@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const whitelistSchema = new mongoose.Schema({
+const whitelist = new mongoose.Schema({
   original: {
     type: String,
     required: true,
@@ -11,6 +11,18 @@ const whitelistSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+const whitelistSchema = new mongoose.Schema({
+  version: {
+    type: Number,
+    default: 18,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  whitelist: [whitelist]
+}, { timestamps: true });
 
 const Whitelist = mongoose.model("Whitelist", whitelistSchema);
 
