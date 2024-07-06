@@ -15,6 +15,11 @@ router.get("/", (req, res) => {
 router.post("/paper/test", testController.savePaperTest);
 
 router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
+// get misspelled table
+router.get("/admin/mistakes/query", adminController.queryMisspelledListByUserId);
+router.put("/admin/mistake/renew", adminController.renewMisspelledRecord);
+router.get("/admin/dictation/query", adminController.queryDictationById);
+router.put("/admin/dictation/update", adminController.updateDictationRecordById)
 
 router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
 // query vocabulary by test paper

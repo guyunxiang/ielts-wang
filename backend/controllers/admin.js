@@ -1,4 +1,10 @@
+const mongoose = require('mongoose');
+
+const DictationMistake = require("../models/dictationMistake");
 const VocabularyList = require("../models/vocabularyList");
+const Test = require("../models/test");
+
+const testController = require("./test");
 
 // save paper vocabulary
 exports.savePaperVocabulary = async (req, res) => {
@@ -90,6 +96,130 @@ exports.queryVocabularByTestPaperNo = async (req, res) => {
     res.status(200).json({
       success: true,
       data: vocabularyList
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
+
+// Get misspelled list by userId
+exports.queryMisspelledListByUserId = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required!"
+      });
+    }
+    const misspelledList = await DictationMistake.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $project: {
+          testId: 1,
+          chapterNo: 1,
+          testPaperNo: 1,
+          accuracyCount: 1,
+          accuracyRate: 1,
+          createdAt: 1,
+          totalCount: {
+            $sum: ['$accuracyCount', { $size: '$words' }]
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: misspelledList
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
+
+// renew misspelled record by testId, misspelledId
+exports.renewMisspelledRecord = async (req, res) => {
+  try {
+    const { id, testId } = req.body;
+    if (!id || !testId) {
+      return res.status(400).json({
+        success: false,
+        message: "id and testId are required!"
+      });
+    }
+    await testController.createMisspelledWords(testId, id);
+    res.status(200).json({
+      success: true,
+      message: "Misspelled record updated successfully!"
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
+
+exports.queryDictationById = async (req, res) => {
+  try {
+    const { testId } = req.query;
+    if (!testId) {
+      return res.status(400).json({
+        success: false,
+        message: "testId is required!"
+      });
+    }
+    const test = await Test.findById(testId);
+
+    res.status(200).json({
+      success: true,
+      data: test
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while registering user",
+    });
+  }
+}
+
+// Update dictation reocrd by testId
+exports.updateDictationRecordById = async (req, res) => {
+  try {
+    const { id, words } = req.body;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "testId is required!"
+      });
+    }
+    const test = await Test.findById(id);
+    if (!test) {
+      return res.status(400).json({
+        success: false,
+        message: "Dictation not found!"
+      });
+    }
+
+    test.words = words;
+
+    await test.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Dictation update successfully!"
     });
   } catch (error) {
     console.log(error);

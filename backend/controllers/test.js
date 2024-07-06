@@ -56,6 +56,11 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
     { original: 'booklist', alternative: ['book list'] }
   ];
 
+  // ignore plural
+  const ignorePlural = (word) => {
+    return word.replace(/ies$/, 'y').replace(/s$/, '');
+  };
+
   const misspelledWords = vocabularyList.words.filter(vocabWord => {
     const normalizedVocabWord = vocabWord.word.toLowerCase();
 
@@ -69,8 +74,12 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
 
       // Check against whitelist
       return whitelist.some(pair =>
-        (normalizedTestWord === pair.original && pair.alternative.includes(normalizedVocabWord)) ||
-        (normalizedVocabWord === pair.original && pair.alternative.includes(normalizedTestWord))
+        (normalizedTestWord === ignorePlural(pair.original) &&
+          normalizedTestWord === pair.original &&
+          pair.alternative.includes(normalizedVocabWord)) ||
+        (normalizedVocabWord === ignorePlural(pair.original) &&
+          normalizedVocabWord === pair.original &&
+          pair.alternative.includes(normalizedTestWord))
       );
     });
   });
@@ -90,8 +99,9 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
 }
 
 // create misspelled words table
-const createMisspelledWords = async (testId, misspelledRecordId) => {
+exports.createMisspelledWords = async (testId, misspelledRecordId) => {
   try {
+    console.log(104, testId, misspelledRecordId);
     const testRecord = await Test.findById(testId);
     if (!testRecord) {
       throw new Error('Vocabulary list not found');
