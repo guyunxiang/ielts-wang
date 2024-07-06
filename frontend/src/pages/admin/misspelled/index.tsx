@@ -81,13 +81,13 @@ const MisspelledPage = () => {
       _id,
       createdAt,
     }) => (
-      <tr key={_id}>
+      <tr key={_id} className="hover:bg-secondary-200">
+        <td className="border border-primary">{new Date(createdAt).toLocaleDateString()}</td>
         <td className="border border-primary">{chapterNo}</td>
         <td className="border border-primary">{testPaperNo}</td>
         <td className="border border-primary">{accuracyCount}</td>
         <td className="border border-primary">{accuracyRate.toFixed(2)}%</td>
         <td className="border border-primary">{totalCount}</td>
-        <td className="border border-primary">{new Date(createdAt).toLocaleDateString()}</td>
         <td className="border border-primary">
           <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId }}
             className="hover:text-primary cursor-pointer mr-3">
@@ -104,37 +104,38 @@ const MisspelledPage = () => {
   return (
     <div className="container mt-3 mx-auto px-3 h-full flex flex-col">
       <h1 className="text-3xl font-black flex items-center justify-between">
-        <Link to="/admin" className="text-base hover:text-primary cursor-pointer">Admin Page</Link>
-        &nbsp;Misspelled Table Management
+        Misspelled Table Management
+        <div className="text-sm font-normal">
+          {/* User List: */}
+          <select name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-transparent outline-none">
+            {
+              userList.map((item: User) => (
+                <option key={item._id} id={item._id} value={item.username}>{item.username}</option>
+              ))
+            }
+          </select>
+        </div>
       </h1>
       <hr className="my-3" />
-      <div>
-        User List:
-        <select name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-white">
-          {
-            userList.map((item: User) => (
-              <option key={item._id} id={item._id} value={item.username}>{item.username}</option>
-            ))
-          }
-        </select>
-      </div>
-      <div className="mt-3">
-        <table className="w-full border text-center border-primary">
-          <thead>
-            <tr>
-              <th className="border border-primary">Chapter</th>
-              <th className="border border-primary">Test Paper</th>
-              <th className="border border-primary">Accuracy Count</th>
-              <th className="border border-primary">Accuracy Rate</th>
-              <th className="border border-primary">Total Count</th>
-              <th className="border border-primary">Test Date</th>
-              <th className="border border-primary">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {renderMisspelledList()}
-          </tbody>
-        </table>
+      <div className="overflow-auto h-full">
+        <div className="max-h-96">
+          <table className="w-full border text-center border-primary">
+            <thead>
+              <tr>
+                <th className="border border-primary">Test Date</th>
+                <th className="border border-primary">Chapter</th>
+                <th className="border border-primary">Test Paper</th>
+                <th className="border border-primary">Accuracy Count</th>
+                <th className="border border-primary">Accuracy Rate</th>
+                <th className="border border-primary">Total Count</th>
+                <th className="border border-primary">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {renderMisspelledList()}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
