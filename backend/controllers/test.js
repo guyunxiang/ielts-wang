@@ -58,7 +58,20 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
 
   // ignore plural
   const ignorePlural = (word) => {
-    return word.replace(/ies$/, 'y').replace(/s$/, '');
+    const lowercaseWord = word.toLowerCase();
+    if (lowercaseWord.endsWith('ies')) {
+      return lowercaseWord.slice(0, -3) + 'y';
+    } else if (lowercaseWord.endsWith('es')) {
+      // handle 'classes' -> 'class'
+      return lowercaseWord.slice(0, -2);
+    } else if (lowercaseWord.endsWith('s') && lowercaseWord.length > 3) {
+      return lowercaseWord.slice(0, -1);
+    }
+    return lowercaseWord;
+  };
+
+  const wordsMatch = (word1, word2) => {
+    return ignorePlural(word1) === ignorePlural(word2);
   };
 
   const misspelledWords = vocabularyList.words.filter(vocabWord => {
@@ -68,18 +81,16 @@ const calculateMisspelledData = (testWords, vocabularyList) => {
       const normalizedTestWord = testWord.toLowerCase();
 
       // Check for exact match
-      if (normalizedVocabWord === normalizedTestWord) {
+      if (wordsMatch(normalizedVocabWord, normalizedTestWord)) {
         return true;
       }
 
       // Check against whitelist
       return whitelist.some(pair =>
-        (normalizedTestWord === ignorePlural(pair.original) &&
-          normalizedTestWord === pair.original &&
-          pair.alternative.includes(normalizedVocabWord)) ||
-        (normalizedVocabWord === ignorePlural(pair.original) &&
-          normalizedVocabWord === pair.original &&
-          pair.alternative.includes(normalizedTestWord))
+        (wordsMatch(normalizedTestWord, pair.original) &&
+          pair.alternative.some(alt => wordsMatch(alt, normalizedVocabWord))) ||
+        (wordsMatch(normalizedVocabWord, pair.original) &&
+          pair.alternative.some(alt => wordsMatch(alt, normalizedTestWord)))
       );
     });
   });
