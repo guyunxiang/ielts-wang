@@ -24,7 +24,8 @@ router.put("/admin/dictation/update", adminController.updateDictationRecordById)
 router.get("/admin/whitelist/query", adminController.queryWhitelist);
 router.put("/admin/whitelist/update", adminController.updateWhitelistById);
 
-router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
+// query all chapters vocabulary counts
+router.get("/vocabularyCounts/query", adminController.queryAllVocabulary);
 // query vocabulary by test paper
 router.get("/dictation/vocabulary/testPaper/query", adminController.queryVocabularByTestPaperNo);
 
