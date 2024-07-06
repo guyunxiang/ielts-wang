@@ -204,7 +204,7 @@ const TestPaperpage = () => {
             {
               wordRecord.slice(part1Count).map((word, index) => (
                 <li key={word + index} className='pl-2 border border-primary border-dashed min-h-8 flex items-center text-primary font-normal cursor-pointer'
-                  onClick={() => { handleWordListClick(word, index) }}>
+                  onClick={() => { handleWordListClick(word, part1Count + index) }}>
                   {word}
                 </li>
               ))
