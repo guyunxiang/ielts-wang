@@ -27,8 +27,12 @@ function ChapterPage() {
 
   // chapter number
   const [chapterNo, setChapterNo] = useState(state?.chapterNo ?? 3);
-  const [vocabularyCounts, setVocabularyCounts] = useState<VocabularyItem[]>([]);
   const [testProgress, setTestProgress] = useState<TestProgress[]>([]);
+  const [vocabularyCounts, setVocabularyCounts] = useState<VocabularyItem[]>([]);
+  // total vocabulary count
+  const [totalVocabularyCounts, setTotalVocabularyCounts] = useState(0);
+  // lowest accuracy
+  const [lownestAccuracy, setLownestAccuray] = useState(0);
 
   useEffect(() => {
     // fetch all chapter vocabulary counts
@@ -39,7 +43,11 @@ function ChapterPage() {
         saveVocabularyCounts(data);
         // load current chapter vocabulary count
         const vocabularyCounts = loadVocabularyCounts(chapterNo);
-        setVocabularyCounts(vocabularyCounts)
+        const totalVocabularyCounts = vocabularyCounts.reduce((total: number, currentValue: VocabularyItem) => (
+          total + currentValue.wordCount
+        ), 0);
+        setVocabularyCounts(vocabularyCounts);
+        setTotalVocabularyCounts(totalVocabularyCounts);
       }
     }
     fetchVocabularyList();
@@ -51,6 +59,11 @@ function ChapterPage() {
       const { success, data } = await get("/api/dictation/progress", { chapterNo });
       if (success) {
         setTestProgress(data);
+        // get current chapter lownest accuracy
+        const lownestAccuracy = data.reduce((min: number, currentValue: TestProgress) => (
+          Math.min(min, currentValue.highestAccuracyRecord)
+        ), Infinity);
+        setLownestAccuray(lownestAccuracy);
       }
     }
     if (role === "user") {
@@ -107,6 +120,19 @@ function ChapterPage() {
         </ul>
       </div>
       <div className="main flex-1">
+        <div className='flex justify-end gap-3 text-sm'>
+          {
+            lownestAccuracy !== Infinity ? (
+              <span>
+                Lowest Accuracy: {lownestAccuracy.toFixed(2)}%
+              </span>
+            ) : null
+          }
+          <span>
+            Total Word Count: {totalVocabularyCounts}
+          </span>
+        </div>
+        <hr className="my-3" />
         {renderChapterDetail()}
       </div>
     </div>
