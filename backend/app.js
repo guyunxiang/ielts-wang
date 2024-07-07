@@ -46,8 +46,11 @@ app.set("views", path.join(__dirname, "views"));
 // set static
 app.use(express.static(path.join(__dirname, "public")));
 
-
-
+// set api cache 30 minutes
+// app.use((req, res, next) => {
+//   res.set('Cache-Control', 'public, max-age=1800');
+//   next();
+// });
 app.use(routes);
 
 app.listen(4000, () => {

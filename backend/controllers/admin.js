@@ -134,8 +134,6 @@ exports.queryMisspelledListByUserId = async (req, res) => {
       }
     ]);
 
-    // set cache 300s
-    res.set('Cache-Control', 'public, max-age=300');
     res.status(200).json({
       success: true,
       data: misspelledList
