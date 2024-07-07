@@ -199,7 +199,7 @@ exports.getDictationMistakesByChapterNo = async (req, res) => {
         $group: {
           _id: '$testPaperNo',
           highestAccuracyRecord: { $max: '$accuracyRate' },
-          record: { $first: '$$ROOT' } // 保留完整文档以便后续筛选
+          record: { $first: '$$ROOT' }
         }
       },
       {
