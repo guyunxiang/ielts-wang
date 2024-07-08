@@ -47,7 +47,10 @@ const MisspelledPage = () => {
       toast.error(message);
       return;
     }
-    setMisspelledList(data);
+    const sortedList = data.sort((a: MisspelledItem, b: MisspelledItem) => (
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ));
+    setMisspelledList(sortedList);
   }
 
   useEffect(() => {
