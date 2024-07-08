@@ -73,6 +73,19 @@ const MisspelledPage = () => {
     fetchUserMisspelledList(userInfo._id);
   }
 
+  const handleDelete = async (id: string, testId: string) => {
+    console.log(id, testId);
+    const { success, message } = await post("/api/admin/mistake/delete", { id, testId }, {
+      method: 'delete'
+    });
+    if (!success) {
+      toast.error(message);
+      return;
+    }
+    toast.success(message);
+    fetchUserMisspelledList(userInfo._id);
+  }
+
   const renderMisspelledList = () => {
     return misspelledList.map(({
       chapterNo,
@@ -92,13 +105,18 @@ const MisspelledPage = () => {
         <td className="border border-primary">{accuracyRate.toFixed(2)}%</td>
         <td className="border border-primary">{totalCount}</td>
         <td className="border border-primary">
-          <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId, chapterNo, testPaperNo }}
-            className="hover:text-primary cursor-pointer mr-3">
-            View
-          </Link>
-          <span className="hover:text-primary cursor-pointer" onClick={() => { handleRecheck(_id, testId) }}>
-            Recheck
-          </span>
+          <div className="flex gap-3 justify-center">
+            <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId, chapterNo, testPaperNo }}
+              className="hover:text-primary cursor-pointer">
+              View
+            </Link>
+            <span className="hover:text-primary cursor-pointer" onClick={() => { handleRecheck(_id, testId) }}>
+              Recheck
+            </span>
+            <span className="hover:text-primary cursor-pointer" onClick={() => { handleDelete(_id, testId) }}>
+              Delete
+            </span>
+          </div>
         </td>
       </tr>
     ));
