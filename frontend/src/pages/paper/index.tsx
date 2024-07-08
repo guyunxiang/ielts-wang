@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -14,6 +14,8 @@ const TestPaperpage = () => {
   const navigate = useNavigate();
 
   const { state: { chapterNo, testPaperNo } } = useLocation();
+
+  const [words, setWords] = useState([]);
 
   // on submit
   const handleSubmit = async (words: string[]) => {
@@ -31,6 +33,7 @@ const TestPaperpage = () => {
       return;
     }
     toast.success(message);
+    setWords([]);
   }
 
   const RenderTestPaperList = () => {
@@ -79,7 +82,7 @@ const TestPaperpage = () => {
         <Dictation
           chapterNo={chapterNo}
           testPaperNo={testPaperNo}
-          words={[]}
+          words={words}
           onSubmit={handleSubmit}
         />
       </div>
