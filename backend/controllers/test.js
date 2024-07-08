@@ -113,7 +113,6 @@ const calculateMisspelledData = async (testWords, vocabularyList) => {
 // create misspelled words table
 exports.createMisspelledWords = async (testId, misspelledRecordId) => {
   try {
-    console.log(104, testId, misspelledRecordId);
     const testRecord = await Test.findById(testId);
     if (!testRecord) {
       throw new Error('Vocabulary list not found');
