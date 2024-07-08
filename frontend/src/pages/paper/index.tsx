@@ -17,6 +17,26 @@ const TestPaperpage = () => {
 
   const [words, setWords] = useState([]);
 
+  // Go to next test paper
+  const goToNextPaper = () => {
+    let nextChapterNo = chapterNo;
+    let nextTextPaperNo = testPaperNo;
+    // the last paper
+    if (testPaperNo < TEST_PAPERS[`chapter${chapterNo}`]) {
+      nextTextPaperNo++;
+    } else {
+      nextChapterNo++;
+      nextTextPaperNo = 1;
+    }
+    // console.log(nextChapterNo, nextTextPaperNo);
+    navigate(`/chapters/${nextChapterNo}/${nextTextPaperNo}`, {
+      state: {
+        chapterNo: nextChapterNo,
+        testPaperNo: nextTextPaperNo
+      }
+    })
+  }
+
   // on submit
   const handleSubmit = async (words: string[]) => {
     if (!isLoggedIn) {
@@ -34,6 +54,7 @@ const TestPaperpage = () => {
     }
     toast.success(message);
     setWords([]);
+    goToNextPaper();
   }
 
   const RenderTestPaperList = () => {
