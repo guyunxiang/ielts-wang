@@ -76,6 +76,13 @@ const Dictation = ({
     inputRef.current?.focus();
   };
 
+  // on Press Tab key
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+    }
+  }
+
   // on type Enter
   const hanldeKeyUp = (event: any) => {
     if (event.key === 'Enter') {
@@ -222,12 +229,14 @@ const Dictation = ({
           placeholder='Press Enter key to save'
           onChange={(e: any) => setInputValue(e.target.value)}
           onKeyUp={hanldeKeyUp}
+          onKeyDown={handleKeyDown}
           value={inputValue}
           onMouseOver={handleMouseOver}
         />
         <input
           type="button"
           value="Submit"
+          tabIndex={-1}
           className={classNames(
             "bg-primary px-8 text-white rounded",
             { "cursor-pointer hover:bg-secondary-700": wordRecord.length, },
