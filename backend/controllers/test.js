@@ -53,7 +53,7 @@ exports.savePaperTest = async (req, res) => {
 }
 
 const calculateMisspelledData = async (testWords, vocabularyList) => {
-  
+
   // TODO, version 18
   const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
 
@@ -62,10 +62,9 @@ const calculateMisspelledData = async (testWords, vocabularyList) => {
     const lowercaseWord = word.toLowerCase();
     if (lowercaseWord.endsWith('ies')) {
       return lowercaseWord.slice(0, -3) + 'y';
-    } else if (lowercaseWord.endsWith('es')) {
-      // handle 'classes' -> 'class'
+    } else if (lowercaseWord.endsWith('ses') || lowercaseWord.endsWith('xes') || lowercaseWord.endsWith('ches') || lowercaseWord.endsWith('shes')) {
       return lowercaseWord.slice(0, -2);
-    } else if (lowercaseWord.endsWith('s') && lowercaseWord.length > 3) {
+    } else if (lowercaseWord.endsWith('s') && lowercaseWord.length > 3 && !lowercaseWord.endsWith('ss')) {
       return lowercaseWord.slice(0, -1);
     }
     return lowercaseWord;
