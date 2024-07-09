@@ -8,7 +8,7 @@ import { get, post } from "../../../utils/fetch";
 const AdminDictationPage = () => {
 
   const { state } = useLocation();
-  const { testId } = state;
+  const { _id, testId } = state;
 
   const [words, setWords] = useState<string[]>([]);
 
@@ -24,6 +24,17 @@ const AdminDictationPage = () => {
     getDictationMistakeData();
   }, [testId]);
 
+  const handleRecheck = async () => {
+    const { success, message } = await post("/api/admin/mistake/renew", { id: _id, testId }, {
+      method: 'PUT'
+    });
+    if (!success) {
+      toast.error(message);
+      return;
+    }
+    toast.success(message);
+  }
+
   // onSubmit, update dictation record by testId
   const handleSubmit = async (words: string[]) => {
     const { success, message } = await post("/api/admin/dictation/update", {
@@ -33,7 +44,7 @@ const AdminDictationPage = () => {
       method: "PUT"
     });
     if (!success) { return toast.error(message); }
-    toast.success(message);
+    handleRecheck();
   }
 
   const props = {
