@@ -90,14 +90,13 @@ const TestPaperpage = () => {
   return (
     <div className='chapter-page h-full'>
       <div className="container flex flex-col mx-auto h-full px-4 max-w-screen-lg">
-        <div className='mt-4 flex gap-4 items-center justify-between'>
-          <h2 className='whitespace-nowrap w-full'>
+        <div className="flex justify-between mt-3 items-center">
+          <h1 className="text-3xl font-black flex items-center justify-between">
             <Link to="/chapters" state={{ chapterNo }} className='hover:text-primary'>
               Chapter <strong>{chapterNo}</strong>
             </Link>
-            <span> / </span>
-            <RenderTestPaperList />
-          </h2>
+          </h1>
+          <RenderTestPaperList />
         </div>
         <hr className="my-3" />
         <Dictation
