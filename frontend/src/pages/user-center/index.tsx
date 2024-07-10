@@ -82,7 +82,7 @@ const UserCenter = () => {
         summaryTests.push({
           accuracyCount: testSummary.accuracyCount,
           accuracyRate: parseFloat(accuracyRate.toFixed(2)),
-          createdAt: items[items.length - 1].tests[i]?.createdAt || null
+          createdAt: items[0].tests[i]?.createdAt || null
         });
       }
 
