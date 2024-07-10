@@ -16,7 +16,6 @@ router.post("/paper/test", testController.savePaperTest);
 
 router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
 
-
 // whitelist
 router.get("/admin/whitelist/query", adminController.queryWhitelist);
 router.put("/admin/whitelist/update", adminController.updateWhitelistById);
@@ -42,6 +41,8 @@ router.get("/dictation/mistakes", authenticate, userController.getAllDictationMi
 router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
 // Query dictation process by chapter number
 router.get("/dictation/progress", authenticate, userController.getDictationMistakesByChapterNo);
+// Update word translation
+router.put("/vocabulary/word/update", authenticate, userController.updateWordTranslation);
 
 // login
 router.post("/auth/login", userController.login);

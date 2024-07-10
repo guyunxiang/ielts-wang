@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const bcrypt = require("bcrypt");
 
 const User = require("../models/user");
@@ -292,6 +293,7 @@ exports.getDictationMistakeById = async (req, res) => {
     const mergedWords = vocabularyList.words.map((vocabWord, index) => {
       const mistakeWord = dictationMistake.words.find(w => w.word === vocabWord.word);
       const result = {
+        id: vocabWord._id,
         word: vocabWord.word,
         phonetic: vocabWord.phonetic || '',
         translation: vocabWord.translation || '',
@@ -402,3 +404,37 @@ exports.updatePracticeCount = async (req, res) => {
     });
   }
 };
+
+exports.updateWordTranslation = async (req, res) => {
+  try {
+    const { chapterNo, testPaperNo, translation, wordId } = req.body;
+    const update = {
+      'words.$.translation': translation
+    };
+    console.log(wordId);
+    const id = new mongoose.Types.ObjectId(wordId);
+    const result = await VocabularyList.findOneAndUpdate(
+      { chapterNo: chapterNo, testPaperNo: testPaperNo, 'words._id': id },
+      { $set: update },
+      { new: true }
+    );
+    if (!result) {
+      res.status(401).json({
+        success: false,
+        message: "Word not found!"
+      });
+      return;
+    }
+    res.status(201).json({
+      success: true,
+      message: "Word updated successfully!"
+    });
+  } catch (error) {
+    console.error('Error updating practice count:', error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the practice count",
+      error: error.message
+    });
+  }
+}
