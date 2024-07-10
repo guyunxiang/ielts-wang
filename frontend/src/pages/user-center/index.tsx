@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
-import { get } from '../../utils/fetch';
-
-import { ReactElement, useEffect, useState } from "react";
 import React from "react";
+import classNames from "classnames";
+import { ReactElement, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
+import { get } from '../../utils/fetch';
 interface Test {
   id: number;
   accuracyCount: number;
@@ -82,7 +82,7 @@ const UserCenter = () => {
         summaryTests.push({
           accuracyCount: testSummary.accuracyCount,
           accuracyRate: parseFloat(accuracyRate.toFixed(2)),
-          createdAt: items[items.length - 1].tests[i]?.createdAt || null
+          createdAt: items[0].tests[i]?.createdAt || null
         });
       }
 
@@ -135,17 +135,10 @@ const UserCenter = () => {
     return "Chapter " + chapterNo;
   }
 
-  const renderChapterClass = (testPaperNo: number) => {
-    if (testPaperNo) {
-      return "";
-    }
-    return "bg-secondary-200";
-  }
-
   return (
     <div className="container mx-auto mt-8 px-4 flex justify-center overflow-auto">
       <table className="border-collapse border border-primary text-center text-[#92400e]" id="accuracy-rate-table">
-        <thead className="bg-secondary-500">
+        <thead className="bg-secondary-700">
           <tr>
             <th rowSpan={2} className="border border-primary px-3 whitespace-nowrap">Test Paper</th>
             <th rowSpan={2} className="border border-primary px-3">Vocabulary</th>
@@ -158,7 +151,10 @@ const UserCenter = () => {
         <tbody>
           {
             mistakesData.map(({ chapterNo, testPaperNo, vocabularyCount, tests }) => (
-              <tr className={renderChapterClass(testPaperNo)}
+              <tr className={classNames(
+                "hover:bg-secondary-200",
+                { "bg-secondary-400": !testPaperNo }
+              )}
                 key={`chapter-${chapterNo}-${"testPaper-" + testPaperNo}`}>
                 <td className="border border-primary px-3">
                   {renderTitle(chapterNo, testPaperNo)}

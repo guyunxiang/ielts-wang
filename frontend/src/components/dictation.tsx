@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { toast } from 'react-toastify';
 
 import { CHAPTER11_PARTS } from '../utils/const';
+import { loadVocabularyCounts } from '../utils';
 
 interface Props {
   chapterNo: number;
@@ -24,6 +25,7 @@ const Dictation = ({
   const [inputValue, setInputValue] = useState<string>('');
   const [wordRecord, setWordRecord] = useState<string[]>([]);
   const [wordIndex, setWordIndex] = useState(-1);
+  const [vocabularyCount, setVocabularyCount] = useState(0);
 
   const localStorageKey = `Chapter${chapterNo}_TestPaper${testPaperNo}`;
 
@@ -32,20 +34,23 @@ const Dictation = ({
     setWordRecord(words);
   }, [words])
 
+  // Load vocabulary count
+  useEffect(() => {
+    const { wordCount } = loadVocabularyCounts(chapterNo, testPaperNo) ?? { wordCount: 0 };
+    setVocabularyCount(wordCount);
+  }, [chapterNo, testPaperNo])
+
+  // Load local cache dictation record
   const handleLoadCacheData = () => {
     const localCacheData = localStorage.getItem(localStorageKey) || '{}';
     const { words } = JSON.parse(localCacheData);
     setWordRecord(words);
   }
 
+  // On mouse over input, auto focus
   const handleMouseOver = () => {
     inputRef.current?.focus();
   };
-
-  // onChange
-  const handleInputChange = (event: any) => {
-    setInputValue(event.target.value);
-  }
 
   // scroll words list to bottom
   const scrollToBottom = () => {
@@ -70,6 +75,13 @@ const Dictation = ({
     console.log(word, index);
     inputRef.current?.focus();
   };
+
+  // on Press Tab key
+  const handleKeyDown = (event: any) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+    }
+  }
 
   // on type Enter
   const hanldeKeyUp = (event: any) => {
@@ -116,11 +128,6 @@ const Dictation = ({
     setWordRecord(newVocabularyList);
     setWordIndex(-1);
     setInputValue("");
-  }
-
-  // on submit
-  const handleSubmit = async () => {
-    console.log("submit");
   }
 
   const RenderDictationRecord = () => {
@@ -210,6 +217,7 @@ const Dictation = ({
         </div>
         <span>
           Word Count: {wordRecord.length}
+          {vocabularyCount ? ` / ${vocabularyCount}` : null}
         </span>
       </div>
       <div className='flex gap-3 justify-center'>
@@ -219,14 +227,16 @@ const Dictation = ({
           className='px-3 py-2 outline-primary text-center w-full'
           autoFocus
           placeholder='Press Enter key to save'
-          onChange={handleInputChange}
+          onChange={(e: any) => setInputValue(e.target.value)}
           onKeyUp={hanldeKeyUp}
+          onKeyDown={handleKeyDown}
           value={inputValue}
           onMouseOver={handleMouseOver}
         />
         <input
           type="button"
           value="Submit"
+          tabIndex={-1}
           className={classNames(
             "bg-primary px-8 text-white rounded",
             { "cursor-pointer hover:bg-secondary-700": wordRecord.length, },

@@ -15,16 +15,20 @@ router.get("/", (req, res) => {
 router.post("/paper/test", testController.savePaperTest);
 
 router.post("/admin/vocabulary/save", adminController.savePaperVocabulary);
-// get misspelled table
-router.get("/admin/mistakes/query", adminController.queryMisspelledListByUserId);
-router.put("/admin/mistake/renew", adminController.renewMisspelledRecord);
-router.get("/admin/dictation/query", adminController.queryDictationById);
-router.put("/admin/dictation/update", adminController.updateDictationRecordById);
 
+// whitelist
 router.get("/admin/whitelist/query", adminController.queryWhitelist);
 router.put("/admin/whitelist/update", adminController.updateWhitelistById);
 
-router.get("/dictation/vocabulary/query", adminController.queryAllVocabulary);
+// misspelled
+router.get("/admin/mistakes/query", adminController.queryMisspelledListByUserId);
+router.put("/admin/mistake/renew", adminController.renewMisspelledRecord);
+router.delete("/admin/mistake/delete", adminController.deleteMisspelledTableAndTestById);
+router.get("/admin/dictation/query", adminController.queryDictationById);
+router.put("/admin/dictation/update", adminController.updateDictationRecordById);
+
+// query all chapters vocabulary counts
+router.get("/vocabularyCounts/query", adminController.queryAllVocabulary);
 // query vocabulary by test paper
 router.get("/dictation/vocabulary/testPaper/query", adminController.queryVocabularByTestPaperNo);
 
@@ -37,6 +41,8 @@ router.get("/dictation/mistakes", authenticate, userController.getAllDictationMi
 router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
 // Query dictation process by chapter number
 router.get("/dictation/progress", authenticate, userController.getDictationMistakesByChapterNo);
+// Update word translation
+router.put("/vocabulary/word/update", authenticate, userController.updateWordTranslation);
 
 // login
 router.post("/auth/login", userController.login);

@@ -134,8 +134,6 @@ exports.queryMisspelledListByUserId = async (req, res) => {
       }
     ]);
 
-    // set cache 300s
-    res.set('Cache-Control', 'public, max-age=300');
     res.status(200).json({
       success: true,
       data: misspelledList
@@ -272,6 +270,41 @@ exports.updateWhitelistById = async (req, res) => {
     res.status(200).json({
       success: true,
       message
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+exports.deleteMisspelledTableAndTestById = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "id is required!"
+      });
+    }
+    const misspelledRecord = await DictationMistake.findById(id).select("_id testId");
+    if (!misspelledRecord) {
+      return res.status(400).json({
+        success: false,
+        message: "Dictation not found!"
+      });
+    }
+    const { testId } = misspelledRecord;
+    // delete test record
+    await Test.findByIdAndDelete(testId);
+    // delete current misspelling table
+    await DictationMistake.findByIdAndDelete(id);
+
+    res.status(201).json({
+      success: true,
+      message: "Delete record successfully!"
     });
   } catch (error) {
     console.log(error);

@@ -55,7 +55,11 @@ export default function LoginPage() {
       updateUserInfo(data);
       toast.success(message, { autoClose: 3000 });
       login();
-      navigate('/chapters');
+      if (data.role === "user") {
+        navigate('/chapters');
+      } else {
+        navigate("/admin/vocabulary");
+      }
     }
   }
 

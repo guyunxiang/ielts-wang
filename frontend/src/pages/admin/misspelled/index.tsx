@@ -47,7 +47,10 @@ const MisspelledPage = () => {
       toast.error(message);
       return;
     }
-    setMisspelledList(data);
+    const sortedList = data.sort((a: MisspelledItem, b: MisspelledItem) => (
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ));
+    setMisspelledList(sortedList);
   }
 
   useEffect(() => {
@@ -57,10 +60,10 @@ const MisspelledPage = () => {
     }
   }, [userInfo]);
 
-  const handleRecheck = async (id: string, testId: string) => {
+  const handleDelete = async (id: string, testId: string) => {
     console.log(id, testId);
-    const { success, message } = await post("/api/admin/mistake/renew", { id, testId }, {
-      method: 'PUT'
+    const { success, message } = await post("/api/admin/mistake/delete", { id, testId }, {
+      method: 'delete'
     });
     if (!success) {
       toast.error(message);
@@ -89,13 +92,15 @@ const MisspelledPage = () => {
         <td className="border border-primary">{accuracyRate.toFixed(2)}%</td>
         <td className="border border-primary">{totalCount}</td>
         <td className="border border-primary">
-          <Link to={`/admin/misspelled/dictation/${testId}`} state={{ testId }}
-            className="hover:text-primary cursor-pointer mr-3">
-            View
-          </Link>
-          <span className="hover:text-primary cursor-pointer" onClick={() => { handleRecheck(_id, testId) }}>
-            Recheck
-          </span>
+          <div className="flex gap-3 justify-center">
+            <Link to={`/admin/misspelled/dictation/${testId}`} state={{ _id, testId, chapterNo, testPaperNo }}
+              className="hover:text-primary cursor-pointer">
+              Review
+            </Link>
+            <span className="hover:text-primary cursor-pointer" onClick={() => { handleDelete(_id, testId) }}>
+              Delete
+            </span>
+          </div>
         </td>
       </tr>
     ));
@@ -120,7 +125,7 @@ const MisspelledPage = () => {
       <div className="overflow-auto h-full">
         <div className="max-h-96">
           <table className="w-full border text-center border-primary">
-            <thead>
+            <thead className="bg-secondary-700 ">
               <tr>
                 <th className="border border-primary">Test Date</th>
                 <th className="border border-primary">Chapter</th>
