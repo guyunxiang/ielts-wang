@@ -5,7 +5,6 @@ import copy from 'clipboard-copy';
 import { get, post } from '../../utils/fetch';
 import { toast } from 'react-toastify';
 import { CHAPTER11_PARTS } from '../../utils/const';
-import { deepStrictEqual } from 'assert';
 
 let timer: number;
 interface VocabularyData {
