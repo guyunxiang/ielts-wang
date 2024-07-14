@@ -22,6 +22,20 @@ const listeningTestSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  }
+});
+
+// Add a pre-find hook
+listeningTestSchema.pre(/^find/, function (next) {
+  // Check if the deleted field is not explicitly set in the query
+  if (this.getQuery().deleted !== true) {
+    // If not set, add the condition deleted: false
+    this.where({ deleted: { $ne: true } });
+  }
+  next();
 });
 
 const Test = mongoose.model("Test", listeningTestSchema);

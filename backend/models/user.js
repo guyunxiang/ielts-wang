@@ -22,6 +22,20 @@ const userSchema = new mongoose.Schema({
     enum: [roles.ADMIN, roles.USER],
     default: roles.USER
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  }
+});
+
+// Add a pre-find hook
+userSchema.pre(/^find/, function (next) {
+  // Check if the deleted field is not explicitly set in the query
+  if (this.getQuery().deleted !== true) {
+    // If not set, add the condition deleted: false
+    this.where({ deleted: { $ne: true } });
+  }
+  next();
 });
 
 userSchema.pre("save", async function (next) {
