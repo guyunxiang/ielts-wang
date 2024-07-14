@@ -27,8 +27,9 @@ const UserCenter = () => {
   // Specify the type for mistakesData
   const [mistakesData, setMistakesData] = useState<MistakeData[]>([]);
 
+  const localMaxTestTimes = localStorage.getItem("maxTestTimes") ?? 1;
   // Specify the type for maxTestTimes
-  const [maxTestTimes, setMaxTestTimes] = useState<number>(1);
+  const [maxTestTimes, setMaxTestTimes] = useState<number>(+localMaxTestTimes);
 
   useEffect(() => {
     // Function to fetch dictation mistakes data
@@ -36,7 +37,7 @@ const UserCenter = () => {
       const { success, data } = await get("/api/dictation/mistakes");
       if (success) {
         setMistakesData(calculateChapterData(data));
-        let maxTestsLength = 1;
+        let maxTestsLength = 0;
         // Find the maximum number of tests for any mistake data
         data.forEach((item: MistakeData) => {
           if (item.tests.length > maxTestsLength) {
@@ -44,6 +45,7 @@ const UserCenter = () => {
           }
         });
         setMaxTestTimes(maxTestsLength);
+        localStorage.setItem("maxTestTimes", maxTestsLength.toString());
       }
     }
     fetchDictationMistakes();
