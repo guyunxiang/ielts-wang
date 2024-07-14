@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from "react-router-dom";
 import copy from 'clipboard-copy';
 import classNames from 'classnames';
@@ -25,7 +25,11 @@ interface Word {
 }
 
 const VocabularyTraining = () => {
+
   const { state: { id } } = useLocation();
+
+  const vocabularyListRef = useRef<HTMLUListElement>(null);
+  const wordRefs = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
   const [vocabularyData, setVocabularyData] = useState<VocabularyData>({
     chapterNo: 0,
@@ -183,6 +187,13 @@ const VocabularyTraining = () => {
         }
       });
       handleChangeToNextWord(nextWord, nextId);
+
+      if (nextWord && vocabularyListRef.current && wordRefs.current[nextWord]) {
+        wordRefs.current[nextWord]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
     }
   }
 
@@ -280,7 +291,10 @@ const VocabularyTraining = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className="flex flex-col gap-3" style={{ gridTemplateColumns: gridColsNumber }}>
+          <ul
+            className="flex flex-col gap-3"
+            style={{ gridTemplateColumns: gridColsNumber }}
+            ref={vocabularyListRef}>
             {
               words.slice(0, part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
                 <li key={id}
@@ -288,6 +302,7 @@ const VocabularyTraining = () => {
                     "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
                     correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
                   )}
+                  ref={el => wordRefs.current[word] = el}
                   onClick={() => handleChangeToNextWord(word, id)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
@@ -295,7 +310,10 @@ const VocabularyTraining = () => {
             }
           </ul>
           {words.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className="flex flex-col gap-3" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+          <ul
+            className="flex flex-col gap-3"
+            style={{ gridTemplateColumns: "repeat(2, 1fr)" }}
+            ref={vocabularyListRef}>
             {
               words.slice(part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
                 <li key={id}
@@ -303,6 +321,7 @@ const VocabularyTraining = () => {
                     "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
                     correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
                   )}
+                  ref={el => wordRefs.current[word] = el}
                   onClick={() => handleChangeToNextWord(word, id)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
@@ -313,8 +332,10 @@ const VocabularyTraining = () => {
       )
     }
     return (
-      <ul style={{ gridTemplateColumns: gridColsNumber }}
-        className='max-h-64 flex flex-col gap-3'>
+      <ul
+        className='max-h-64 flex flex-col gap-3'
+        style={{ gridTemplateColumns: gridColsNumber }}
+        ref={vocabularyListRef}>
         {
           words.map(({ id, word, misspelling, correct, practiceCount }) => (
             <li key={id}
@@ -323,6 +344,7 @@ const VocabularyTraining = () => {
                 "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
                 correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
               )}
+              ref={el => wordRefs.current[word] = el}
               onClick={() => handleChangeToNextWord(word, id)}>
               {transformSpellingWord(misspelling, word, practiceCount)}
             </li>
