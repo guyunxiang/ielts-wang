@@ -66,7 +66,7 @@ const VocabularyTraining = () => {
       const newColoredWord = word.split('').map((letter: string, index: number) => {
         let color = 'black';
         if (index < input.length) {
-          color = input[index] === letter ? 'green' : 'red';
+          color = input[index].toLocaleLowerCase() === letter.toLocaleLowerCase() ? 'green' : 'red';
         }
         return <span key={index} style={{ color }} className="cursor-pointer">{letter}</span>;
       });
@@ -160,7 +160,7 @@ const VocabularyTraining = () => {
   // On key press Enter
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      if (input === word) {
+      if (input.toLocaleLowerCase() === word.toLocaleLowerCase()) {
         setCorrectCount(prevCount => prevCount + 1);
         setInput('');
       }
@@ -218,6 +218,13 @@ const VocabularyTraining = () => {
 
   const transformSpellingWord = (misspelling: string = "", word: string, practiceCount: number) => {
     if (!misspelling) { return word }
+    if (practiceCount > 1) {
+      return (
+        <span key={word} className="cursor-pointer inline-block text-primary">
+          {word}
+        </span>
+      )
+    }
     return misspelling.split("").map((letter, index) => {
       let color = '';
       if (index < word.length) {
@@ -294,6 +301,7 @@ const VocabularyTraining = () => {
 
   const renderDescription = () => {
     if (!wordId) return null;
+    const { chapterNo, testPaperNo } = vocabularyData;
     const description = vocabularyData.words.find((item: Word) => item.id === wordId)?.translation;
     if (!description && !editStatus) {
       return (
@@ -305,10 +313,18 @@ const VocabularyTraining = () => {
       )
     }
     if (editStatus) {
+      let prefix = "";
+      if (chapterNo === 3) {
+        prefix = "n. ";
+      } else if (chapterNo === 4) {
+        prefix = testPaperNo <= 3 ? "adj. " : "adv. ";
+      }
       return (
         <input
           type="text"
           className='outline-none px-2 py-1 text-center'
+          autoFocus
+          defaultValue={prefix}
           onKeyUp={handleSubmitDescription} />
       )
     }
