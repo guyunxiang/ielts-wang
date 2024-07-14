@@ -64,7 +64,7 @@ const VocabularyTraining = () => {
     // Update type status
     const updateColoredWord = (word: string) => {
       const newColoredWord = word.split('').map((letter: string, index: number) => {
-        let color = 'black';
+        let color = input.length ? 'var(--background-color)' : 'black';
         if (index < input.length) {
           color = input[index].toLocaleLowerCase() === letter.toLocaleLowerCase() ? 'green' : 'red';
         }
