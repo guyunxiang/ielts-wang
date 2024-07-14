@@ -141,7 +141,7 @@ const VocabularyTraining = () => {
   // Select next word
   const handleChangeToNextWord = async (nextWord: string, id: string) => {
     // Update practice count to database
-    await updatePracticeCount();
+    updatePracticeCount();
     // Update practice count to local data
     updateLocalVocabularyData();
     setWord(nextWord);
@@ -159,7 +159,11 @@ const VocabularyTraining = () => {
 
   // On input word
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
+    const { value } = e.target;
+    // Only update value when type a-z A-Z space and dash
+    if (/^[a-zA-Z\s'-]*$/.test(value)) {
+      setInput(e.target.value);
+    }
   };
 
   // On key press Enter
@@ -169,6 +173,14 @@ const VocabularyTraining = () => {
         setCorrectCount(prevCount => prevCount + 1);
         setInput('');
       }
+    }
+    // shortcut key for play or pause audio
+    if (e.key === '9') {
+      handlePauseAudio();
+    }
+    // shortcut key for edit translation
+    if (e.key === '0') {
+      setEditStatus(true);
     }
   };
 
@@ -381,7 +393,7 @@ const VocabularyTraining = () => {
       return (
         <input
           type="text"
-          className='outline-none px-2 py-1 text-center'
+          className='outline-none px-2 py-1 w-full text-center bg-transparent'
           autoFocus
           defaultValue={text}
           onBlur={handleOnBlur}
@@ -398,7 +410,10 @@ const VocabularyTraining = () => {
       <div className='flex justify-between'>
         {
           word ? (
-            <button className='px-3 text-primary border rounded border-primary' tabIndex={-1} onClick={handlePauseAudio}>
+            <button
+              className='px-3 text-primary border rounded border-primary'
+              tabIndex={-1}
+              onClick={handlePauseAudio}>
               {paused ? "Play" : "Pause"}
             </button>
           ) : null
@@ -422,13 +437,13 @@ const VocabularyTraining = () => {
             {coloredWord}
             {
               correctCount > 0 && (
-                <span className="rounded-full bg-[#07bc0c] h-8 w-8 absolute text-xl text-white leading-normal">
+                <span className="rounded-full bg-[#07bc0c] h-8 w-8 ml-2 absolute text-xl text-white leading-normal">
                   {correctCount}
                 </span>
               )
             }
           </h1>
-          <div className='h-10 flex items-center'>
+          <div className='h-10 w-full flex items-center justify-center'>
             {renderDescription()}
           </div>
         </div>
