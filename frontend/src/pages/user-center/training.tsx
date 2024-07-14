@@ -5,6 +5,7 @@ import copy from 'clipboard-copy';
 import { get, post } from '../../utils/fetch';
 import { toast } from 'react-toastify';
 import { CHAPTER11_PARTS } from '../../utils/const';
+import { deepStrictEqual } from 'assert';
 
 let timer: number;
 interface VocabularyData {
@@ -191,28 +192,48 @@ const VocabularyTraining = () => {
     toast.success("Copied to clipboard.");
   }
 
-  const handleSubmitDescription = async (e: any) => {
+  const validateNoChangeTranslation = (value: string) => {
+    const description = vocabularyData.words.find((item: Word) => item.id === wordId)?.translation;
+    if (value.trim() === description?.trim()) {
+      setEditStatus(false);
+      return false;
+    };
+    return true;
+  }
+
+  const handleOnBlur = (e: any) => {
+    const { value } = e.target;
+    if (!validateNoChangeTranslation(value)) return;
+    handleSubmitTranslation(value);
+  }
+
+  const handleSubmitTranslation = async (text: string) => {
+    const newVocabularyData = { ...vocabularyData };
+    newVocabularyData.words.forEach((item) => {
+      if (item.id === wordId) {
+        item.translation = text.trim();
+      }
+    });
+    const { chapterNo, testPaperNo } = newVocabularyData;
+    const { success, message } = await post("/api/vocabulary/word/update", {
+      chapterNo,
+      testPaperNo,
+      translation: text.trim(),
+      wordId,
+    }, { method: "PUT" });
+    if (!success) {
+      toast.error(message);
+      return;
+    }
+    setVocabularyData(newVocabularyData);
+    setEditStatus(false);
+  }
+
+  const handleKeyUpTranslation = async (e: any) => {
     if (e.key === "Enter") {
       const { value } = e.target;
-      const newVocabularyData = { ...vocabularyData };
-      newVocabularyData.words.forEach((item) => {
-        if (item.id === wordId) {
-          item.translation = value.trim();
-        }
-      });
-      const { chapterNo, testPaperNo } = newVocabularyData;
-      const { success, message } = await post("/api/vocabulary/word/update", {
-        chapterNo,
-        testPaperNo,
-        translation: value,
-        wordId,
-      }, { method: "PUT" });
-      if (!success) {
-        toast.error(message);
-        return;
-      }
-      setVocabularyData(newVocabularyData);
-      setEditStatus(false);
+      if (!validateNoChangeTranslation(value)) return;
+      handleSubmitTranslation(value);
     }
   }
 
@@ -313,22 +334,27 @@ const VocabularyTraining = () => {
       )
     }
     if (editStatus) {
-      let prefix = "";
-      if (chapterNo === 3) {
-        prefix = "n. ";
-      } else if (chapterNo === 4) {
-        prefix = testPaperNo <= 3 ? "adj. " : "adv. ";
+      let text = "";
+      if (description) {
+        text = description
+      } else {
+        if (chapterNo === 3) {
+          text = "n. ";
+        } else if (chapterNo === 4) {
+          text = testPaperNo <= 3 ? "adj. " : "adv. ";
+        }
       }
       return (
         <input
           type="text"
           className='outline-none px-2 py-1 text-center'
           autoFocus
-          defaultValue={prefix}
-          onKeyUp={handleSubmitDescription} />
+          defaultValue={text}
+          onBlur={handleOnBlur}
+          onKeyUp={handleKeyUpTranslation} />
       )
     }
-    return <span>{description}</span>
+    return <span onClick={() => { setEditStatus(true) }}>{description}</span>
   }
 
   const RenderBasicInfo = () => {
@@ -338,7 +364,7 @@ const VocabularyTraining = () => {
       <div className='flex justify-between'>
         {
           word ? (
-            <button className='px-3 text-primary border rounded border-primary' onClick={handlePauseAudio}>
+            <button className='px-3 text-primary border rounded border-primary' tabIndex={-1} onClick={handlePauseAudio}>
               {paused ? "Play" : "Pause"}
             </button>
           ) : null
