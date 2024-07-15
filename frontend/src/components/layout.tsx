@@ -1,10 +1,9 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import classNames from 'classnames';
 
 import { useAuth } from "./authProvider";
-import React from 'react';
-import classNames from 'classnames';
 
 interface LayoutProps {
   children: ReactNode;
