@@ -44,9 +44,19 @@ function Layout({ children }: LayoutProps) {
       return (
         <React.Fragment>
           <li className='hover:text-primary min-w-20 text-center'>
-            <Link to="/user-center" className={classNames(
-              { "text-primary hover:text-secondary-500": location.pathname === "/user-center" }
-            )}>User Center</Link>
+            <Link
+              to="/user-center"
+              className={classNames(
+                { "text-primary hover:text-secondary-500": location.pathname === "/user-center" }
+              )}>
+              User Center
+            </Link>
+          </li>
+          <li className='min-w-20 text-center hover:text-primary'>
+            <Link to="/gujiabei-6000words"
+              className={classNames({ "text-primary hover:text-secondary-500": location.pathname === "/gujiabei-6000words" })}>
+              GuJiaBei 6000 words
+            </Link>
           </li>
         </React.Fragment>
       )
