@@ -32,7 +32,7 @@ const GuJiaBeiPage = () => {
       <hr className="my-3" />
       <audio
         controls
-        autoPlay
+        // autoPlay
         src={`/assets/audio/${id.toString().padStart(3, "0")}.mp3`}
       />
       <hr className="my-3" />

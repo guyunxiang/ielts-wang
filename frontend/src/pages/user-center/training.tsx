@@ -447,6 +447,11 @@ const VocabularyTraining = () => {
             {renderDescription()}
           </div>
         </div>
+        <div className="tips">
+          <p className='text-left text-xs text-gray-500'>
+            Key 9: Play/Pause, 0: Edit Translation
+          </p>
+        </div>
         <hr />
         <div>
           <RenderBasicInfo />
