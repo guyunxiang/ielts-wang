@@ -1,11 +1,9 @@
 import { ReactElement, useEffect, useRef, useState } from "react";
-import { TEST_PAPERS } from "../../utils/const";
-import { get, post } from "../../utils/fetch";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
 import classNames from "classnames";
 
-import { CHAPTERS, CHAPTER11_PARTS } from '../../utils/const';
+import { CHAPTERS, CHAPTER11_PARTS, TEST_PAPERS } from '../../utils/const';
+import { get, post } from "../../utils/fetch";
 
 interface WordItem {
   word: string;

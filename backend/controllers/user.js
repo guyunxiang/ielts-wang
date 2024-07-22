@@ -136,7 +136,8 @@ exports.getAllDictationMistakes = async (req, res) => {
       chapterNo,
       testPaperNo,
       createdAt,
-      vocabularyCount: words.length + accuracyCount
+      vocabularyCount: words.length + accuracyCount,
+      fullPractice: words.every(word => word.practiceCount > 1)
     }));
 
     // Transforming the data
@@ -158,7 +159,8 @@ exports.getAllDictationMistakes = async (req, res) => {
           id: curr._id,
           accuracyCount: curr.accuracyCount,
           accuracyRate: +accuracyRate.toFixed(2), // Round to 2 decimal places for accuracyRate
-          createdAt: curr.createdAt
+          createdAt: curr.createdAt,
+          fullPractice: curr.fullPractice,
         });
       } else {
         acc.push({
@@ -169,7 +171,8 @@ exports.getAllDictationMistakes = async (req, res) => {
             id: curr._id,
             accuracyCount: curr.accuracyCount,
             accuracyRate: +accuracyRate.toFixed(2), // Round to 2 decimal places for accuracyRate
-            createdAt: curr.createdAt
+            createdAt: curr.createdAt,
+            fullPractice: curr.fullPractice,
           }]
         });
       }

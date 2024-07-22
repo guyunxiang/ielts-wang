@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { get, post } from "../../utils/fetch";
 import classNames from "classnames";
 import { toast } from "react-toastify";
+
+import { get, post } from "../../utils/fetch";
 
 interface Whitelist {
   original: string;

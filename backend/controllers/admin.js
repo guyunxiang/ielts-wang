@@ -298,9 +298,13 @@ exports.deleteMisspelledTableAndTestById = async (req, res) => {
     }
     const { testId } = misspelledRecord;
     // delete test record
-    await Test.findByIdAndDelete(testId);
+    await Test.findByIdAndUpdate(testId, {
+      deleted: true,
+    });
     // delete current misspelling table
-    await DictationMistake.findByIdAndDelete(id);
+    await DictationMistake.findByIdAndUpdate(id, {
+      deleted: true,
+    });
 
     res.status(201).json({
       success: true,

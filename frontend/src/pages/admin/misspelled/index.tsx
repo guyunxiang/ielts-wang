@@ -61,7 +61,7 @@ const MisspelledPage = () => {
   }, [userInfo]);
 
   const handleDelete = async (id: string, testId: string) => {
-    console.log(id, testId);
+    if (!window.confirm("Please confirm that you want to delete this record?")) return;
     const { success, message } = await post("/api/admin/mistake/delete", { id, testId }, {
       method: 'delete'
     });

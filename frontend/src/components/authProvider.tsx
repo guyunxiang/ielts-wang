@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const getAuthStatus = async () => {
       const { success, data } = await get("/api/auth/status");
-      if (success) {
+      if (success && data) {
         updateUserInfo(data);
         login();
       }

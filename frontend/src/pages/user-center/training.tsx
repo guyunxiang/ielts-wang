@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from "react-router-dom";
 import copy from 'clipboard-copy';
+import classNames from 'classnames';
+import { toast } from 'react-toastify';
 
 import { get, post } from '../../utils/fetch';
-import { toast } from 'react-toastify';
 import { CHAPTER11_PARTS } from '../../utils/const';
 
 let timer: number;
@@ -24,7 +25,11 @@ interface Word {
 }
 
 const VocabularyTraining = () => {
+
   const { state: { id } } = useLocation();
+
+  const vocabularyListRef = useRef<HTMLUListElement>(null);
+  const wordRefs = useRef<{ [key: string]: HTMLLIElement | null }>({});
 
   const [vocabularyData, setVocabularyData] = useState<VocabularyData>({
     chapterNo: 0,
@@ -64,7 +69,7 @@ const VocabularyTraining = () => {
     // Update type status
     const updateColoredWord = (word: string) => {
       const newColoredWord = word.split('').map((letter: string, index: number) => {
-        let color = 'black';
+        let color = input.length ? 'var(--background-color)' : 'black';
         if (index < input.length) {
           color = input[index].toLocaleLowerCase() === letter.toLocaleLowerCase() ? 'green' : 'red';
         }
@@ -136,7 +141,7 @@ const VocabularyTraining = () => {
   // Select next word
   const handleChangeToNextWord = async (nextWord: string, id: string) => {
     // Update practice count to database
-    await updatePracticeCount();
+    updatePracticeCount();
     // Update practice count to local data
     updateLocalVocabularyData();
     setWord(nextWord);
@@ -154,7 +159,11 @@ const VocabularyTraining = () => {
 
   // On input word
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
+    const { value } = e.target;
+    // Only update value when type a-z A-Z space and dash
+    if (/^[a-zA-Z\s'-]*$/.test(value)) {
+      setInput(e.target.value);
+    }
   };
 
   // On key press Enter
@@ -164,6 +173,14 @@ const VocabularyTraining = () => {
         setCorrectCount(prevCount => prevCount + 1);
         setInput('');
       }
+    }
+    // shortcut key for play or pause audio
+    if (e.key === '9') {
+      handlePauseAudio();
+    }
+    // shortcut key for edit translation
+    if (e.key === '0') {
+      setEditStatus(true);
     }
   };
 
@@ -182,6 +199,13 @@ const VocabularyTraining = () => {
         }
       });
       handleChangeToNextWord(nextWord, nextId);
+
+      if (nextWord && vocabularyListRef.current && wordRefs.current[nextWord]) {
+        wordRefs.current[nextWord]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
     }
   }
 
@@ -237,7 +261,6 @@ const VocabularyTraining = () => {
   }
 
   const transformSpellingWord = (misspelling: string = "", word: string, practiceCount: number) => {
-    if (!misspelling) { return word }
     if (practiceCount > 1) {
       return (
         <span key={word} className="cursor-pointer inline-block text-primary">
@@ -245,6 +268,7 @@ const VocabularyTraining = () => {
         </span>
       )
     }
+    if (!misspelling) { return word }
     return misspelling.split("").map((letter, index) => {
       let color = '';
       if (index < word.length) {
@@ -268,6 +292,7 @@ const VocabularyTraining = () => {
   const RenderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
     const incorrectClass = "text-[#f00] border-[#f00] font-medium";
+    const practicedClass = "text-primary border-primary font-medium";
     const { chapterNo, testPaperNo, words } = vocabularyData;
     let gridColsNumber = "repeat(4, 1fr)";
     if (chapterNo === 5 && testPaperNo < 12) {
@@ -278,10 +303,18 @@ const VocabularyTraining = () => {
       const [part1Count] = CHAPTER11_PARTS[`section${testPaperNo}`];
       return (
         <div className="max-h-64">
-          <ul className="flex flex-col gap-3" style={{ gridTemplateColumns: gridColsNumber }}>
+          <ul
+            className="flex flex-col gap-3"
+            style={{ gridTemplateColumns: gridColsNumber }}
+            ref={vocabularyListRef}>
             {
               words.slice(0, part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
-                <li key={id} className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+                <li key={id}
+                  className={classNames(
+                    "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
+                    correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
+                  )}
+                  ref={el => wordRefs.current[word] = el}
                   onClick={() => handleChangeToNextWord(word, id)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
@@ -289,10 +322,18 @@ const VocabularyTraining = () => {
             }
           </ul>
           {words.length > part1Count ? <hr className="my-2" /> : null}
-          <ul className="flex flex-col gap-3" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+          <ul
+            className="flex flex-col gap-3"
+            style={{ gridTemplateColumns: "repeat(2, 1fr)" }}
+            ref={vocabularyListRef}>
             {
               words.slice(part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
-                <li key={id} className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+                <li key={id}
+                  className={classNames(
+                    "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
+                    correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
+                  )}
+                  ref={el => wordRefs.current[word] = el}
                   onClick={() => handleChangeToNextWord(word, id)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
@@ -303,13 +344,19 @@ const VocabularyTraining = () => {
       )
     }
     return (
-      <ul style={{ gridTemplateColumns: gridColsNumber }}
-        className='max-h-64 flex flex-col gap-3'>
+      <ul
+        className='max-h-64 flex flex-col gap-3'
+        style={{ gridTemplateColumns: gridColsNumber }}
+        ref={vocabularyListRef}>
         {
           words.map(({ id, word, misspelling, correct, practiceCount }) => (
             <li key={id}
               data-word={word}
-              className={`pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer ${correct ? correctClass : incorrectClass}`}
+              className={classNames(
+                "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
+                correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
+              )}
+              ref={el => wordRefs.current[word] = el}
               onClick={() => handleChangeToNextWord(word, id)}>
               {transformSpellingWord(misspelling, word, practiceCount)}
             </li>
@@ -346,7 +393,7 @@ const VocabularyTraining = () => {
       return (
         <input
           type="text"
-          className='outline-none px-2 py-1 text-center'
+          className='outline-none px-2 py-1 w-full text-center bg-transparent'
           autoFocus
           defaultValue={text}
           onBlur={handleOnBlur}
@@ -363,7 +410,10 @@ const VocabularyTraining = () => {
       <div className='flex justify-between'>
         {
           word ? (
-            <button className='px-3 text-primary border rounded border-primary' tabIndex={-1} onClick={handlePauseAudio}>
+            <button
+              className='px-3 text-primary border rounded border-primary'
+              tabIndex={-1}
+              onClick={handlePauseAudio}>
               {paused ? "Play" : "Pause"}
             </button>
           ) : null
@@ -387,15 +437,20 @@ const VocabularyTraining = () => {
             {coloredWord}
             {
               correctCount > 0 && (
-                <span className="rounded-full bg-[#07bc0c] h-8 w-8 absolute text-xl text-white leading-normal">
+                <span className="rounded-full bg-[#07bc0c] h-8 w-8 ml-2 absolute text-xl text-white leading-normal">
                   {correctCount}
                 </span>
               )
             }
           </h1>
-          <div className='h-10 flex items-center'>
+          <div className='h-10 w-full flex items-center justify-center'>
             {renderDescription()}
           </div>
+        </div>
+        <div className="tips">
+          <p className='text-left text-xs text-gray-500'>
+            Key 9: Play/Pause, 0: Edit Translation
+          </p>
         </div>
         <hr />
         <div>

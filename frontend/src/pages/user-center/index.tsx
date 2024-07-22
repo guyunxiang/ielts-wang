@@ -10,6 +10,7 @@ interface Test {
   accuracyRate: number;
   totalCount: number;
   createdAt: Date;
+  fullPractice: Boolean;
 }
 
 interface MistakeData {
@@ -137,6 +138,25 @@ const UserCenter = () => {
     return "Chapter " + chapterNo;
   }
 
+  const renderAccuracyRate = (test: Test) => {
+    const { id, accuracyRate, fullPractice } = test;
+    if (!id) {
+      return (
+        <strong>
+          {`${accuracyRate.toFixed(2)}%`}
+        </strong>
+      );
+    }
+    return (
+      <React.Fragment>
+        <Link className="text-primary hover:text-secondary-500" to={`/training/${test.id}`} state={{ id: test.id }}>
+          {accuracyRate.toFixed(2)}%
+        </Link>
+        { fullPractice ? <span className="triangle"></span> : null }
+      </React.Fragment>
+    )
+  }
+
   return (
     <div className="container mx-auto mt-8 px-4 flex justify-center overflow-auto">
       <table className="border-collapse border border-primary text-center text-[#92400e]" id="accuracy-rate-table">
@@ -168,15 +188,8 @@ const UserCenter = () => {
                       <td className="border border-primary px-3">
                         {test.accuracyCount}
                       </td>
-                      <td className="border border-primary px-3">
-                        {
-                          test.id ?
-                            (<Link className="text-primary hover:text-secondary-500" to={`/training/${test.id}`} state={{ id: test.id }}>
-                              {test.accuracyRate.toFixed(2)}%
-                            </Link>) // Test Paper row
-                            :
-                            <strong>{`${test.accuracyRate.toFixed(2)}%`}</strong> // Chapter row
-                        }
+                      <td className="relative border border-primary px-3 overflow-hidden">
+                        {renderAccuracyRate(test)}
                       </td>
                       <td className="border border-primary px-3">
                         {new Date(test.createdAt).toLocaleDateString()}

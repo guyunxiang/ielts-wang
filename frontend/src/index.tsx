@@ -17,11 +17,11 @@ import LoginPage from './pages/login/login';
 import RegisterPage from './pages/register';
 import UserCenter from './pages/user-center';
 import VocabularyTraining from './pages/user-center/training';
+import GuJiaBeiPage from './pages/gujiabei';
 
 import AdminPage from './pages/admin';
 import MisspelledPage from './pages/admin/misspelled';
 import AdminDictationPage from './pages/admin/misspelled/dictation';
-
 import WhiteListPage from './pages/admin/whitelist';
 import VocabularyPage from './pages/admin/vocabulary';
 
@@ -39,6 +39,7 @@ root.render(
           <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
           <Route path="/user-center" element={<Layout><UserCenter /></Layout>}></Route>
           <Route path="/training/:word" element={<Layout><VocabularyTraining /></Layout>}></Route>
+          <Route path="/gujiabei-6000words" element={<Layout><GuJiaBeiPage /></Layout>}></Route>
           <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
           <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
           <Route path="/admin/misspelled/dictation/:TestId" element={<Layout><AdminDictationPage /></Layout>}></Route>
