@@ -1,15 +1,20 @@
 import { ReactElement, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 
-// Retrieve the list ID from localStorage or default to 1
-const localId = localStorage.getItem('GuJiaBei-ListId') || 1;
-
 const GuJiaBeiPage = () => {
   // Create a ref for the audio element
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // State to store the current list ID
-  const [id, setId] = useState(+localId);
+  const [id, setId] = useState(-1);
+
+  useEffect(() => {
+    // Retrieve the list ID from localStorage or default to 1
+    const localId = localStorage.getItem('GuJiaBei-ListId');
+    if (localId) {
+      setId(+localId);
+    }
+  }, [])
 
   useEffect(() => {
     // Function to handle keydown events
@@ -39,8 +44,8 @@ const GuJiaBeiPage = () => {
 
   // Function to handle changing the list ID
   const handleChangeListId = (id: number) => {
-    setId(id);
     localStorage.setItem('GuJiaBei-ListId', id.toString());
+    setId(id);
   }
 
   const renderList = () => {
