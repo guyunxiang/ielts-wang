@@ -1,9 +1,47 @@
+import { ReactElement, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { ReactElement, useState } from "react";
+
+// Retrieve the list ID from localStorage or default to 1
+const localId = localStorage.getItem('GuJiaBei-ListId') || 1;
 
 const GuJiaBeiPage = () => {
+  // Create a ref for the audio element
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-  const [id, setId] = useState(1);
+  // State to store the current list ID
+  const [id, setId] = useState(+localId);
+
+  useEffect(() => {
+    // Function to handle keydown events
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (audioRef.current) {
+        switch (event.key) {
+          case "ArrowLeft":
+            // Rewind the audio by 5 seconds
+            audioRef.current.currentTime -= 5;
+            break;
+          case "ArrowRight":
+            // Fast forward the audio by 5 seconds
+            audioRef.current.currentTime += 5;
+            break;
+        }
+      }
+    };
+
+    // Add event listener for keydown events
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // Function to handle changing the list ID
+  const handleChangeListId = (id: number) => {
+    setId(id);
+    localStorage.setItem('GuJiaBei-ListId', id.toString());
+  }
 
   const renderList = () => {
     let list: ReactElement[] = [];
@@ -11,11 +49,12 @@ const GuJiaBeiPage = () => {
       list.push(
         <li key={i}
           className={classNames(
-            "cursor-pointer px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center",
+            "relative px-3 py-2 border border-dashed border-secondary-500 hover:bg-secondary-300 gap-4 flex items-center justify-center cursor-pointer overflow-hidden",
             `${id === i ? 'bg-secondary-300 text-primary' : ''}`
           )}
-          onClick={() => { setId(i) }}>
+          onClick={() => handleChangeListId(i)}>
           List {i}
+          {i === id && <span className="triangle"></span> }
         </li>
       )
     }
@@ -31,6 +70,7 @@ const GuJiaBeiPage = () => {
       </h1>
       <hr className="my-3" />
       <audio
+        ref={audioRef}
         controls
         // autoPlay
         src={`/assets/audio/${id.toString().padStart(3, "0")}.mp3`}
