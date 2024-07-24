@@ -52,6 +52,15 @@ const GuJiaBeiPage = () => {
   const handleChangeListId = (id: number) => {
     localStorage.setItem('GuJiaBei-ListId', id.toString());
     setId(id);
+    // Play audio when id changes
+    if (audioRef.current) {
+      // Load the new audio source
+      audioRef.current.load();
+      // Play the audio when it is ready
+      audioRef.current.oncanplay = () => {
+        audioRef.current?.play();
+      };
+    }
   }
 
   const renderList = () => {
