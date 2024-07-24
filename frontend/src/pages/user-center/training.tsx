@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import copy from 'clipboard-copy';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
@@ -181,6 +181,8 @@ const VocabularyTraining = () => {
     // shortcut key for edit translation
     if (e.key === '0') {
       setEditStatus(true);
+      // Pasue audio during edit translation
+      setPaused(true);
     }
   };
 
@@ -250,6 +252,7 @@ const VocabularyTraining = () => {
     }
     setVocabularyData(newVocabularyData);
     setEditStatus(false);
+    setPaused(false);
   }
 
   const handleKeyUpTranslation = async (e: any) => {
@@ -403,7 +406,7 @@ const VocabularyTraining = () => {
     return <span onClick={() => { setEditStatus(true) }}>{description}</span>
   }
 
-  const RenderBasicInfo = () => {
+  const renderBasicInfo = () => {
     const accuracyCount = vocabularyData.words.filter(({ correct }) => correct).length;
     const accuracyRate = (accuracyCount / (vocabularyData.words.length) * 100).toFixed(2);
     return (
@@ -426,12 +429,33 @@ const VocabularyTraining = () => {
     )
   }
 
+  const renderPaperName = () => {
+    const { chapterNo, testPaperNo } = vocabularyData;
+    return (
+      <div className="flex items-center justify-between gap-3 ">
+        <Link to="/user-center" className='hover:text-primary'>
+          {'<'} Back
+        </Link>
+        <h2>
+          Chapter {chapterNo}
+          &nbsp;-&nbsp;
+          {
+            chapterNo === 11 ?
+              `Section ${testPaperNo}` :
+              `Test Paper ${testPaperNo}`
+          }
+        </h2>
+      </div>
+    )
+  }
+
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
       <div className="w-1/3 overflow-auto max-w-80">
         <RenderVocabularyList />
       </div>
       <div className='flex flex-1 flex-col gap-3'>
+        {renderPaperName()}
         <div className="relative flex flex-1 flex-col justify-center items-center gap-3">
           <h1 className="text-5xl font-black font-sans relative" onClick={handleCopyWord}>
             {coloredWord}
@@ -454,7 +478,7 @@ const VocabularyTraining = () => {
         </div>
         <hr />
         <div>
-          <RenderBasicInfo />
+          {renderBasicInfo()}
         </div>
         <div className='container mx-auto flex gap-8 justify-center'>
           <input

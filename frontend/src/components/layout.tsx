@@ -42,7 +42,7 @@ function Layout({ children }: LayoutProps) {
     if (role === "user") {
       return (
         <React.Fragment>
-          <li className='hover:text-primary min-w-20 text-center'>
+          <li className='hover:text-primary text-center'>
             <Link
               to="/user-center"
               className={classNames(
@@ -51,7 +51,7 @@ function Layout({ children }: LayoutProps) {
               User Center
             </Link>
           </li>
-          <li className='min-w-20 text-center hover:text-primary'>
+          <li className='text-center hover:text-primary'>
             <Link to="/gujiabei-6000words"
               className={classNames({ "text-primary hover:text-secondary-500": location.pathname === "/gujiabei-6000words" })}>
               GuJiaBei 6000 words
@@ -98,22 +98,20 @@ function Layout({ children }: LayoutProps) {
   return (
     <div className="layout flex flex-col h-full">
       <header className='h-16 min-h-16 flex justify-center items-center'>
-        <div className="container flex justify-between">
+        <div className="container flex justify-between px-3">
           <div>
             IELTS
           </div>
           <nav>
             <ul className='flex gap-4'>
-              <li className='hover:text-primary min-w-20 text-center'>
+              <li className='hover:text-primary text-center'>
                 <Link to="/">Home</Link>
               </li>
               {renderCommonNavigation()}
               {renderUserNavigation()}
               {renderAdminNavigation()}
-              <li className='hover:text-primary min-w-20 text-center' onClick={handleClickLogin}>
-                <span className='cursor-pointer'>
-                  {isLoggedIn ? 'Logout' : 'Login'}
-                </span>
+              <li className='hover:text-primary text-center cursor-pointer' onClick={handleClickLogin}>
+                {isLoggedIn ? 'Logout' : 'Login'}
               </li>
             </ul>
           </nav>
