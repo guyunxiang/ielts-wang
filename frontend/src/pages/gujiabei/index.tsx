@@ -9,11 +9,9 @@ const GuJiaBeiPage = () => {
   const [id, setId] = useState(-1);
 
   useEffect(() => {
-    // Retrieve the list ID from localStorage or default to 1
+    // Retrieve the list ID from localStorage
     const localId = localStorage.getItem('GuJiaBei-ListId');
-    if (localId) {
-      setId(+localId);
-    }
+    if (localId) setId(+localId);
   }, [])
 
   useEffect(() => {
@@ -28,6 +26,14 @@ const GuJiaBeiPage = () => {
           case "ArrowRight":
             // Fast forward the audio by 5 seconds
             audioRef.current.currentTime += 5;
+            break;
+          case " ":
+            // Pause or play the audio
+            if (audioRef.current.paused) {
+              audioRef.current.play();
+            } else {
+              audioRef.current.pause();
+            }
             break;
         }
       }
