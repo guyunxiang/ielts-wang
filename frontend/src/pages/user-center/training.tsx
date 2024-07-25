@@ -43,6 +43,7 @@ const VocabularyTraining = () => {
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [paused, setPaused] = useState(true);
   const [editStatus, setEditStatus] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     // Get DictationMistake data via id;
@@ -79,6 +80,13 @@ const VocabularyTraining = () => {
     };
     updateColoredWord(word);
   }, [input, word]);
+
+  // Start timer when start typing
+  useEffect(() => {
+    if (!startTime) {
+      setStartTime(Date.now());
+    }
+  }, [input, startTime, editStatus, paused])
 
   useEffect(() => {
     const wordSpeaking = () => {
@@ -150,6 +158,12 @@ const VocabularyTraining = () => {
     // Get practice count from new word
     const practiceCount = vocabularyData.words.find(({ word }) => word === nextWord)?.practiceCount ?? 0;
     setCorrectCount(practiceCount);
+    if (startTime) {
+      const endTime = Date.now();
+      const duration = (endTime - startTime) / 1000;
+      console.log(duration);
+      // to do: update duration to database
+    }
   }
 
   // On paused audio
@@ -292,7 +306,16 @@ const VocabularyTraining = () => {
     })
   }
 
-  const RenderVocabularyList = () => {
+  // Calculate total practice count
+  const calculateTotalPracticeCount = (): number => {
+    let totalPracticeCount = 0;
+    vocabularyData.words.forEach((item) => {
+      totalPracticeCount += item.practiceCount;
+    });
+    return totalPracticeCount;
+  };
+
+  const renderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
     const incorrectClass = "text-[#f00] border-[#f00] font-medium";
     const practicedClass = "text-primary border-primary font-medium";
@@ -452,7 +475,7 @@ const VocabularyTraining = () => {
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
       <div className="w-1/3 overflow-auto max-w-80">
-        <RenderVocabularyList />
+        {renderVocabularyList()}
       </div>
       <div className='flex flex-1 flex-col gap-3'>
         {renderPaperName()}
@@ -471,10 +494,13 @@ const VocabularyTraining = () => {
             {renderDescription()}
           </div>
         </div>
-        <div className="tips">
+        <div className="tips flex items-center justify-between gap-3">
           <p className='text-left text-xs text-gray-500'>
             Key 9: Play/Pause, 0: Edit Translation
           </p>
+          <span className='text-xs text-gray-500'>
+            Total training: {calculateTotalPracticeCount()} times
+          </span>
         </div>
         <hr />
         <div>
