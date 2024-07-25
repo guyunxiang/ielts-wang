@@ -11,6 +11,22 @@ const WordSchema = new mongoose.Schema({
   }
 });
 
+/**
+ * Represents a schema for recording dictation mistakes.
+ *
+ * @typedef {Object} DictationMistakeSchema
+ * @property {number} chapterNo - The chapter number associated with the mistake.
+ * @property {number} testPaperNo - The test paper number associated with the mistake.
+ * @property {number} accuracyCount - The count of accurate dictations.
+ * @property {number} accuracyRate - The accuracy rate of dictations (in percentage).
+ * @property {WordSchema[]} words - An array of words associated with the mistake.
+ * @property {mongoose.Schema.Types.ObjectId} userId - The ID of the user who made the mistake.
+ * @property {mongoose.Schema.Types.ObjectId} testId - The ID of the test associated with the mistake.
+ * @property {boolean} deleted - Indicates if the mistake has been deleted.
+ * @property {number} studyDuration - The duration of study time for the mistake (in seconds).
+ * @property {Date} createdAt - The timestamp when the mistake was created.
+ * @property {Date} updatedAt - The timestamp when the mistake was last updated.
+ */
 const DictationMistakeSchema = new mongoose.Schema({
   chapterNo: {
     type: Number,
@@ -44,6 +60,10 @@ const DictationMistakeSchema = new mongoose.Schema({
   deleted: {
     type: Boolean,
     default: false,
+  },
+  studyDuration: {
+    type: Number,
+    required: false
   }
 }, { timestamps: true });
 
