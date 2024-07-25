@@ -158,7 +158,7 @@ const UserCenter = () => {
   }
 
   return (
-    <div className="container mx-auto mt-8 px-4 flex justify-center overflow-auto">
+    <div className="overflow-auto">
       <table className="border-collapse border border-primary text-center text-[#92400e]" id="accuracy-rate-table">
         <thead className="bg-secondary-700">
           <tr>
@@ -178,7 +178,7 @@ const UserCenter = () => {
                 { "bg-secondary-400": !testPaperNo }
               )}
                 key={`chapter-${chapterNo}-${"testPaper-" + testPaperNo}`}>
-                <td className="border border-primary px-3">
+                <td className="border border-primary px-3 whitespace-nowrap">
                   {renderTitle(chapterNo, testPaperNo)}
                 </td>
                 <td className="border border-primary px-3">{vocabularyCount}</td>
