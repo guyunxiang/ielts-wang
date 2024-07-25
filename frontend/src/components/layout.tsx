@@ -46,7 +46,7 @@ function Layout({ children }: LayoutProps) {
             <Link
               to="/user-center"
               className={classNames(
-                { "text-primary hover:text-secondary-500": location.pathname === "/user-center" }
+                { "text-primary hover:text-secondary-500": location.pathname.startsWith("/user-center") }
               )}>
               User Center
             </Link>
