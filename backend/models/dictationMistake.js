@@ -8,6 +8,11 @@ const WordSchema = new mongoose.Schema({
   practiceCount: {
     type: Number,
     default: 0
+  },
+  trainingDuration: {
+    type: Number,
+    required: false,
+    default: 0
   }
 });
 
@@ -61,9 +66,10 @@ const DictationMistakeSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  studyDuration: {
+  trainingDuration: {
     type: Number,
-    required: false
+    required: false,
+    default: 0
   }
 }, { timestamps: true });
 
