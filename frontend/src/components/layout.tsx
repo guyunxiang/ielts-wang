@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import classNames from 'classnames';
@@ -16,6 +16,20 @@ function Layout({ children }: LayoutProps) {
   const location = useLocation();
 
   const { role } = userInfo;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const handleClickLogin = () => {
     if (isLoggedIn) {

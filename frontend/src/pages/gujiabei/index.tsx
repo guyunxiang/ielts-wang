@@ -22,10 +22,12 @@ const GuJiaBeiPage = () => {
           case "ArrowLeft":
             // Rewind the audio by 5 seconds
             audioRef.current.currentTime -= 5;
+            handlePlayAudio();
             break;
           case "ArrowRight":
             // Fast forward the audio by 5 seconds
             audioRef.current.currentTime += 5;
+            handlePlayAudio();
             break;
           case " ":
             // Pause or play the audio
@@ -48,19 +50,23 @@ const GuJiaBeiPage = () => {
     };
   }, []);
 
-  // Function to handle changing the list ID
-  const handleChangeListId = (id: number) => {
-    localStorage.setItem('GuJiaBei-ListId', id.toString());
-    setId(id);
+  const handlePlayAudio = (reload?: boolean) => {
     // Play audio when id changes
     if (audioRef.current) {
       // Load the new audio source
-      audioRef.current.load();
+      reload && audioRef.current.load();
       // Play the audio when it is ready
       audioRef.current.oncanplay = () => {
         audioRef.current?.play();
       };
     }
+  }
+
+  // Function to handle changing the list ID
+  const handleChangeListId = (id: number) => {
+    localStorage.setItem('GuJiaBei-ListId', id.toString());
+    setId(id);
+    handlePlayAudio(true);
   }
 
   const renderList = () => {
@@ -92,7 +98,7 @@ const GuJiaBeiPage = () => {
       <audio
         ref={audioRef}
         controls
-        // autoPlay
+        tabIndex={-1}
         src={`/assets/audio/${id.toString().padStart(3, "0")}.mp3`}
       />
       <hr className="my-3" />
