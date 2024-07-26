@@ -9,10 +9,7 @@ interface UserCenterLayoutProps {
 function UserCenterLayout({ children }: UserCenterLayoutProps) {
 
   const location = useLocation();
-
   const { pathname } = location;
-
-  console.log(pathname);
 
   return (
     <div className='container mx-auto flex flex-col mt-8 px-3 justify-center gap-6'>
