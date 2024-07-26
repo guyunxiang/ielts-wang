@@ -41,7 +41,7 @@ root.render(
           <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
           <Route path="/user-center" element={<Layout><UserCenterLayout><UserCenter /></UserCenterLayout></Layout>}></Route>
           <Route path="/user-center/schedule" element={<Layout><UserCenterLayout><Schedule /></UserCenterLayout></Layout>}></Route>
-          <Route path="/training/:word" element={<Layout><VocabularyTraining /></Layout>}></Route>
+          <Route path="/training/:id" element={<Layout><VocabularyTraining /></Layout>}></Route>
           <Route path="/gujiabei-6000words" element={<Layout><GuJiaBeiPage /></Layout>}></Route>
           <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
           <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
