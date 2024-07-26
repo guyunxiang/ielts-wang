@@ -9,10 +9,9 @@ function Schedule() {
     <div className="flex justify-between">
       <table className='border-collapse border border-primary text-center text-[#92400e]'>
         <thead>
-          <tr>
+          <tr className='bg-secondary-700'>
             <th className='border border-primary px-3'>Day</th>
             <th className='border border-primary px-3'>Tasks</th>
-            <th className="border border-primary px-3">Words</th>
           </tr>
         </thead>
         <tbody>
