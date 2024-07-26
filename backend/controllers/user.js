@@ -292,6 +292,8 @@ exports.getDictationMistakeById = async (req, res) => {
       });
     }
 
+    let totalTrainingDuration = 0;
+
     // Merge the data
     const mergedWords = vocabularyList.words.map((vocabWord, index) => {
       const mistakeWord = dictationMistake.words.find(w => w.word === vocabWord.word);
@@ -300,11 +302,14 @@ exports.getDictationMistakeById = async (req, res) => {
         word: vocabWord.word,
         phonetic: vocabWord.phonetic || '',
         translation: vocabWord.translation || '',
-        practiceCount: mistakeWord ? mistakeWord.practiceCount : 0,
-        correct: !mistakeWord
+        correct: !mistakeWord,
       }
       if (mistakeWord) {
-        result.misspelling = testRecord.words[index]
+        result.misspelling = testRecord.words[index];
+        result.mistakeWordId = mistakeWord._id;
+        result.practiceCount = mistakeWord.practiceCount;
+        result.trainingDuration = mistakeWord.trainingDuration;
+        totalTrainingDuration += mistakeWord.trainingDuration;
       }
       return result;
     });
@@ -313,7 +318,8 @@ exports.getDictationMistakeById = async (req, res) => {
     const responseData = {
       chapterNo: dictationMistake.chapterNo,
       testPaperNo: dictationMistake.testPaperNo,
-      words: mergedWords
+      words: mergedWords,
+      trainingDuration: totalTrainingDuration,
     };
 
     // Return the merged data
@@ -408,6 +414,7 @@ exports.updatePracticeCount = async (req, res) => {
   }
 };
 
+// Update accuracy count of a dictation mistake
 exports.updateWordTranslation = async (req, res) => {
   try {
     const { chapterNo, testPaperNo, translation, wordId } = req.body;
@@ -437,6 +444,60 @@ exports.updateWordTranslation = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "An error occurred while updating the practice count",
+      error: error.message
+    });
+  }
+}
+
+// Update training duration of a dictation mistake
+exports.updateTrainingDuration = async (req, res) => {
+  try {
+    const { id, wordId, duration } = req.body;
+    //  Check if id, wordId, and trainingDuration are provided
+    if (!id || !wordId || !duration) {
+      return res.status(400).json({
+        success: false,
+        message: "Dictation mistake ID, word ID, and training duration are required"
+      });
+    }
+    // Find the dictation mistake by id
+    const dictationMistake = await DictationMistake.findById(id);
+    if (!dictationMistake) {
+      return res.status(404).json({
+        success: false,
+        message: "Dictation mistake not found"
+      });
+    }
+    // Find the word in the words array and update its trainingDuration
+    const wordIndex = dictationMistake.words.findIndex(w => w._id.toString() === wordId);
+    if (wordIndex === -1) {
+      return res.status(404).json({
+      success: false,
+      message: "Word not found in this dictation mistake"
+      });
+    }
+
+    // Update the trainingDuration of the word
+    dictationMistake.words[wordIndex].trainingDuration += duration;
+
+    // Update the trainingDuration of the dictationMistake
+    dictationMistake.trainingDuration += duration;
+
+    // Save the updated dictationMistake
+    await dictationMistake.save();
+
+    // Return the updated dictationMistake
+    res.status(200).json({
+      success: true,
+      message: "Training duration updated successfully",
+      data: dictationMistake
+    });
+    
+  } catch (error) {
+    console.error('Error updating training duration:', error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the training duration",
       error: error.message
     });
   }
