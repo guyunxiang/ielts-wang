@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import copy from 'clipboard-copy';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
@@ -12,21 +12,25 @@ interface VocabularyData {
   chapterNo: number;
   testPaperNo: number;
   words: Word[];
+  trainingDuration?: number;
 }
 
 interface Word {
   id: string;
   word: string;
+  mistakeWordId: string;
   misspelling: string;
   phonetic: string;
   translation: string;
   practiceCount: number;
   correct: boolean;
+  trainingDuration: number;
 }
 
 const VocabularyTraining = () => {
 
-  const { state: { id } } = useLocation();
+  // Get dictation id from url
+  const { id } = useParams<{ id: string }>();
 
   const vocabularyListRef = useRef<HTMLUListElement>(null);
   const wordRefs = useRef<{ [key: string]: HTMLLIElement | null }>({});
@@ -38,7 +42,10 @@ const VocabularyTraining = () => {
   });
   const [word, setWord] = useState('');
   const [input, setInput] = useState<string>('');
+  // vocabulary word id
   const [wordId, setWordId] = useState("");
+  // mistake word id
+  const [mistakeWordId, setMistakeWordId] = useState("");
   const [coloredWord, setColoredWord] = useState<JSX.Element[]>([]);
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [paused, setPaused] = useState(true);
@@ -54,9 +61,10 @@ const VocabularyTraining = () => {
           const foundWord = data.words.find((word: Word) => (!word.correct && word.practiceCount <= 1));
           setVocabularyData(data);
           if (foundWord) {
-            const { id, word, practiceCount } = foundWord;
+            const { id, word, mistakeWordId, practiceCount } = foundWord;
             setWord(word);
             setWordId(id);
+            setMistakeWordId(mistakeWordId);
             setCorrectCount(practiceCount);
           }
         }
@@ -83,8 +91,10 @@ const VocabularyTraining = () => {
 
   // Start timer when start typing
   useEffect(() => {
-    if (!startTime) {
-      setStartTime(Date.now());
+    if (input || editStatus || !paused) {
+      if (!startTime) {
+        setStartTime(Date.now());
+      }
     }
   }, [input, startTime, editStatus, paused])
 
@@ -146,24 +156,42 @@ const VocabularyTraining = () => {
     });
   }
 
+  // Update training duration
+  const updatePracticeDuration = async () => {
+    if (!startTime) return;
+    const endTime = Date.now();
+    const duration = (endTime - startTime) / 1000;
+
+    const { success, message } = await post("/api/dictation/trainingDuration/update", {
+      id,
+      wordId: mistakeWordId,
+      duration
+    }, {
+      method: "PUT"
+    });
+    if (!success) {
+      toast.error(message);
+      return;
+    }
+  }
+
   // Select next word
-  const handleChangeToNextWord = async (nextWord: string, id: string) => {
+  const handleChangeToNextWord = async (nextWord: string, id: string, mistakeId: string) => {
     // Update practice count to database
     updatePracticeCount();
+    // Update practice duration to database
+    await updatePracticeDuration();
     // Update practice count to local data
     updateLocalVocabularyData();
-    setWord(nextWord);
+
     setInput('');
+    setWord(nextWord);
+    setStartTime(null);
     setWordId(id ?? "");
+    setMistakeWordId(mistakeId ?? "");
     // Get practice count from new word
     const practiceCount = vocabularyData.words.find(({ word }) => word === nextWord)?.practiceCount ?? 0;
     setCorrectCount(practiceCount);
-    if (startTime) {
-      const endTime = Date.now();
-      const duration = (endTime - startTime) / 1000;
-      console.log(duration);
-      // to do: update duration to database
-    }
   }
 
   // On paused audio
@@ -206,15 +234,17 @@ const VocabularyTraining = () => {
       e.preventDefault();
       let nextWord = "";
       let nextId = "";
+      let nextWordMistakeId = "";
       const { words } = vocabularyData;
       const currentIndex = words.findIndex((item) => item.word === word);
       words.forEach((item, index) => {
         if (!item.correct && index > currentIndex && !nextWord) {
           nextWord = item.word;
           nextId = item.id;
+          nextWordMistakeId = item.mistakeWordId;
         }
       });
-      handleChangeToNextWord(nextWord, nextId);
+      handleChangeToNextWord(nextWord, nextId, nextWordMistakeId);
 
       if (nextWord && vocabularyListRef.current && wordRefs.current[nextWord]) {
         wordRefs.current[nextWord]?.scrollIntoView({
@@ -231,6 +261,7 @@ const VocabularyTraining = () => {
     toast.success("Copied to clipboard.");
   }
 
+  // Validate if there is no change in translation
   const validateNoChangeTranslation = (value: string) => {
     const description = vocabularyData.words.find((item: Word) => item.id === wordId)?.translation;
     if (value.trim() === description?.trim()) {
@@ -310,10 +341,30 @@ const VocabularyTraining = () => {
   const calculateTotalPracticeCount = (): number => {
     let totalPracticeCount = 0;
     vocabularyData.words.forEach((item) => {
-      totalPracticeCount += item.practiceCount;
+      totalPracticeCount += (item.practiceCount || 0);
     });
     return totalPracticeCount;
   };
+
+  // Render word training duration
+  const renderWordTrainingDuration = (): string => {
+    const { words } = vocabularyData;
+    const { trainingDuration } = words.find((item) => item.id === wordId) ?? { trainingDuration: 0 };
+    const hours = Math.floor(trainingDuration / 3600);
+    const minutes = Math.floor((trainingDuration % 3600) / 60);
+    const seconds = parseInt((trainingDuration % 60).toFixed(0));
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Calculate total training duration
+  const calculateTotalTrainingDuration = (): string => {
+    const { trainingDuration } = vocabularyData;
+    if (trainingDuration === undefined) return "00:00:00";
+    const hours = Math.floor(trainingDuration / 3600);
+    const minutes = Math.floor((trainingDuration % 3600) / 60);
+    const seconds = parseInt((trainingDuration % 60).toFixed(0));
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
 
   const renderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
@@ -334,14 +385,14 @@ const VocabularyTraining = () => {
             style={{ gridTemplateColumns: gridColsNumber }}
             ref={vocabularyListRef}>
             {
-              words.slice(0, part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
+              words.slice(0, part1Count).map(({ id, word, mistakeWordId, misspelling, correct, practiceCount }) => (
                 <li key={id}
                   className={classNames(
                     "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
                     correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
                   )}
                   ref={el => wordRefs.current[word] = el}
-                  onClick={() => handleChangeToNextWord(word, id)}>
+                  onClick={() => handleChangeToNextWord(word, id, mistakeWordId)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
               ))
@@ -353,14 +404,14 @@ const VocabularyTraining = () => {
             style={{ gridTemplateColumns: "repeat(2, 1fr)" }}
             ref={vocabularyListRef}>
             {
-              words.slice(part1Count).map(({ id, word, misspelling, correct, practiceCount }) => (
+              words.slice(part1Count).map(({ id, word, mistakeWordId, misspelling, correct, practiceCount }) => (
                 <li key={id}
                   className={classNames(
                     "pl-2 border border-dashed min-h-8 text-left flex items-center cursor-pointer",
                     correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
                   )}
                   ref={el => wordRefs.current[word] = el}
-                  onClick={() => handleChangeToNextWord(word, id)}>
+                  onClick={() => handleChangeToNextWord(word, id, mistakeWordId)}>
                   {transformSpellingWord(misspelling, word, practiceCount)}
                 </li>
               ))
@@ -375,7 +426,7 @@ const VocabularyTraining = () => {
         style={{ gridTemplateColumns: gridColsNumber }}
         ref={vocabularyListRef}>
         {
-          words.map(({ id, word, misspelling, correct, practiceCount }) => (
+          words.map(({ id, word, mistakeWordId, misspelling, correct, practiceCount }) => (
             <li key={id}
               data-word={word}
               className={classNames(
@@ -383,7 +434,7 @@ const VocabularyTraining = () => {
                 correct ? correctClass : practiceCount > 1 ? practicedClass : incorrectClass
               )}
               ref={el => wordRefs.current[word] = el}
-              onClick={() => handleChangeToNextWord(word, id)}>
+              onClick={() => handleChangeToNextWord(word, id, mistakeWordId)}>
               {transformSpellingWord(misspelling, word, practiceCount)}
             </li>
           ))
@@ -494,13 +545,16 @@ const VocabularyTraining = () => {
             {renderDescription()}
           </div>
         </div>
-        <div className="tips flex items-center justify-between gap-3">
+        <div className="tips flex items-end justify-between gap-3">
           <p className='text-left text-xs text-gray-500'>
             Key 9: Play/Pause, 0: Edit Translation
           </p>
-          <span className='text-xs text-gray-500'>
-            Total training: {calculateTotalPracticeCount()} times
-          </span>
+          <div className='text-xs text-gray-500 text-right'>
+            <p>Total training: {calculateTotalPracticeCount()} times</p>
+            <hr className='my-1'/>
+            <p>Training duration: {renderWordTrainingDuration()}</p>
+            <p>Total training duration: {calculateTotalTrainingDuration()}</p>
+          </div>
         </div>
         <hr />
         <div>
