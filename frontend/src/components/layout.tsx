@@ -9,17 +9,23 @@ interface LayoutProps {
   children: ReactNode;
 }
 
+// NoTabUrls are the urls that should not be able to tab through
+const NoTabUrls = [
+  "/gujiabei-6000words"
+];
+
 function Layout({ children }: LayoutProps) {
 
   const navigate = useNavigate();
   const { isLoggedIn, userInfo, logout } = useAuth();
-  const location = useLocation();
+  const { pathname } = useLocation();
 
   const { role } = userInfo;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Tab') {
+      const isNoTabUrl = NoTabUrls.some(url => pathname.startsWith(url));
+      if (event.key === 'Tab' && isNoTabUrl) {
         event.preventDefault();
       }
     };
@@ -29,7 +35,7 @@ function Layout({ children }: LayoutProps) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [pathname]);
 
   const handleClickLogin = () => {
     if (isLoggedIn) {
@@ -44,7 +50,7 @@ function Layout({ children }: LayoutProps) {
         <React.Fragment>
           <li className='hover:text-primary min-w-20 text-center'>
             <Link to="/chapters" className={classNames(
-              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/chapters") }
+              { "text-primary hover:text-secondary-500": pathname.startsWith("/chapters") }
             )}>Chapters</Link>
           </li>
         </React.Fragment>
@@ -60,14 +66,14 @@ function Layout({ children }: LayoutProps) {
             <Link
               to="/user-center"
               className={classNames(
-                { "text-primary hover:text-secondary-500": location.pathname.startsWith("/user-center") }
+                { "text-primary hover:text-secondary-500": pathname.startsWith("/user-center") }
               )}>
               User Center
             </Link>
           </li>
           <li className='text-center hover:text-primary'>
             <Link to="/gujiabei-6000words"
-              className={classNames({ "text-primary hover:text-secondary-500": location.pathname === "/gujiabei-6000words" })}>
+              className={classNames({ "text-primary hover:text-secondary-500": pathname.startsWith("/gujiabei-6000words") })}>
               GuJiaBei 6000 words
             </Link>
           </li>
@@ -83,7 +89,7 @@ function Layout({ children }: LayoutProps) {
           <li className='hover:text-primary text-center'>
             <Link to="/admin/vocabulary" className={classNames(
               "block px-3",
-              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/vocabulary") }
+              { "text-primary hover:text-secondary-500": pathname.startsWith("/admin/vocabulary") }
             )}>
               Vocabulary
             </Link>
@@ -91,7 +97,7 @@ function Layout({ children }: LayoutProps) {
           <li className='hover:text-primary text-center'>
             <Link to="/admin/whitelist" className={classNames(
               "block px-3",
-              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/whitelist") }
+              { "text-primary hover:text-secondary-500": pathname.startsWith("/admin/whitelist") }
             )}>
               Whitelist
             </Link>
@@ -99,7 +105,7 @@ function Layout({ children }: LayoutProps) {
           <li className='hover:text-primary text-center'>
             <Link to="/admin/misspelled" className={classNames(
               "block px-3",
-              { "text-primary hover:text-secondary-500": location.pathname.startsWith("/admin/misspelled") }
+              { "text-primary hover:text-secondary-500": pathname.startsWith("/admin/misspelled") }
             )}>
               Misspelled Table
             </Link>
