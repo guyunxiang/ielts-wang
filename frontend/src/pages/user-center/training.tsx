@@ -51,6 +51,7 @@ const VocabularyTraining = () => {
   const [paused, setPaused] = useState(true);
   const [editStatus, setEditStatus] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [totalPracticeCount, setTotalPracticeCount] = useState(0);
 
   useEffect(() => {
     // Get DictationMistake data via id;
@@ -123,6 +124,11 @@ const VocabularyTraining = () => {
     }
   }, [word, paused]);
 
+  useEffect(() => {
+    const totalPracticeCount = vocabularyData.words.reduce((acc, { practiceCount }) => acc + (practiceCount || 0), 0);
+    setTotalPracticeCount(totalPracticeCount);
+  }, [vocabularyData]);
+
   // Update practice count to database
   const updatePracticeCount = async () => {
     // validate if update he practice count
@@ -144,15 +150,14 @@ const VocabularyTraining = () => {
 
   // Update practice count into local vocabulary data
   const updateLocalVocabularyData = () => {
-    const words = vocabularyData.words.map((item) => {
-      if (item.word === word) {
-        item.practiceCount = correctCount;
-      }
-      return item;
-    });
-    setVocabularyData({
-      ...vocabularyData,
-      words
+    setVocabularyData(prevData => {
+      const updatedWords = prevData.words.map((item) => {
+        if (item.word === word) {
+          return { ...item, practiceCount: correctCount };
+        }
+        return item;
+      });
+      return { ...prevData, words: updatedWords };
     });
   }
 
@@ -173,16 +178,27 @@ const VocabularyTraining = () => {
       toast.error(message);
       return;
     }
+    // Update training duration into local vocabulary data
+    const words = vocabularyData.words.map((item) => {
+      if (item.mistakeWordId === mistakeWordId) {
+        item.trainingDuration = duration;
+      }
+      return item;
+    });
+    const totalTrainingDuration = vocabularyData.trainingDuration ? vocabularyData.trainingDuration + duration : duration;
+    setVocabularyData({
+      ...vocabularyData,
+      trainingDuration: totalTrainingDuration,
+      words
+    });
   }
 
   // Select next word
   const handleChangeToNextWord = async (nextWord: string, id: string, mistakeId: string) => {
-    // Update practice count to database
-    updatePracticeCount();
     // Update practice duration to database
     await updatePracticeDuration();
-    // Update practice count to local data
-    updateLocalVocabularyData();
+    // Update practice count to database
+    updatePracticeCount();
 
     setInput('');
     setWord(nextWord);
@@ -212,8 +228,10 @@ const VocabularyTraining = () => {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       if (input.toLocaleLowerCase() === word.toLocaleLowerCase()) {
-        setCorrectCount(prevCount => prevCount + 1);
         setInput('');
+        setCorrectCount(prevCount => prevCount + 1);
+        // Update practice count to local data
+        updateLocalVocabularyData();
       }
     }
     // shortcut key for play or pause audio
@@ -335,35 +353,6 @@ const VocabularyTraining = () => {
         </span>
       )
     })
-  }
-
-  // Calculate total practice count
-  const calculateTotalPracticeCount = (): number => {
-    let totalPracticeCount = 0;
-    vocabularyData.words.forEach((item) => {
-      totalPracticeCount += (item.practiceCount || 0);
-    });
-    return totalPracticeCount;
-  };
-
-  // Render word training duration
-  const renderWordTrainingDuration = (): string => {
-    const { words } = vocabularyData;
-    const { trainingDuration } = words.find((item) => item.id === wordId) ?? { trainingDuration: 0 };
-    const hours = Math.floor(trainingDuration / 3600);
-    const minutes = Math.floor((trainingDuration % 3600) / 60);
-    const seconds = parseInt((trainingDuration % 60).toFixed(0));
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  // Calculate total training duration
-  const calculateTotalTrainingDuration = (): string => {
-    const { trainingDuration } = vocabularyData;
-    if (trainingDuration === undefined) return "00:00:00";
-    const hours = Math.floor(trainingDuration / 3600);
-    const minutes = Math.floor((trainingDuration % 3600) / 60);
-    const seconds = parseInt((trainingDuration % 60).toFixed(0));
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   const renderVocabularyList = () => {
@@ -523,6 +512,24 @@ const VocabularyTraining = () => {
     )
   }
 
+  const transformDuration = (trainingDuration?: number) => {
+    if (trainingDuration === undefined) return "00:00:00";
+    const hours = Math.floor(trainingDuration / 3600);
+    const minutes = Math.floor((trainingDuration % 3600) / 60);
+    const seconds = parseInt((trainingDuration % 60).toFixed(0));
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  const renderStatisticData = () => {
+    const { words } = vocabularyData;
+    const { trainingDuration } = words.find((item) => item.id === wordId) ?? { trainingDuration: 0 };
+    return (
+      <div className='text-xs text-gray-500 text-right'>
+        <p>Training duration: {transformDuration(trainingDuration)}</p>
+      </div>
+    )
+  }
+
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
       <div className="w-1/3 overflow-auto max-w-80">
@@ -530,8 +537,13 @@ const VocabularyTraining = () => {
       </div>
       <div className='flex flex-1 flex-col gap-3'>
         {renderPaperName()}
+        <hr />
+        <div className='flex justify-between'>
+          <p>Training duration: {transformDuration(vocabularyData.trainingDuration)}</p>
+          <p>Total training: {totalPracticeCount} times</p>
+        </div>
         <div className="relative flex flex-1 flex-col justify-center items-center gap-3">
-          <h1 className="text-5xl font-black font-sans relative" onClick={handleCopyWord}>
+          <h1 className="text-5xl font-black relative" style={{ fontFamily: 'serif' }} onClick={handleCopyWord}>
             {coloredWord}
             {
               correctCount > 0 && (
@@ -549,12 +561,7 @@ const VocabularyTraining = () => {
           <p className='text-left text-xs text-gray-500'>
             Key 9: Play/Pause, 0: Edit Translation
           </p>
-          <div className='text-xs text-gray-500 text-right'>
-            <p>Total training: {calculateTotalPracticeCount()} times</p>
-            <hr className='my-1'/>
-            <p>Training duration: {renderWordTrainingDuration()}</p>
-            <p>Total training duration: {calculateTotalTrainingDuration()}</p>
-          </div>
+          {renderStatisticData()}
         </div>
         <hr />
         <div>
