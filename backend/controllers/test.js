@@ -52,7 +52,7 @@ exports.savePaperTest = async (req, res) => {
   }
 }
 
-const calculateMisspelledData = async (testWords, vocabularyList) => {
+const calculateMisspelledData = async (testWords, vocabularyList, originalWords) => {
 
   // TODO, version 18
   const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
@@ -99,12 +99,18 @@ const calculateMisspelledData = async (testWords, vocabularyList) => {
   const accuracyCount = testWords.length - misspelledWords.length;
   const accuracyRate = (accuracyCount / testWords.length) * 100;
 
+  // Get original practice count for each misspelled word
+  const getOriginalPracticeCount = (word) => {
+    const { practiceCount } = originalWords.find(originalWord => wordsMatch(originalWord.word, word));
+    return practiceCount || 0;
+  }
+
   return {
     accuracyRate: accuracyRate.toFixed(2),
     accuracyCount: accuracyCount,
     words: misspelledWords.map(word => ({
       word: word.word,
-      practiceCount: 1
+      practiceCount: getOriginalPracticeCount(word.word),
     })),
   }
 }
@@ -124,8 +130,11 @@ exports.createMisspelledWords = async (testId, misspelledRecordId) => {
       throw new Error('Vocabulary list not found');
     }
 
+    // Fetch original misspelled record
+    const originalMisspelledRecord = await DictationMistake.findById(misspelledRecordId);
+
     let newMistake;
-    const misspelledRecord = await calculateMisspelledData(words, vocabularyList);
+    const misspelledRecord = await calculateMisspelledData(words, vocabularyList, originalMisspelledRecord.words);
     if (!misspelledRecordId) {
       // Create new DictationMistake record
       newMistake = new DictationMistake({
