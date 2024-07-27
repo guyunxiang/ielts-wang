@@ -158,6 +158,7 @@ exports.renewMisspelledRecord = async (req, res) => {
         message: "id and testId are required!"
       });
     }
+    // create a new misspelled record: testId, misspelledId
     await testController.createMisspelledWords(testId, id);
     res.status(200).json({
       success: true,
@@ -280,6 +281,7 @@ exports.updateWhitelistById = async (req, res) => {
   }
 }
 
+// Delete misspelled table and test by id
 exports.deleteMisspelledTableAndTestById = async (req, res) => {
   try {
     const { id } = req.body;
