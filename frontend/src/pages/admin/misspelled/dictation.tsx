@@ -24,6 +24,7 @@ const AdminDictationPage = () => {
     getDictationMistakeData();
   }, [testId]);
 
+  // Recheck the dictation mistake
   const handleRecheck = async () => {
     const { success, message } = await post("/api/admin/mistake/renew", { id: _id, testId }, {
       method: 'PUT'
