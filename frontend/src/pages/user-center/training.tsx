@@ -93,12 +93,10 @@ const VocabularyTraining = () => {
 
   // Start timer when start typing
   useEffect(() => {
-    if (input || editStatus || !paused) {
-      if (!startTime) {
-        setStartTime(Date.now());
-      }
+    if (!startTime && (input || editStatus)) {
+      setStartTime(Date.now());
     }
-  }, [input, startTime, editStatus, paused])
+  }, [input, startTime, editStatus]);
 
   // Speak word when paused is false
   useEffect(() => {
@@ -199,6 +197,7 @@ const VocabularyTraining = () => {
 
   // On key press Enter
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Submit word when press Enter key
     if (e.key === 'Enter') {
       if (input.toLocaleLowerCase() === word.toLocaleLowerCase()) {
         setInput('');
@@ -507,6 +506,8 @@ const VocabularyTraining = () => {
     ), 0);
     return `Remain: ${remainWords} words`;
   }
+
+  console.log(startTime);
 
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
