@@ -38,9 +38,11 @@ router.get("/dictation/mistake", authenticate, userController.getDictationMistak
 // Get all dictation mistake data
 router.get("/dictation/mistakes", authenticate, userController.getAllDictationMistakes);
 // Update practice count
-router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
+// router.put("/dictation/practiceCount/update", authenticate, userController.updatePracticeCount);
 // Update training duration
-router.put("/dictation/trainingDuration/update", authenticate, userController.updateTrainingDuration);
+// router.put("/dictation/trainingDuration/update", authenticate, userController.updateTrainingDuration);
+// Update practice count and training duration
+router.put("/dictation/practiceRecord/update", authenticate, userController.updatePracticeRecord);
 // Query dictation process by chapter number
 router.get("/dictation/progress", authenticate, userController.getDictationMistakesByChapterNo);
 // Update word translation
