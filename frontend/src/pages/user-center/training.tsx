@@ -52,6 +52,7 @@ const VocabularyTraining = () => {
   const [editStatus, setEditStatus] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [totalPracticeCount, setTotalPracticeCount] = useState(0);
+  const [totalTrainingDuration, setTotalTrainingDuration] = useState(0);
 
   useEffect(() => {
     // Get DictationMistake data via id;
@@ -99,6 +100,7 @@ const VocabularyTraining = () => {
     }
   }, [input, startTime, editStatus, paused])
 
+  // Speak word when paused is false
   useEffect(() => {
     const wordSpeaking = () => {
       clearTimeout(timer);
@@ -124,36 +126,20 @@ const VocabularyTraining = () => {
     }
   }, [word, paused]);
 
+  // Update total practice count and training duration
   useEffect(() => {
     const totalPracticeCount = vocabularyData.words.reduce((acc, { practiceCount }) => acc + (practiceCount || 0), 0);
+    const totalTrainingDuration = vocabularyData.words.reduce((acc, { trainingDuration }) => acc + (trainingDuration || 0), 0);
     setTotalPracticeCount(totalPracticeCount);
+    setTotalTrainingDuration(totalTrainingDuration);
   }, [vocabularyData]);
 
-  // Update practice count to database
-  const updatePracticeCount = async () => {
-    // validate if update he practice count
-    let updated = false;
-    vocabularyData.words.forEach((item) => {
-      if (item.word === word) {
-        updated = item.practiceCount < correctCount;
-      }
-    });
-    if (!updated) return;
-    await post("/api/dictation/practiceCount/update", {
-      id,
-      word,
-      count: correctCount
-    }, {
-      method: "PUT"
-    });
-  }
-
   // Update practice count into local vocabulary data
-  const updateLocalVocabularyData = () => {
+  const updateVocabularyData = (duration: number) => {
     setVocabularyData(prevData => {
       const updatedWords = prevData.words.map((item) => {
         if (item.word === word) {
-          return { ...item, practiceCount: correctCount };
+          return { ...item, practiceCount: correctCount, trainingDuration: duration };
         }
         return item;
       });
@@ -161,16 +147,17 @@ const VocabularyTraining = () => {
     });
   }
 
-  // Update training duration
-  const updatePracticeDuration = async () => {
+  // Update practice count and training duration
+  const updatePracticeRecord = async () => {
+    // if no start time - no change, return
     if (!startTime) return;
     const endTime = Date.now();
     const duration = (endTime - startTime) / 1000;
-
-    const { success, message } = await post("/api/dictation/trainingDuration/update", {
+    const { success, message } = await post("/api/dictation/practiceRecord/update", {
       id,
       wordId: mistakeWordId,
-      duration
+      trainingDuration: duration,
+      practiceCount: correctCount
     }, {
       method: "PUT"
     });
@@ -178,27 +165,13 @@ const VocabularyTraining = () => {
       toast.error(message);
       return;
     }
-    // Update training duration into local vocabulary data
-    const words = vocabularyData.words.map((item) => {
-      if (item.mistakeWordId === mistakeWordId) {
-        item.trainingDuration = duration;
-      }
-      return item;
-    });
-    const totalTrainingDuration = vocabularyData.trainingDuration ? vocabularyData.trainingDuration + duration : duration;
-    setVocabularyData({
-      ...vocabularyData,
-      trainingDuration: totalTrainingDuration,
-      words
-    });
+    updateVocabularyData(duration);
   }
 
   // Select next word
   const handleChangeToNextWord = async (nextWord: string, id: string, mistakeId: string) => {
-    // Update practice duration to database
-    await updatePracticeDuration();
-    // Update practice count to database
-    updatePracticeCount();
+    // Update practice record to database
+    await updatePracticeRecord();
 
     setInput('');
     setWord(nextWord);
@@ -229,9 +202,7 @@ const VocabularyTraining = () => {
     if (e.key === 'Enter') {
       if (input.toLocaleLowerCase() === word.toLocaleLowerCase()) {
         setInput('');
-        setCorrectCount(prevCount => prevCount + 1);
-        // Update practice count to local data
-        updateLocalVocabularyData();
+        setCorrectCount(correctCount + 1);
       }
     }
     // shortcut key for play or pause audio
@@ -289,12 +260,14 @@ const VocabularyTraining = () => {
     return true;
   }
 
+  // On blur translation input
   const handleOnBlur = (e: any) => {
     const { value } = e.target;
     if (!validateNoChangeTranslation(value)) return;
     handleSubmitTranslation(value);
   }
 
+  // Submit translation
   const handleSubmitTranslation = async (text: string) => {
     const newVocabularyData = { ...vocabularyData };
     newVocabularyData.words.forEach((item) => {
@@ -318,6 +291,7 @@ const VocabularyTraining = () => {
     setPaused(false);
   }
 
+  // On key up translation input
   const handleKeyUpTranslation = async (e: any) => {
     if (e.key === "Enter") {
       const { value } = e.target;
@@ -326,6 +300,7 @@ const VocabularyTraining = () => {
     }
   }
 
+  // Transform spelling word
   const transformSpellingWord = (misspelling: string = "", word: string, practiceCount: number) => {
     if (practiceCount > 1) {
       return (
@@ -355,6 +330,7 @@ const VocabularyTraining = () => {
     })
   }
 
+  // Render vocabulary list
   const renderVocabularyList = () => {
     const correctClass = "text-gray-400 border-gray-400 font-normal";
     const incorrectClass = "text-[#f00] border-[#f00] font-medium";
@@ -432,6 +408,7 @@ const VocabularyTraining = () => {
     )
   }
 
+  // Render description, add translation to current word
   const renderDescription = () => {
     if (!wordId) return null;
     const { chapterNo, testPaperNo } = vocabularyData;
@@ -469,20 +446,21 @@ const VocabularyTraining = () => {
     return <span onClick={() => { setEditStatus(true) }}>{description}</span>
   }
 
+  // Render basic info, play/pause button, accuracy rate, accuracy count
   const renderBasicInfo = () => {
     const accuracyCount = vocabularyData.words.filter(({ correct }) => correct).length;
     const accuracyRate = (accuracyCount / (vocabularyData.words.length) * 100).toFixed(2);
     return (
       <div className='flex justify-between'>
         {
-          word ? (
+          word && (
             <button
               className='px-3 text-primary border rounded border-primary'
               tabIndex={-1}
               onClick={handlePauseAudio}>
               {paused ? "Play" : "Pause"}
             </button>
-          ) : null
+          )
         }
         <div className='container mx-auto text-right'>
           <span className='mr-3'>Accuracy Rate: {accuracyRate}%</span>
@@ -492,6 +470,7 @@ const VocabularyTraining = () => {
     )
   }
 
+  // Render paper name
   const renderPaperName = () => {
     const { chapterNo, testPaperNo } = vocabularyData;
     return (
@@ -512,6 +491,7 @@ const VocabularyTraining = () => {
     )
   }
 
+  // Transform duration to HH:MM:SS
   const transformDuration = (trainingDuration?: number) => {
     if (trainingDuration === undefined) return "00:00:00";
     const hours = Math.floor(trainingDuration / 3600);
@@ -520,14 +500,12 @@ const VocabularyTraining = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  const renderStatisticData = () => {
-    const { words } = vocabularyData;
-    const { trainingDuration } = words.find((item) => item.id === wordId) ?? { trainingDuration: 0 };
-    return (
-      <div className='text-xs text-gray-500 text-right'>
-        <p>Training duration: {transformDuration(trainingDuration)}</p>
-      </div>
-    )
+  // Render remain word count
+  const renderRemainWordCount = () => {
+    const remainWords = vocabularyData.words.reduce((acc, { correct, practiceCount }) => (
+      acc + (practiceCount <= 1 && !correct ? 1 : 0)
+    ), 0);
+    return `Remain: ${remainWords} words`;
   }
 
   return (
@@ -539,7 +517,8 @@ const VocabularyTraining = () => {
         {renderPaperName()}
         <hr />
         <div className='flex justify-between'>
-          <p>Training duration: {transformDuration(vocabularyData.trainingDuration)}</p>
+          <p>Training duration: {transformDuration(totalTrainingDuration)}</p>
+          <p>{renderRemainWordCount()}</p>
           <p>Total training: {totalPracticeCount} times</p>
         </div>
         <div className="relative flex flex-1 flex-col justify-center items-center gap-3">
@@ -561,7 +540,6 @@ const VocabularyTraining = () => {
           <p className='text-left text-xs text-gray-500'>
             Key 9: Play/Pause, 0: Edit Translation
           </p>
-          {renderStatisticData()}
         </div>
         <hr />
         <div>
