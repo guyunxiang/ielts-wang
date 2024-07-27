@@ -97,7 +97,7 @@ const MisspelledPage = () => {
               className="hover:text-primary cursor-pointer">
               Review
             </Link>
-            <span className="hover:text-primary cursor-pointer" onClick={() => { handleDelete(_id, testId) }}>
+            <span className="text-[#f00] hover:text-primary cursor-pointer" onClick={() => { handleDelete(_id, testId) }}>
               Delete
             </span>
           </div>
