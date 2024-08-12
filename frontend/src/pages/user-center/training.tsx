@@ -507,8 +507,6 @@ const VocabularyTraining = () => {
     return `Remain: ${remainWords} words`;
   }
 
-  console.log(startTime);
-
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
       <div className="w-1/3 overflow-auto max-w-80">
