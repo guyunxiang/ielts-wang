@@ -21,6 +21,9 @@ function UserCenterLayout({ children }: UserCenterLayoutProps) {
           <li className={classNames('border border-dashed border-primary py-2 px-3 hover:text-primary text-center cursor-pointer', { 'bg-secondary-300 text-primary': pathname === '/user-center/schedule' })}>
             <Link to="/user-center/schedule">Review Schedule</Link>
           </li>
+          <li className={classNames('border border-dashed border-primary py-2 px-3 hover:text-primary text-center cursor-pointer', { 'bg-secondary-300 text-primary': pathname === '/user-center/band-expect' })}>
+            <Link to="/user-center/band-expect">Band Expect</Link>
+          </li>
           {/* <li className={classNames('border border-dashed border-primary py-2 px-3 hover:text-primary text-center cursor-pointer', { 'bg-secondary-300 text-primary': pathname === '/user-center/changePassword' })}>
             <Link to="/user-center/changePassword">Change Password</Link>
           </li>
