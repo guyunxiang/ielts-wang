@@ -26,6 +26,7 @@ import WhiteListPage from './pages/admin/whitelist';
 import VocabularyPage from './pages/admin/vocabulary';
 import UserCenterLayout from './components/userCenterLayout';
 import Schedule from './pages/user-center/schedule';
+import BandExpectPage from './pages/user-center/band';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -41,6 +42,7 @@ root.render(
           <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
           <Route path="/user-center" element={<Layout><UserCenterLayout><UserCenter /></UserCenterLayout></Layout>}></Route>
           <Route path="/user-center/schedule" element={<Layout><UserCenterLayout><Schedule /></UserCenterLayout></Layout>}></Route>
+          <Route path="/user-center/band-expect" element={<Layout><UserCenterLayout><BandExpectPage /></UserCenterLayout></Layout>}></Route>
           <Route path="/training/:id" element={<Layout><VocabularyTraining /></Layout>}></Route>
           <Route path="/gujiabei-6000words" element={<Layout><GuJiaBeiPage /></Layout>}></Route>
           <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
