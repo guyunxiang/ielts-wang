@@ -47,12 +47,12 @@ exports.savePaperTest = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "",
+      message: error,
     });
   }
 }
 
-const calculateMisspelledData = async (testWords, vocabularyList, originalWords) => {
+const calculateMisspelledData = async (testWords, vocabularyList, originalWords = []) => {
 
   // TODO, version 18
   const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
@@ -101,6 +101,9 @@ const calculateMisspelledData = async (testWords, vocabularyList, originalWords)
 
   // Get original practice count for each misspelled word
   const getOriginalPracticeCount = (word) => {
+    if (!originalWords || originalWords.length === 0) {
+      return 0;
+    }
     const { practiceCount } = originalWords.find(originalWord => wordsMatch(originalWord.word, word));
     return practiceCount || 0;
   }
@@ -134,7 +137,7 @@ exports.createMisspelledWords = async (testId, misspelledRecordId) => {
     const originalMisspelledRecord = await DictationMistake.findById(misspelledRecordId);
 
     let newMistake;
-    const misspelledRecord = await calculateMisspelledData(words, vocabularyList, originalMisspelledRecord.words);
+    const misspelledRecord = await calculateMisspelledData(words, vocabularyList, originalMisspelledRecord?.words);
     if (!misspelledRecordId) {
       // Create new DictationMistake record
       newMistake = new DictationMistake({
