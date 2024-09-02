@@ -131,8 +131,17 @@ const VocabularyTraining = () => {
 
   // Update total practice count and training duration
   useEffect(() => {
-    const totalPracticeCount = vocabularyData.words.reduce((acc, { practiceCount }) => acc + (practiceCount || 0), 0);
-    const totalTrainingDuration = vocabularyData.words.reduce((acc, { trainingDuration }) => acc + (trainingDuration || 0), 0);
+    let remainWordsCount = 0;
+    let totalPracticeCount = 0;
+    let totalTrainingDuration = 0;
+    vocabularyData.words.forEach((item) => {
+      if (item.practiceCount <= 1 && !item.correct) {
+        remainWordsCount++;
+      }
+      totalPracticeCount += (item.practiceCount || 0);
+      totalTrainingDuration += (item.trainingDuration || 0);
+    });
+    setRemainWords(remainWordsCount);
     setTotalPracticeCount(totalPracticeCount);
     setTotalTrainingDuration(totalTrainingDuration);
   }, [vocabularyData]);
@@ -182,18 +191,8 @@ const VocabularyTraining = () => {
     setWordId(id ?? "");
     setMistakeWordId(mistakeId ?? "");
     
-    let remainWordsCount = 0;
-    let practiceCount = 0;
-    vocabularyData.words.forEach((item) => {
-      if (item.word === nextWord) {
-        practiceCount = item.practiceCount;
-      }
-      if (item.practiceCount <= 1 && !item.correct) {
-        remainWordsCount++;
-      }
-    });
+    const practiceCount = vocabularyData.words.find((item) => item.word === nextWord)?.practiceCount ?? 0;
     setCorrectCount(practiceCount);
-    setRemainWords(remainWordsCount);
   }
 
   // On paused audio
