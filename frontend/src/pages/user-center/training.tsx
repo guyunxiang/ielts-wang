@@ -181,9 +181,19 @@ const VocabularyTraining = () => {
     setStartTime(null);
     setWordId(id ?? "");
     setMistakeWordId(mistakeId ?? "");
-    // Get practice count from new word
-    const practiceCount = vocabularyData.words.find(({ word }) => word === nextWord)?.practiceCount ?? 0;
+    
+    let remainWordsCount = 0;
+    let practiceCount = 0;
+    vocabularyData.words.forEach((item) => {
+      if (item.word === nextWord) {
+        practiceCount = item.practiceCount;
+      }
+      if (item.practiceCount <= 1 && !item.correct) {
+        remainWordsCount++;
+      }
+    });
     setCorrectCount(practiceCount);
+    setRemainWords(remainWordsCount);
   }
 
   // On paused audio
