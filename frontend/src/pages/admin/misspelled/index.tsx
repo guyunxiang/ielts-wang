@@ -97,6 +97,10 @@ const MisspelledPage = () => {
               className="hover:text-primary cursor-pointer">
               Review
             </Link>
+            <Link to={`/admin/misspelled/validation/${testId}`} state={{ _id, testId, chapterNo, testPaperNo }}
+              className="hover:text-primary cursor-pointer">
+              Validate
+            </Link>
             <span className="text-[#f00] hover:text-primary cursor-pointer" onClick={() => { handleDelete(_id, testId) }}>
               Delete
             </span>
@@ -109,7 +113,7 @@ const MisspelledPage = () => {
   return (
     <div className="container mt-3 mx-auto px-3 h-full flex flex-col">
       <h1 className="text-3xl font-black flex items-center justify-between">
-        Misspelled Table Management
+        Dictation Records
         <div className="text-sm font-normal">
           {/* User List: */}
           <select name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-transparent outline-none">
