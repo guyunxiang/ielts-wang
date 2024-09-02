@@ -148,6 +148,32 @@ exports.queryMisspelledListByUserId = async (req, res) => {
   }
 }
 
+// Get misspelled list by testId
+exports.queryMisspelledListByTestId = async (req, res) => {
+  try {
+    const { testId } = req.query;
+    if (!testId) {
+      return res.status(400).json({
+        success: false,
+        message: "testId is required!"
+      });
+    }
+    const misspelledList = await DictationMistake.find({ testId });
+
+    res.status(200).json({
+      success: true,
+      data: misspelledList
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: error,
+    });
+  }
+}
+
 // renew misspelled record by testId, misspelledId
 exports.renewMisspelledRecord = async (req, res) => {
   try {
