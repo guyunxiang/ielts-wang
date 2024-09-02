@@ -52,7 +52,7 @@ exports.savePaperTest = async (req, res) => {
   }
 }
 
-const calculateMisspelledData = async (testWords, vocabularyList, originalWords = []) => {
+const calculateMisspelledData = async (testWords, vocabularyList, originalWords) => {
 
   // TODO, version 18
   const { whitelist } = await Whitelist.findOne({ version: 18 }).select("whitelist") ?? { whitelist: WHITELIST };
@@ -101,11 +101,15 @@ const calculateMisspelledData = async (testWords, vocabularyList, originalWords 
 
   // Get original practice count for each misspelled word
   const getOriginalPracticeCount = (word) => {
-    if (!originalWords || originalWords.length === 0) {
-      return 0;
+    try {
+      if (!originalWords || originalWords.length === 0) {
+        return 0;
+      }
+      const { practiceCount } = originalWords.find(originalWord => wordsMatch(originalWord.word, word));
+      return practiceCount || 0;
+    } catch (error) {
+      console.error('Error getting original practice count:', error);
     }
-    const { practiceCount } = originalWords.find(originalWord => wordsMatch(originalWord.word, word));
-    return practiceCount || 0;
   }
 
   return {
