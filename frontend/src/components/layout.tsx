@@ -107,7 +107,7 @@ function Layout({ children }: LayoutProps) {
               "block px-3",
               { "text-primary hover:text-secondary-500": pathname.startsWith("/admin/misspelled") }
             )}>
-              Misspelled Table
+              Dictation
             </Link>
           </li>
         </React.Fragment>
