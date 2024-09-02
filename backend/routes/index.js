@@ -26,6 +26,7 @@ router.put("/admin/mistake/renew", adminController.renewMisspelledRecord);
 router.delete("/admin/mistake/delete", adminController.deleteMisspelledTableAndTestById);
 router.get("/admin/dictation/query", adminController.queryDictationById);
 router.put("/admin/dictation/update", adminController.updateDictationRecordById);
+router.get("/admin/mistake/queryByTestId", adminController.queryMisspelledListByTestId);
 
 // query all chapters vocabulary counts
 router.get("/vocabularyCounts/query", adminController.queryAllVocabulary);
