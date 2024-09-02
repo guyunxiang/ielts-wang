@@ -27,6 +27,7 @@ import VocabularyPage from './pages/admin/vocabulary';
 import UserCenterLayout from './components/userCenterLayout';
 import Schedule from './pages/user-center/schedule';
 import BandExpectPage from './pages/user-center/band';
+import ValidationPage from './pages/admin/misspelled/validation';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -48,6 +49,7 @@ root.render(
           <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
           <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
           <Route path="/admin/misspelled/dictation/:TestId" element={<Layout><AdminDictationPage /></Layout>}></Route>
+          <Route path="/admin/misspelled/validation/:TestId" element={<Layout><ValidationPage /></Layout>}></Route>
           <Route path="/admin/whitelist" element={<Layout><WhiteListPage /></Layout>}></Route>
           <Route path="/admin/vocabulary" element={<Layout><VocabularyPage /></Layout>}></Route>
           <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
