@@ -53,6 +53,7 @@ const VocabularyTraining = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [totalPracticeCount, setTotalPracticeCount] = useState(0);
   const [totalTrainingDuration, setTotalTrainingDuration] = useState(0);
+  const [remainWords, setRemainWords] = useState(-1);
 
   useEffect(() => {
     // Get DictationMistake data via id;
@@ -69,6 +70,10 @@ const VocabularyTraining = () => {
             setMistakeWordId(mistakeWordId);
             setCorrectCount(practiceCount);
           }
+          const remainWords = data.words.reduce((acc: number, { correct, practiceCount }: Word) => (
+            acc + (practiceCount <= 1 && !correct ? 1 : 0)
+          ), 0);
+          setRemainWords(remainWords);
         }
       });
     }
@@ -499,14 +504,6 @@ const VocabularyTraining = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  // Render remain word count
-  const renderRemainWordCount = () => {
-    const remainWords = vocabularyData.words.reduce((acc, { correct, practiceCount }) => (
-      acc + (practiceCount <= 1 && !correct ? 1 : 0)
-    ), 0);
-    return `Remain: ${remainWords} words`;
-  }
-
   return (
     <div className='container mx-auto px-3 mt-4 text-center flex flex-1 gap-3'>
       <div className="w-1/3 overflow-auto max-w-80">
@@ -517,7 +514,7 @@ const VocabularyTraining = () => {
         <hr />
         <div className='flex justify-between'>
           <p>Training duration: {transformDuration(totalTrainingDuration)}</p>
-          <p>{renderRemainWordCount()}</p>
+          <p>Remain: {remainWords} words</p>
           <p>Total training: {totalPracticeCount} times</p>
         </div>
         <div className="relative flex flex-1 flex-col justify-center items-center gap-3">
@@ -534,6 +531,13 @@ const VocabularyTraining = () => {
           <div className='h-10 w-full flex items-center justify-center'>
             {renderDescription()}
           </div>
+          {
+            remainWords === 0 && (
+              <h2>
+                Congratulations! You have finished all words.
+              </h2>
+            )
+          }
         </div>
         <div className="tips flex items-end justify-between gap-3">
           <p className='text-left text-xs text-gray-500'>

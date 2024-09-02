@@ -235,7 +235,7 @@ const Dictation = ({
         />
         <input
           type="button"
-          value="Submit"
+          value="Update"
           tabIndex={-1}
           className={classNames(
             "bg-primary px-8 text-white rounded",
