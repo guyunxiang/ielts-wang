@@ -162,7 +162,7 @@ exports.queryMisspelledListByTestId = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: misspelledList
+      data: misspelledList[0]
     });
 
   } catch (error) {
