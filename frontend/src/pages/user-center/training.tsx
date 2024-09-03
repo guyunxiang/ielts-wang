@@ -523,8 +523,8 @@ const VocabularyTraining = () => {
         <hr />
         <div className='flex justify-between'>
           <p>Training duration: {transformDuration(totalTrainingDuration)}</p>
-          <p>Remain: {remainWords} words</p>
-          <p>Total training: {totalPracticeCount} times</p>
+          <p>Remain words: {remainWords}</p>
+          <p>Training times: {totalPracticeCount}</p>
         </div>
         <div className="relative flex flex-1 flex-col justify-center items-center gap-3">
           <h1 className="text-5xl font-black relative" style={{ fontFamily: 'serif' }} onClick={handleCopyWord}>
