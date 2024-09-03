@@ -541,9 +541,10 @@ const VocabularyTraining = () => {
             {renderDescription()}
           </div>
           {
-            remainWords === 0 && (
-              <h2>
-                Congratulations! You have finished all words.
+            !word && remainWords === 0 && (
+              <h2 className='text-2xl font-black'>
+                Congratulations! <br />
+                You have finished all words.
               </h2>
             )
           }
