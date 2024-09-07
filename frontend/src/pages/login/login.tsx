@@ -76,6 +76,7 @@ export default function LoginPage() {
             <input
               type="text"
               name="username"
+              autoFocus
               className="border h-8 px-2"
               onChange={handleInputChange}
             />
