@@ -111,21 +111,21 @@ const calculateMisspelledData = async (
   const accuracyCount = testWords.length - misspelledWords.length;
   const accuracyRate = (accuracyCount / testWords.length) * 100;
 
-  let practiceCount = 0;
-  let trainingDuration = 0;
-  if (originalWords) {
-    (practiceCount = originalWords[i].practiceCount),
-      (trainingDuration = originalWords[i].trainingDuration);
-  }
-
   return {
     accuracyRate: accuracyRate.toFixed(2),
     accuracyCount: accuracyCount,
-    words: misspelledWords.map((word, i) => ({
-      word: word.word,
-      practiceCount,
-      trainingDuration,
-    })),
+    words: misspelledWords.map((word, i) => {
+      let data = { ...word };
+      if (originalWords[i]) {
+        const { practiceCount, trainingDuration } = originalWords[i];
+        data = {
+          ...word,
+          practiceCount: practiceCount || 0,
+          trainingDuration: trainingDuration || 0,
+        };
+      }
+      return data;
+    }),
   };
 };
 
