@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const DictationMistake = require("../models/dictationMistake");
 const VocabularyList = require("../models/vocabularyList");
@@ -10,12 +10,7 @@ const testController = require("./test");
 // save paper vocabulary
 exports.savePaperVocabulary = async (req, res) => {
   try {
-    const {
-      chapterNo,
-      testPaperNo,
-      words,
-      id,
-    } = req.body;
+    const { chapterNo, testPaperNo, words, id } = req.body;
 
     let newVocabularyList;
     let message;
@@ -23,7 +18,7 @@ exports.savePaperVocabulary = async (req, res) => {
       newVocabularyList = new VocabularyList({
         chapterNo,
         testPaperNo,
-        words
+        words,
       });
       message = "Congratulation! vocabulary added successfully!";
     } else {
@@ -46,7 +41,6 @@ exports.savePaperVocabulary = async (req, res) => {
       data: result._id,
       message: message,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -54,7 +48,7 @@ exports.savePaperVocabulary = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 // Get all vocabulary list
 exports.queryAllVocabulary = async (req, res) => {
@@ -66,18 +60,21 @@ exports.queryAllVocabulary = async (req, res) => {
       queryParams.chapterNo = chapterNo;
     }
 
-    const vocabularyList = await VocabularyList.find(queryParams)
-      .select("chapterNo testPaperNo words");
+    const vocabularyList = await VocabularyList.find(queryParams).select(
+      "chapterNo testPaperNo words"
+    );
 
-    const responseData = vocabularyList.map(({ chapterNo, testPaperNo, words }) => ({
-      chapterNo,
-      testPaperNo,
-      wordCount: words.length
-    }));
+    const responseData = vocabularyList.map(
+      ({ chapterNo, testPaperNo, words }) => ({
+        chapterNo,
+        testPaperNo,
+        wordCount: words.length,
+      })
+    );
 
     res.status(200).json({
       success: true,
-      data: responseData
+      data: responseData,
     });
   } catch (error) {
     console.log(error);
@@ -86,17 +83,19 @@ exports.queryAllVocabulary = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 // Get vocabulary list with test paper number
 exports.queryVocabularByTestPaperNo = async (req, res) => {
   try {
     const { chapterNo, testPaperNo } = req.query;
-    const vocabularyList = await VocabularyList.findOne({ chapterNo, testPaperNo })
-      .select("words");
+    const vocabularyList = await VocabularyList.findOne({
+      chapterNo,
+      testPaperNo,
+    }).select("words");
     res.status(200).json({
       success: true,
-      data: vocabularyList
+      data: vocabularyList,
     });
   } catch (error) {
     console.log(error);
@@ -105,7 +104,7 @@ exports.queryVocabularByTestPaperNo = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 // Get misspelled list by userId
 exports.queryMisspelledListByUserId = async (req, res) => {
@@ -114,11 +113,16 @@ exports.queryMisspelledListByUserId = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required!"
+        message: "User ID is required!",
       });
     }
     const misspelledList = await DictationMistake.aggregate([
-      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          deleted: { $ne: true },
+        },
+      },
       {
         $project: {
           testId: 1,
@@ -128,17 +132,16 @@ exports.queryMisspelledListByUserId = async (req, res) => {
           accuracyRate: 1,
           createdAt: 1,
           totalCount: {
-            $sum: ['$accuracyCount', { $size: '$words' }]
-          }
-        }
-      }
+            $sum: ["$accuracyCount", { $size: "$words" }],
+          },
+        },
+      },
     ]);
 
     res.status(200).json({
       success: true,
-      data: misspelledList
+      data: misspelledList,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -146,7 +149,7 @@ exports.queryMisspelledListByUserId = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 // renew misspelled record by testId, misspelledId
 exports.renewMisspelledRecord = async (req, res) => {
@@ -155,15 +158,15 @@ exports.renewMisspelledRecord = async (req, res) => {
     if (!id || !testId) {
       return res.status(400).json({
         success: false,
-        message: "id and testId are required!"
+        message: "id and testId are required!",
       });
     }
     // create a new misspelled record: testId, misspelledId
     await testController.createMisspelledWords(testId, id);
     res.status(200).json({
       success: true,
-      message: "Misspelled record updated successfully!"
-    })
+      message: "Misspelled record updated successfully!",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -171,7 +174,7 @@ exports.renewMisspelledRecord = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 exports.queryDictationById = async (req, res) => {
   try {
@@ -179,14 +182,14 @@ exports.queryDictationById = async (req, res) => {
     if (!testId) {
       return res.status(400).json({
         success: false,
-        message: "testId is required!"
+        message: "testId is required!",
       });
     }
     const test = await Test.findById(testId);
 
     res.status(200).json({
       success: true,
-      data: test
+      data: test,
     });
   } catch (error) {
     console.log(error);
@@ -195,7 +198,7 @@ exports.queryDictationById = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 // Update dictation reocrd by testId
 exports.updateDictationRecordById = async (req, res) => {
@@ -204,14 +207,14 @@ exports.updateDictationRecordById = async (req, res) => {
     if (!id) {
       return res.status(400).json({
         success: false,
-        message: "testId is required!"
+        message: "testId is required!",
       });
     }
     const test = await Test.findById(id);
     if (!test) {
       return res.status(400).json({
         success: false,
-        message: "Dictation not found!"
+        message: "Dictation not found!",
       });
     }
 
@@ -221,7 +224,7 @@ exports.updateDictationRecordById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Dictation update successfully!"
+      message: "Dictation update successfully!",
     });
   } catch (error) {
     console.log(error);
@@ -230,7 +233,7 @@ exports.updateDictationRecordById = async (req, res) => {
       message: error,
     });
   }
-}
+};
 
 exports.queryWhitelist = async (req, res) => {
   try {
@@ -238,7 +241,7 @@ exports.queryWhitelist = async (req, res) => {
     const whitelist = await Whitelist.findOne({ version });
     res.status(200).json({
       success: true,
-      data: whitelist ?? {}
+      data: whitelist ?? {},
     });
   } catch (error) {
     console.log(error);
@@ -247,7 +250,7 @@ exports.queryWhitelist = async (req, res) => {
       message: "Network Error!",
     });
   }
-}
+};
 
 exports.updateWhitelistById = async (req, res) => {
   try {
@@ -255,22 +258,26 @@ exports.updateWhitelistById = async (req, res) => {
 
     let message;
     if (id) {
-      await Whitelist.findByIdAndUpdate(id, {
-        whitelist,
-        version,
-      }, { new: true });
+      await Whitelist.findByIdAndUpdate(
+        id,
+        {
+          whitelist,
+          version,
+        },
+        { new: true }
+      );
       message = "Upload whitelist successfully!";
     } else {
       const currentWhitelist = new Whitelist({
         whitelist,
-        version
+        version,
       });
       await currentWhitelist.save();
       message = "Create whitelist successfully!";
     }
     res.status(200).json({
       success: true,
-      message
+      message,
     });
   } catch (error) {
     console.log(error);
@@ -279,7 +286,7 @@ exports.updateWhitelistById = async (req, res) => {
       message: error.message,
     });
   }
-}
+};
 
 // Delete misspelled table and test by id
 exports.deleteMisspelledTableAndTestById = async (req, res) => {
@@ -288,29 +295,33 @@ exports.deleteMisspelledTableAndTestById = async (req, res) => {
     if (!id) {
       return res.status(400).json({
         success: false,
-        message: "id is required!"
+        message: "id is required!",
       });
     }
-    const misspelledRecord = await DictationMistake.findById(id).select("_id testId");
+    console.log(id);
+    const misspelledRecord = await DictationMistake.findById(id).select(
+      "_id testId"
+    );
     if (!misspelledRecord) {
       return res.status(400).json({
         success: false,
-        message: "Dictation not found!"
+        message: "Dictation not found!",
       });
     }
     const { testId } = misspelledRecord;
-    // delete test record
+    // soft delete test record
     await Test.findByIdAndUpdate(testId, {
       deleted: true,
     });
-    // delete current misspelling table
+    await Test.findByIdAndDelete(testId);
+    // soft delete current misspelling table
     await DictationMistake.findByIdAndUpdate(id, {
       deleted: true,
     });
 
     res.status(201).json({
       success: true,
-      message: "Delete record successfully!"
+      message: "Delete record successfully!",
     });
   } catch (error) {
     console.log(error);
@@ -319,4 +330,4 @@ exports.deleteMisspelledTableAndTestById = async (req, res) => {
       message: error.message,
     });
   }
-}
+};
