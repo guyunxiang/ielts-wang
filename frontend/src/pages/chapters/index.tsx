@@ -82,7 +82,7 @@ function ChapterPage() {
       list.push(
         <li className={`chapter paper-${i} relative px-3 border border-dashed border-secondary-500 cursor-pointer hover:text-primary hover:font-medium hover:border-primary`} key={`paper-${i}`}>
           <span className={`absolute h-full left-0 transition-all duration-1000`} style={{ backgroundColor: `rgba(255, 102, 0, ${(highestAccuracyRecord / 100).toFixed(1)})`, width: `${highestAccuracyRecord}%` }}></span>
-          <span className="absolute h-full border border-r-secondary-500 border-dashed" style={{ right: '5%', borderWidth: '0 1px 0 0' }}></span>
+          <span className="absolute h-full border border-r-secondary-500 border-dashed right-[5%] border-b"></span>
           <Link
             className='relative flex items-center justify-center py-5 w-full'
             to={`/chapters/${chapterNo}/${i}`}
