@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "NODE_ENV=local nodemon app.js",
     "start": "NODE_ENV=local nodemon app.js"
   },
   "author": "",
