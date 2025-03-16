@@ -1,20 +1,22 @@
-const express = require('express');
-const path = require('path');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const express = require("express");
+const path = require("path");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
-const routes = require('./routes');
+const routes = require("./routes");
 
 const app = new express();
 
 // connect mongodb
-dotenv.config({ path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`) });
+dotenv.config({
+  path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`),
+});
 const DB_URL = process.env.DB_URL;
 mongoose
   .connect(DB_URL, {
-    useNewUrlParser: true,
+    // useNewUrlParser: true,
   })
   .then(() => {
     console.log("MongoDB connected");
@@ -32,8 +34,8 @@ app.use(
       mongoUrl: DB_URL,
       collectionName: "sessions",
       ttl: 14 * 24 * 60 * 60,
-      autoRemove: 'native'
-    })
+      autoRemove: "native",
+    }),
   })
 );
 
