@@ -24,15 +24,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const getAuthStatus = async () => {
+    // Check authentication status when component mounts
+    getAuthStatus();
+  }, []);
+
+  const getAuthStatus = async () => {
+    try {
       const { success, data } = await get("/api/auth/status");
       if (success && data) {
         updateUserInfo(data);
-        login();
+        setIsLoggedIn(true);
       }
+    } catch (error) {
+      console.error("Error checking authentication status:", error);
+      setIsLoggedIn(false);
     }
-    getAuthStatus();
-  }, []);
+  };
 
   const updateUserInfo = (data: UserInfo) => {
     setUserInfo(data);
@@ -40,11 +47,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = () => {
     setIsLoggedIn(true);
+    // Refresh auth status to get user info
+    getAuthStatus();
   }
 
   const logout = async () => {
-    await get('/api/auth/logout');
-    setIsLoggedIn(false);
+    try {
+      const { success } = await get('/api/auth/logout');
+      if (success) {
+        setIsLoggedIn(false);
+        setUserInfo({ username: '', role: '' });
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   }
 
   return (

@@ -1,10 +1,31 @@
 const mongoose = require('mongoose');
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 const DictationMistake = require('../models/dictationMistake');
 const VocabularyList = require('../models/vocabularyList');
 const Test = require("../models/test");
+
+// Generate JWT token
+const generateToken = (userId) => {
+  return jwt.sign(
+    { userId }, 
+    process.env.JWT_SECRET, 
+    { expiresIn: '14d' }
+  );
+};
+
+// Set token cookie
+const setTokenCookie = (res, token) => {
+  // Set http-only cookie
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'local', // Use secure in production
+    sameSite: 'strict',
+    maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
+  });
+};
 
 exports.register = async (req, res) => {
   try {
@@ -22,14 +43,23 @@ exports.register = async (req, res) => {
       password
     });
     const savedUser = await newUser.save();
-    // login
-    req.session.userId = savedUser._id;
+    
+    // Generate token
+    const token = generateToken(savedUser._id);
+    
+    // Set token in http-only cookie
+    setTokenCookie(res, token);
+    
     res.status(200).json({
       success: true,
       message: "Sign up successfully!",
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred during registration",
+    });
   }
 }
 
@@ -52,7 +82,13 @@ exports.login = async (req, res) => {
       });
       return;
     }
-    req.session.userId = user._id;
+    
+    // Generate token
+    const token = generateToken(user._id);
+    
+    // Set token in http-only cookie
+    setTokenCookie(res, token);
+    
     res.status(200).json({
       success: true,
       message: "Login successfully!",
@@ -63,25 +99,47 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred during login",
+    });
   }
 };
 
 // get user info
 exports.getAuthStatus = async (req, res) => {
-  const { session: { userId } } = req;
-  const user = await User.findById(userId)
-    .select("username role -_id");
-  res.status(200).json({
-    success: true,
-    data: user
-  });
+  try {
+    const { userId } = req.user;
+    const user = await User.findById(userId)
+      .select("username role -_id");
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching user data"
+    });
+  }
 }
 
 exports.logout = (req, res) => {
-  req.session.destroy(() => {
-    res.status(200).send({
-      success: true,
-    });
+  // Clear the token cookie
+  res.clearCookie('token');
+  
+  res.status(200).send({
+    success: true,
+    message: "Logged out successfully"
   });
 };
 
@@ -106,9 +164,7 @@ exports.getUserList = async (req, res) => {
 // Get all dictation mistake data
 exports.getAllDictationMistakes = async (req, res) => {
   try {
-    const {
-      session: { userId }
-    } = req;
+    const { userId } = req.user;
 
     // Query all DictationMistakes for the current user
     const dictationMistakes = await DictationMistake.find({ userId });
@@ -238,7 +294,6 @@ exports.getDictationMistakesByChapterNo = async (req, res) => {
 // Get dictation mistake by id
 exports.getDictationMistakeById = async (req, res) => {
   try {
-
     const { id } = req.query;
 
     // Check if id is provided
@@ -248,7 +303,6 @@ exports.getDictationMistakeById = async (req, res) => {
         message: "Dictation mistake ID is required"
       });
     }
-
 
     // Find the dictation mistake by id
     const dictationMistake = await DictationMistake.findById(id);
@@ -261,7 +315,7 @@ exports.getDictationMistakeById = async (req, res) => {
       });
     }
 
-    const { session: { userId } } = req;
+    const { userId } = req.user;
 
     // Validate current userId
     if (dictationMistake.userId.toString() !== userId.toString()) {

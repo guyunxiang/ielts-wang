@@ -1,4 +1,3 @@
-
 export const get = async (url: RequestInfo, params: Record<string, any> = {}, options: RequestInit = {}) => {
   try {
     const queryString = Object.keys(params)
@@ -8,7 +7,10 @@ export const get = async (url: RequestInfo, params: Record<string, any> = {}, op
     if (queryString) {
       apiUrl = `${url}?${queryString}`;
     }
-    const res = await fetch(apiUrl, options);
+    const res = await fetch(apiUrl, {
+      credentials: 'include',
+      ...options
+    });
     if (!res.ok) {
       console.error("Network response was not ok");
     }
@@ -26,6 +28,7 @@ export const post = async (url: RequestInfo, data: Object = {}, options: Request
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: 'include',
       ...options,
     });
     if (!res.ok) {
