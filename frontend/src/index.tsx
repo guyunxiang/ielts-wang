@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import "react-toastify/dist/ReactToastify.css";
 import './index.css';
 
@@ -28,34 +29,47 @@ import UserCenterLayout from './components/userCenterLayout';
 import Schedule from './pages/user-center/schedule';
 import BandExpectPage from './pages/user-center/band';
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<App />}></Route>
-          <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
-          <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
-          <Route path="/user-center" element={<Layout><UserCenterLayout><UserCenter /></UserCenterLayout></Layout>}></Route>
-          <Route path="/user-center/schedule" element={<Layout><UserCenterLayout><Schedule /></UserCenterLayout></Layout>}></Route>
-          <Route path="/user-center/band-expect" element={<Layout><UserCenterLayout><BandExpectPage /></UserCenterLayout></Layout>}></Route>
-          <Route path="/training/:id" element={<Layout><VocabularyTraining /></Layout>}></Route>
-          <Route path="/gujiabei-6000words" element={<Layout><GuJiaBeiPage /></Layout>}></Route>
-          <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
-          <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
-          <Route path="/admin/misspelled/dictation/:TestId" element={<Layout><AdminDictationPage /></Layout>}></Route>
-          <Route path="/admin/whitelist" element={<Layout><WhiteListPage /></Layout>}></Route>
-          <Route path="/admin/vocabulary" element={<Layout><VocabularyPage /></Layout>}></Route>
-          <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
-          <Route path="/register" element={<Layout><RegisterPage /></Layout>}></Route>
-        </Routes>
-      </Router>
-      <ToastContainer position="bottom-right" />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<App />}></Route>
+            <Route path="/chapters" element={<Layout><ChaptersPage /></Layout>}></Route>
+            <Route path="/chapters/:ChpaterId/:TestPaperId" element={<Layout><TestPaperPage /></Layout>}></Route>
+            <Route path="/user-center" element={<Layout><UserCenterLayout><UserCenter /></UserCenterLayout></Layout>}></Route>
+            <Route path="/user-center/schedule" element={<Layout><UserCenterLayout><Schedule /></UserCenterLayout></Layout>}></Route>
+            <Route path="/user-center/band-expect" element={<Layout><UserCenterLayout><BandExpectPage /></UserCenterLayout></Layout>}></Route>
+            <Route path="/training/:id" element={<Layout><VocabularyTraining /></Layout>}></Route>
+            <Route path="/gujiabei-6000words" element={<Layout><GuJiaBeiPage /></Layout>}></Route>
+            <Route path="/admin" element={<Layout><AdminPage /></Layout>}></Route>
+            <Route path="/admin/misspelled" element={<Layout><MisspelledPage /></Layout>}></Route>
+            <Route path="/admin/misspelled/dictation/:TestId" element={<Layout><AdminDictationPage /></Layout>}></Route>
+            <Route path="/admin/whitelist" element={<Layout><WhiteListPage /></Layout>}></Route>
+            <Route path="/admin/vocabulary" element={<Layout><VocabularyPage /></Layout>}></Route>
+            <Route path="/login" element={<Layout><LoginPage /></Layout>}></Route>
+            <Route path="/register" element={<Layout><RegisterPage /></Layout>}></Route>
+          </Routes>
+        </Router>
+        <ToastContainer position="bottom-right" />
+      </AuthProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );
 
