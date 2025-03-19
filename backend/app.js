@@ -1,9 +1,8 @@
-const express = require("express");
-const path = require("path");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
 
 const routes = require("./routes");
 
@@ -24,20 +23,9 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
-// session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: DB_URL,
-      collectionName: "sessions",
-      ttl: 14 * 24 * 60 * 60,
-      autoRemove: "native",
-    }),
-  })
-);
+
+// Use cookie parser middleware
+app.use(cookieParser());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

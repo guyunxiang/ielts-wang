@@ -71,12 +71,12 @@ function Layout({ children }: LayoutProps) {
               User Center
             </Link>
           </li>
-          <li className='text-center hover:text-primary'>
+          {/* <li className='text-center hover:text-primary'>
             <Link to="/gujiabei-6000words"
               className={classNames({ "text-primary hover:text-secondary-500": pathname.startsWith("/gujiabei-6000words") })}>
               GuJiaBei 6000 words
             </Link>
-          </li>
+          </li> */}
         </React.Fragment>
       )
     }
@@ -140,7 +140,7 @@ function Layout({ children }: LayoutProps) {
       <main className='flex flex-col flex-1'>{children}</main>
       <footer className='mt-3 py-3 flex justify-center items-center bg-[#ede0c7]'>
         <p className='text-center text-sm'>
-          Powered by Yunxiang Gu 2024
+          Powered by Yunxiang Gu 2025
         </p>
       </footer>
     </div>

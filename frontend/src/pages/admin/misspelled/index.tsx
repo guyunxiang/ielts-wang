@@ -116,7 +116,7 @@ const MisspelledPage = () => {
         Dictation Records
         <div className="text-sm font-normal">
           {/* User List: */}
-          <select name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-transparent outline-none">
+          <select aria-label="Users" name="userList" id="userList" className="ml-3 min-h-10 px-4 bg-transparent outline-none">
             {
               userList.map((item: User) => (
                 <option key={item._id} id={item._id} value={item.username}>{item.username}</option>

@@ -8,9 +8,7 @@ const testController = require("./test");
 // save paper test
 exports.savePaperTest = async (req, res) => {
   try {
-    const {
-      session: { userId },
-    } = req;
+    const { userId } = req.user;
 
     if (!userId) {
       return res.status(401).json({

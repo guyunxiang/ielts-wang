@@ -72,6 +72,7 @@ const TestPaperpage = () => {
     }
     return (
       <select
+        aria-label='Test Paper'
         className="bg-transparent"
         name="testPaper"
         defaultValue={testPaperNo}

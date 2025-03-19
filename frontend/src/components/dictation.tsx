@@ -91,15 +91,15 @@ const Dictation = ({
       // edit current word
       if (wordIndex > -1) {
         newWordRecord[wordIndex] = value;
-      } else {
+      } else if (wordRecord.length < vocabularyCount) {
         // add new word
         newWordRecord.push(value);
         setTimeout(scrollToBottom, 0);
+        setWordRecord(newWordRecord);
+        saveDictation(newWordRecord);
+        setInputValue('');
+        setWordIndex(-1);
       }
-      setWordRecord(newWordRecord);
-      saveDictation(newWordRecord);
-      setInputValue('');
-      setWordIndex(-1);
     }
   }
 
@@ -126,6 +126,7 @@ const Dictation = ({
     const newVocabularyList = [...wordRecord];
     newVocabularyList.splice(wordIndex, 1);
     setWordRecord(newVocabularyList);
+    saveDictation(newVocabularyList);
     setWordIndex(-1);
     setInputValue("");
   }
@@ -235,7 +236,7 @@ const Dictation = ({
         />
         <input
           type="button"
-          value="Update"
+          value={wordRecord.length < vocabularyCount ? "Update" : "Submit"}
           tabIndex={-1}
           className={classNames(
             "bg-primary px-8 text-white rounded",
